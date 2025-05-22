@@ -1,0 +1,31 @@
+@charset "UTF-8";
+
+
+/* serach area */
+
+.serach-area {
+    border: 2px solid blue;
+    display: flex;
+    justify-content: space-between;
+}
+
+.serach-area button {
+    color: var(--color-primary);
+    background-color: var(--color-primary-lighter);
+    padding: 30px;
+}
+
+.search-input {
+    width: calc(100% - 325px);
+}
+
+.search-input input {
+    width: calc(100% - 100px);
+}
+
+.filter-button {
+    width: 305px;
+}
+/* .filter-button {
+
+} */
