@@ -27,3 +27,6 @@
   font-style: normal;
   font-weight: 200;
 }
+.active {
+  border-bottom: 2px solid #000;
+}
