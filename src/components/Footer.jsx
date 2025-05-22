@@ -6,7 +6,7 @@ import logo from "../assets/logo_white.svg";
 export default function Footer() {
   return (
     <footer
-      className="bg-dark text-light py-5 mt-5 border-top"
+      className="bg-dark text-light py-5 border-top"
       style={{ height: "300px", minHeight: "300px" }}
     >
       <Container>
