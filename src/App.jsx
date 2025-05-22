@@ -1,31 +1,32 @@
 import "./App.css";
-import { Routes, Route } from "react-router-dom"; // ✅ 수정된 부분
-import TopNavi from "./template/uiux/TopNavi";
-import NotFoundPage from "./template/uiux/NotFoundPage";
-import Footer from "./template/uiux/Footer";
-import HomePage from "./template/home/HomePage";
-import QuizPage from "./quiz/QuizPage";
-import RankPage from "./rank/RankPage";
-import RealTimeQuizPage from "./realtime/RealTimeQuizPage";
-import LoginPage from "./member/LoginPage";
-import JoinPage from "./member/JoinPage";
-import AdminMembersPage from "./admin/AdminMembersPage";
-import AdminQuizsPage from "./admin/AdminQuizsPage";
+import { Routes, Route } from "react-router-dom";
+import Home from "./main/Home";
+import Quiz from "./service/Quiz";
+import QuizList from "./service/QuizList";
+import Rank from "./service/Rank";
+import RealTimeQuiz from "./realtime/RealTimeQuiz";
+import MemberList from "./admin/MemberList";
+import QuizManage from "./admin/QuizManage";
+import Login from "./member/Login";
+import Join from "./member/Join";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import NotFoundPage from "./components/NotFoundPage";
 
 function App() {
   return (
     <div>
-      <TopNavi />
+      <Header />
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/quiz" element={<QuizPage />} />
-        <Route path="/quiz/:caid" element={<QuizPage />} />
-        <Route path="/rank" element={<RankPage />} />
-        <Route path="/realtimequiz" element={<RealTimeQuizPage />} />
-        <Route path="/adminMembers" element={<AdminMembersPage />} />
-        <Route path="/adminQuizs" element={<AdminQuizsPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/join" element={<JoinPage />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/quiz" element={<Quiz />} />
+        <Route path="/quizlist/:caid" element={<QuizList />} />
+        <Route path="/rank" element={<Rank />} />
+        <Route path="/realtimequiz" element={<RealTimeQuiz />} />
+        <Route path="/adminMembers" element={<MemberList />} />
+        <Route path="/adminQuizs" element={<QuizManage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/join" element={<Join />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />

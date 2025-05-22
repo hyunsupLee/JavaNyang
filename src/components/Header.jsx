@@ -1,13 +1,14 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { PersonFill, BasketFill } from "react-bootstrap-icons";
+import logo from "../assets/logo_black.svg";
 
-export default function TopNavi() {
+export default function Header() {
   return (
-    <Navbar className="bg-primary" data-bs-theme="dark" expand="lg">
+    <Navbar className="bg-light" data-bs-theme="light" expand="lg">
       <Container>
-        <Navbar.Brand as={Link} to="/" className="text-white fw-bold fs-3">
-          JavaNyang
+        <Navbar.Brand as={Link} to="/" className="text-dark fw-bold fs-3">
+          <img src={logo} width={80} alt="logo" />
         </Navbar.Brand>
 
         <Nav className="me-auto">
@@ -36,9 +37,9 @@ export default function TopNavi() {
             <PersonFill size={20} className="me-2" />
             로그인
           </Nav.Link>
-          <Nav.Link as={Link} to="/cart" className="d-flex align-items-center">
+          <Nav.Link as={Link} to="/join" className="d-flex align-items-center">
             <BasketFill size={20} className="me-2" />
-            장바구니
+            회원가입
           </Nav.Link>
         </Nav>
       </Container>
