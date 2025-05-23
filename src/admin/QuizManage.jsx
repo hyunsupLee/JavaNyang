@@ -82,7 +82,6 @@ function QuizManage() {
           </button>
         </div>
       </div>
-
       {/* 리스트 영역 */}
       <div className="admin-list-area">
         <div className="admin-quiz-list">
