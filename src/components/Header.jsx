@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import { PersonFill, BasketFill } from "react-bootstrap-icons";
@@ -8,38 +8,71 @@ export default function Header() {
   const [showQuizSubMenu, setShowQuizSubMenu] = useState(false);
   const location = useLocation();
 
-  // 퀴즈 메뉴 클릭 핸들러
-  const handleQuizClick = (e) => {
-    e.preventDefault(); // 링크 이동 막고
-    setShowQuizSubMenu((prev) => !prev); // 토글
-  };
+  useEffect(() => {
+    console.log("location.pathname : ", location.pathname);
+    if (location.pathname.startsWith("/quiz")) {
+      setShowQuizSubMenu(true);
+    } else {
+      setShowQuizSubMenu(false);
+    }
+    return () => {
+      setShowQuizSubMenu(false);
+    };
+  }, [location.pathname]);
 
   return (
     <>
       {/* 상단 네비게이션 바 */}
       <Navbar className="bg-light" data-bs-theme="light" expand="lg">
         <Container>
-          <Navbar.Brand as={Link} to="/" className="text-dark fw-bold fs-3">
-            <Nav.Link as={Link} to="/">
-              <img src={logo} width={80} alt="logo" />
-            </Nav.Link>
+          <Navbar.Brand as={Link} to="/" className="me-5">
+            <img src={logo} width={80} alt="logo" />
           </Navbar.Brand>
 
           <Nav className="me-auto">
-            <Nav.Link href="#" onClick={handleQuizClick}>
+            <Nav.Link
+              as={Link}
+              to="/quiz"
+              className={`me-4 topmenu-item ${
+                location.pathname.startsWith("/quiz") ? "active" : ""
+              }`}
+            >
               퀴즈
             </Nav.Link>
-
-            <Nav.Link as={Link} to="/rank">
+            <Nav.Link
+              as={Link}
+              to="/rank"
+              className={`me-4 topmenu-item ${
+                location.pathname.startsWith("/rank") ? "active" : ""
+              }`}
+            >
               랭킹
             </Nav.Link>
-            <Nav.Link as={Link} to="/realtimequiz">
+            <Nav.Link
+              as={Link}
+              to="/realtimequiz"
+              className={`me-4 topmenu-item ${
+                location.pathname.startsWith("/realtimequiz") ? "active" : ""
+              }`}
+            >
               실시간대전
             </Nav.Link>
-            <Nav.Link as={Link} to="/adminMembers">
+            <Nav.Link
+              as={Link}
+              to="/adminMembers"
+              className={`me-4 topmenu-item ${
+                location.pathname.startsWith("/adminMembers") ? "active" : ""
+              }`}
+            >
               회원관리
             </Nav.Link>
-            <Nav.Link as={Link} to="/adminQuizs">
+            <Nav.Link
+              as={Link}
+              to="/adminQuizs"
+              className={`topmenu-item ${
+                location.pathname.startsWith("/adminQuizs") ? "active" : ""
+              }`}
+            >
               퀴즈관리
             </Nav.Link>
           </Nav>
@@ -67,33 +100,30 @@ export default function Header() {
 
       {/* 퀴즈 서브 메뉴 */}
       {showQuizSubMenu && (
-        <div style={{ backgroundColor: "#D0B7F3", padding: "10px 0" }}>
+        <div className="header-quiz-submenu-wrapper">
           <Container>
             <Nav className="justify-content-center gap-4">
-              <Nav.Link as={Link} to="/quiz/const">
-                변수·상수
-              </Nav.Link>
-              <Nav.Link as={Link} to="/quiz/operator">
-                연산자
-              </Nav.Link>
-              <Nav.Link as={Link} to="/quiz/array">
-                배열
-              </Nav.Link>
-              <Nav.Link as={Link} to="/quiz/function">
-                function
-              </Nav.Link>
-              <Nav.Link as={Link} to="/quiz/control">
-                제어문
-              </Nav.Link>
-              <Nav.Link as={Link} to="/quiz/class">
-                클래스
-              </Nav.Link>
-              <Nav.Link as={Link} to="/quiz/extends">
-                상속·추상화
-              </Nav.Link>
-              <Nav.Link as={Link} to="/quiz/generic">
-                제네릭·람다식
-              </Nav.Link>
+              {[
+                { label: "변수·상수", path: "/quiz/const" },
+                { label: "연산자", path: "/quiz/operator" },
+                { label: "배열", path: "/quiz/array" },
+                { label: "function", path: "/quiz/function" },
+                { label: "제어문", path: "/quiz/control" },
+                { label: "클래스", path: "/quiz/class" },
+                { label: "상속·추상화", path: "/quiz/extends" },
+                { label: "제네릭·람다식", path: "/quiz/generic" },
+              ].map((item) => (
+                <Nav.Link
+                  as={Link}
+                  to={item.path}
+                  key={item.path}
+                  className={`text-black quiz-submenu-item ${
+                    location.pathname.startsWith(item.path) ? "active" : ""
+                  }`}
+                >
+                  {item.label}
+                </Nav.Link>
+              ))}
             </Nav>
           </Container>
         </div>
