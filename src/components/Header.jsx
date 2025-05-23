@@ -20,9 +20,9 @@ export default function Header() {
       <Navbar className="bg-light" data-bs-theme="light" expand="lg">
         <Container>
           <Navbar.Brand as={Link} to="/" className="text-dark fw-bold fs-3">
-            <Nav.Link as={Link} to="/">
+            {/* <Nav.Link as={Link} to="/"> */}
               <img src={logo} width={80} alt="logo" />
-            </Nav.Link>
+            {/* </Nav.Link> */}
           </Navbar.Brand>
 
           <Nav className="me-auto">
