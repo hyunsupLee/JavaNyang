@@ -6,8 +6,8 @@ import "./Home.css";
 export default function Home() {
   return (
     <Container className="min-vh-100 d-flex flex-column align-items-center justify-content-center py-5 text-center">
+      <h4>자바냥 에서는</h4>
       <h2 className="fw-bold display-5 mb-3">
-        자바냥에서는 <br className="d-md-none" />
         <span className="text-dark">5분마다 인생이 바뀐다</span>
       </h2>
       <p className="text-purple fw-semibold fs-5 mb-4">
