@@ -1,7 +1,7 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Home from "./main/Home";
-import Quiz from "./service/Quiz";
+import QuizPage from "./service/Quiz";
 import QuizList from "./service/QuizList";
 import Rank from "./service/Rank";
 import RealTimeQuiz from "./realtime/RealTimeQuiz";
@@ -19,7 +19,10 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/quiz" element={<Quiz />} />
+
+        <Route path="/quiz" element={<QuizList />} />
+        <Route path="/quiz/:qid" element={<QuizPage />} />
+
         <Route path="/quizlist/:caid" element={<QuizList />} />
         <Route path="/rank" element={<Rank />} />
         <Route path="/realtimequiz" element={<RealTimeQuiz />} />
