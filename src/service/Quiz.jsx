@@ -8,38 +8,69 @@ function HeaderBar({ timeLeft }) {
 
   return (
     <div className="header-bar">
-      <button className="back-button" onClick={() => navigate("/quiz")}>
-        &lt; 문제 목록으로
-      </button>
-      <div className="header-right">
-        <span className="timer">⏰ {String(timeLeft).padStart(2, "0")}초</span>
-        {/* 난이도는 나중에 데이터에 따라 바꿀 수 있어요 */}
-        <span className="difficulty">쉬움</span>
+      {/* 가장 위: 뒤로가기 버튼 */}
+      <div className="top-bar">
+        <button className="back-button" onClick={() => navigate("/quiz")}>
+          &lt; 문제 목록으로
+        </button>
+      </div>
+
+      {/* 문제 타이틀 왼쪽, 타이머 오른쪽 */}
+      <div className="header-row">
+        <div className="question-title-1">문제풀기</div>
+
+        <div className="timer-bar-group">
+          <div className="timer-progress">
+            <div
+              className="timer-fill"
+              style={{ width: `${timeLeft * 3}px` }}
+            ></div>
+          </div>
+          <span className="timer">
+            타이머{" "}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path d="M7 3L17 3V7.2L12 12L7 7.2L7 3Z" fill="black" />
+              <path
+                d="M18 22V16H17.99L18 15.99L14 12L18 8L17.99 7.99H18L18 2H6V7.99H6.01L6 8L10 12L6 15.99L6.01 16H6V22H18ZM8 7.5V4H16V7.5L12 11.5L8 7.5ZM12 12.5L16 16.5V20H8V16.5L12 12.5Z"
+                fill="black"
+              />
+            </svg>
+            {String(timeLeft).padStart(2, "0")}초
+          </span>
+        </div>
       </div>
     </div>
   );
 }
 
-function ProgressBar({ timeLeft, totalTime }) {
-  const percentage = (timeLeft / totalTime) * 100;
-  const isTimeUp = timeLeft === 0;
+function DifficultyBadge({ level }) {
+  const getLevelText = (level) => {
+    switch (level) {
+      case 1:
+        return "초급";
+      case 2:
+        return "중급";
+      case 3:
+        return "고급";
+      default:
+        return "난이도 없음";
+    }
+  };
 
-  return (
-    <div className="progress-bar-container">
-      <div
-        className={`progress-bar-fill ${isTimeUp ? "empty" : ""}`}
-        style={{ width: isTimeUp ? "100%" : `${percentage}%` }}
-      ></div>
-    </div>
-  );
+  return <span className="difficulty">{getLevelText(level)}</span>;
 }
 
-function QuestionSection({ title, question, hint }) {
+function QuestionSection({ title, question }) {
   return (
     <div className="question-section">
       <h2 className="question-title">{title}</h2>
       <p className="question-text">{question}</p>
-      {hint && <p className="hint">힌트: {hint}</p>}
     </div>
   );
 }
@@ -157,7 +188,6 @@ export default function QuizPage() {
   const handleSubmit = () => {
     if (!quiz) return;
     setIsSubmitted(true);
-    // 정답 번호는 1~4일 가능성에 맞춰 -1 해줌
     setIsCorrect(selectedOption === quiz.correct - 1);
   };
 
@@ -168,16 +198,16 @@ export default function QuizPage() {
   return (
     <div className="quiz-container">
       <HeaderBar timeLeft={timeLeft} />
-      <ProgressBar timeLeft={timeLeft} totalTime={quiz.timer || 30} />
-      <QuestionSection
-        title={quiz.quiz_title}
-        question={quiz.quiz_text}
-        hint={quiz.hint}
-      />
+
+      <div className="question-wrapper">
+        <QuestionSection title={quiz.quiz_title} question={quiz.quiz_text} />
+        <DifficultyBadge level={quiz.level} />
+      </div>
+
       <OptionList
         options={options}
         selected={selectedOption}
-        correctIndex={quiz.correct - 1} // 인덱스 맞춤
+        correctIndex={quiz.correct - 1}
         isSubmitted={isSubmitted}
         onSelect={setSelectedOption}
       />

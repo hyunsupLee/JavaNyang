@@ -1,0 +1,94 @@
+.quiz-list-container {
+  padding: 150px 300px;
+  text-align: center;
+}
+
+.quiz-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 60px auto;
+}
+
+.quiz-table th {
+  color: #666;
+  padding: 16px 8px;
+}
+
+.quiz-table td {
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #999;
+  padding: 8px;
+  padding: 16px 8px;
+}
+
+.quiz-table tr:hover {
+  background-color: #f2f2f2;
+  cursor: pointer;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.pagination button,
+.pagination .ellipsis {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eee;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: "Noto Sans KR";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.pagination .active {
+  background: #9663e8;
+}
+
+.pagination .active .btn-num {
+  color: white;
+  font-weight: bold;
+}
+
+.pagination .ellipsis {
+  cursor: default;
+  color: #999;
+}
+
+.btn-num {
+  color: #666; /* 숫자만 강조색 */
+}
+
+.pagination {
+  margin-top: 100px;
+  margin-bottom: -40px;
+}
+.level-buttons {
+  margin: 20px 0;
+}
+
+.level-buttons button {
+  margin: 0 20px;
+  padding: 12px 16px;
+  border: none;
+  background-color: #9663e8;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50px;
+}
+
+.level-buttons button:hover {
+  background-color: #aaa;
+}
+
+h5 {
+  color: #9663e8 !important;
+}
