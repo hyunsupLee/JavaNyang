@@ -1,15 +1,9 @@
 import './Login.css';
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../config/SupabaseClient';
 
 export default function Login() {
-=======
-import { supabase } from './SupabaseClient';
-
-function App() {
->>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [session, setSession] = useState(null);
@@ -52,30 +46,18 @@ function App() {
     }
   };
 
-<<<<<<< HEAD
-=======
-  // 로딩 중일 때
-  if (loading) {
-    return <div>로딩 중...</div>;
-  }
-
->>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
   // 로그인된 상태일 때
   if (session) {
     return (
       <div id='create_user2'>
-        <div style={{ textAlign: 'center', padding: '50px' }}>
-          <h2>환영합니다, {session.user.email}님!</h2>
-          <p>로그인이 완료되었습니다.</p>
+          {session.user.email}님!
           <button onClick={handleLogout} className='submit_btn'>
             로그아웃
           </button>
         </div>
-      </div>
     );
   }
 
-<<<<<<< HEAD
   // GitHub으로 회원가입/로그인 처리
     const handleGitHubSignUp = async () => {
       setMessage('GitHub 로그인 중...');
@@ -98,14 +80,12 @@ function App() {
       }
     };
 
-=======
->>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
   // 로그인 화면
   return (
     <div id='create_user2'>
       <div id='login_left'>
         <p className='sign_up2'>Welcome 자바냥</p>
-        <img></img>
+        <img src="./img_loginCat.png" alt="loginCat" />
       </div>
       <div id='login_right'>
         <div className='email'>
@@ -132,7 +112,6 @@ function App() {
           </button>
           <button className='submit_btn' type='submit'>Sign up</button>
         </div>
-<<<<<<< HEAD
 
       {/* goole 로그인 버튼
       <div className='google2'>
@@ -163,19 +142,3 @@ function App() {
     </div>
   );
 }
-=======
-        <div className='google2'>
-          <img></img>
-          <a href='#'>Use Goolgle account</a>
-        </div>
-        <div className='git2'>
-          <img></img>
-          <a href='#'>Use Git account</a>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default App;
->>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
