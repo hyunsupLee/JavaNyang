@@ -1,7 +1,14 @@
+<<<<<<< HEAD
+//import "./admin.css";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../config/SupabaseClient';
+=======
 import "./admin.css";
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../member/SupabaseClient';
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
 
 function QuizManage() {
   const [quizList, setQuizList] = useState([]);
@@ -20,15 +27,26 @@ function QuizManage() {
   const initializeQuizManage = async () => {
     try {
       setLoading(true);
+<<<<<<< HEAD
+    
+      // 현재 사용자 세션 확인
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+=======
 
       // 현재 사용자 세션 확인
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
       if (sessionError || !session) {
         navigate('../error');
         return;
       }
+<<<<<<< HEAD
+    
+=======
 
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
       // 엣지 함수 호출 - 권한 확인과 퀴즈 데이터 조회를 함께 처리
       const response = await fetch(`${supabase.supabaseUrl}/functions/v1/quiz-manage`, {
         method: 'POST',
@@ -40,9 +58,15 @@ function QuizManage() {
           action: 'get_quiz_list'
         })
       });
+<<<<<<< HEAD
+    
+      const result = await response.json();
+    
+=======
 
       const result = await response.json();
 
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           navigate('../error');
@@ -50,11 +74,19 @@ function QuizManage() {
         }
         throw new Error(result.error || '서버 오류가 발생했습니다.');
       }
+<<<<<<< HEAD
+    
+      // 성공 시 데이터 설정
+      setUserInfo(result.userInfo);
+      setQuizList(result.quizList);
+    
+=======
 
       // 성공 시 데이터 설정
       setUserInfo(result.userInfo);
       setQuizList(result.quizList);
 
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
     } catch (err) {
       console.error('초기화 오류:', err.message);
       setError(err.message);

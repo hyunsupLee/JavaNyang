@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;
@@ -42,6 +44,7 @@ input {
     outline: none;
 }
 
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
 .clear::after {
     content: '';
     display: block;
@@ -64,6 +67,56 @@ input {
     margin-bottom: 25px;
 }
 
+<<<<<<< HEAD
+/* .google2 {
+  max-width: 560px;
+  height: 70px;
+  line-height: 70px;
+  background-color: #f5f5f5;
+  border-radius: 100px;
+  margin-top: 30px;
+}
+
+.google2 button{
+  color: #666;
+  font-size: 24px;
+  font-weight: bold;
+  width: 100%;
+  position: relative;
+}
+.google2 button img{
+  width: 60px;
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  
+} */
+
+.git2 {
+  max-width: 560px;
+  height: 70px;
+  line-height: 70px;
+  background-color: #f5f5f5;
+  border-radius: 100px;
+  margin-top: 30px;
+}
+
+.git2 button{
+  color: #666;
+  font-size: 24px;
+  font-weight: bold;
+  width: 100%;
+  position: relative;
+}
+.git2 button img{
+  width: 60px;
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  
+=======
 .google2 {
     max-width: 560px;
     height: 70px;
@@ -88,6 +141,7 @@ input {
     font-size: 24px;
     font-weight: bold;
     text-decoration: none;
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
 }
 
 .email {
