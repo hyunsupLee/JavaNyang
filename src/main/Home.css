@@ -16,14 +16,17 @@
 
 /* 슬라이더 영역 */
 .slider-wrapper {
-  width: 1541px; /* 고정 너비 */
+  margin: 0; /* 이미지 간의 간격이 필요 없다면 */
+  padding: 0;
+  width: 100%; /* 고정 너비 */
   overflow: hidden;
   position: relative;
-  margin-bottom: 2rem;
 }
 
 /* 슬라이더 트랙 */
 .slider-track {
+  margin: 0; /* 이미지 간의 간격이 필요 없다면 */
+  padding: 0;
   display: flex;
   width: 3082px; /* 1541px * 2 */
   animation: slideLeft 20s linear infinite;
@@ -44,5 +47,21 @@
   }
   100% {
     transform: translateX(-1541px);
+  }
+}
+
+.typewriter {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #9663e8;
+  white-space: pre-wrap;
+  border-right: 2px solid #9663e8;
+  animation: blink 0.7s step-end infinite;
+  min-height: 1.5em;
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
   }
 }
