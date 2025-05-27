@@ -1,0 +1,48 @@
+/* 보라색 텍스트 */
+.text-purple {
+  color: #8b5cf6;
+}
+
+/* 보라색 버튼 */
+.btn-purple {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+}
+
+.btn-purple:hover {
+  background-color: #7c3aed;
+}
+
+/* 슬라이더 영역 */
+.slider-wrapper {
+  width: 1541px; /* 고정 너비 */
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+/* 슬라이더 트랙 */
+.slider-track {
+  display: flex;
+  width: 3082px; /* 1541px * 2 */
+  animation: slideLeft 20s linear infinite;
+}
+
+/* 이미지 스타일 */
+.slide-img {
+  width: 1541px;
+  height: auto;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+/* 슬라이딩 애니메이션 */
+@keyframes slideLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-1541px);
+  }
+}
