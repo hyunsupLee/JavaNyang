@@ -35,7 +35,12 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/quiz" element={<Quiz />} />
-        <Route path="/quizlist/:caid" element={<QuizList />} />
+        <Route path="/quiz/:caid" element={<QuizList />} />
+        
+        
+
+
+
         <Route path="/rank" element={<Rank />} />
         <Route path="/realtimequiz" element={<RealTimeQuiz />} />
         <Route path="/adminMembers" element={<MemberList />} />
