@@ -19,11 +19,9 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-
+        <Route path="/quiz/:categoryPath" element={<QuizList />} />
         <Route path="/quiz" element={<QuizList />} />
-        <Route path="/quiz/:qid" element={<QuizPage />} />
-
-        <Route path="/quizlist/:caid" element={<QuizList />} />
+        <Route path="/quiz/detail/:qid" element={<QuizPage />} />
         <Route path="/rank" element={<Rank />} />
         <Route path="/realtimequiz" element={<RealTimeQuiz />} />
         <Route path="/adminMembers" element={<MemberList />} />

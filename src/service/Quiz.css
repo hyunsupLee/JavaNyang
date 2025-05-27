@@ -64,21 +64,32 @@
   font-weight: bold;
 }
 
-.submit-button-container {
-  margin-top: 50px;
+.submit-button-row {
   display: flex;
+  gap: 12px;
   justify-content: flex-end;
+  margin-top: 20px;
+}
+.submit-button-container {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
 }
 
 .submit-button {
-  border-radius: 20px;
-  background: var(--main-color, #9663e8);
-  color: #fff;
-  padding: 8px 24px;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
+  border-radius: 20px; /* 버튼 모서리를 둥글게 */
+  background: var(
+    --main-color,
+    #9663e8
+  ); /* 보라색 계열, 기본 색상은 --main-color 변수 또는 #9663e8 */
+  color: #fff; /* 흰색 글자 */
 }
+
+.submit-button:hover {
+  background-color: #e0d0f8;
+}
+
 .back-button {
   padding-bottom: 50px;
   padding-left: 0px;
@@ -142,7 +153,7 @@
 .timer-fill {
   height: 100%;
   background-color: #9663e8;
-  transition: width 0.3s ease;
+  transition: 0.2s linear;
 }
 
 /* 문제섹션과 난이도 오른쪽 정렬을 위한 flex 래퍼 */

@@ -1,21 +1,19 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "../member/supabaseClient"; // 본인 경로에 맞게 수정
+import { supabase } from "../member/supabaseClient";
 import "./quiz.css";
 
-function HeaderBar({ timeLeft }) {
+function HeaderBar({ timeLeft, maxTime }) {
   const navigate = useNavigate();
 
   return (
     <div className="header-bar">
-      {/* 가장 위: 뒤로가기 버튼 */}
       <div className="top-bar">
         <button className="back-button" onClick={() => navigate("/quiz")}>
           &lt; 문제 목록으로
         </button>
       </div>
 
-      {/* 문제 타이틀 왼쪽, 타이머 오른쪽 */}
       <div className="header-row">
         <div className="question-title-1">문제풀기</div>
 
@@ -23,7 +21,7 @@ function HeaderBar({ timeLeft }) {
           <div className="timer-progress">
             <div
               className="timer-fill"
-              style={{ width: `${timeLeft * 3}px` }}
+              style={{ width: `${(timeLeft / maxTime) * 100}%` }}
             ></div>
           </div>
           <span className="timer">
@@ -140,11 +138,14 @@ function OptionList({
 
 export default function QuizPage() {
   const { qid } = useParams();
+  const navigate = useNavigate();
+
   const [quiz, setQuiz] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
   const [timeLeft, setTimeLeft] = useState(30);
+  const [sameLevelQuizzes, setSameLevelQuizzes] = useState([]);
 
   useEffect(() => {
     async function fetchQuiz() {
@@ -161,13 +162,23 @@ export default function QuizPage() {
         setQuiz(null);
         return;
       }
+
       setQuiz(data);
       setTimeLeft(data.timer || 30);
+
+      const { data: levelData } = await supabase
+        .from("quiz_list")
+        .select("*")
+        .eq("level", data.level)
+        .order("qid", { ascending: true });
+
+      setSameLevelQuizzes(levelData || []);
     }
 
     fetchQuiz();
   }, [qid]);
 
+  // 타이머 로직
   useEffect(() => {
     if (isSubmitted || timeLeft <= 0) return;
 
@@ -175,7 +186,7 @@ export default function QuizPage() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleSubmit(); // 시간 다 되면 자동 제출
+          handleSubmit();
           return 0;
         }
         return prev - 1;
@@ -183,12 +194,31 @@ export default function QuizPage() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isSubmitted]);
+  }, [isSubmitted, timeLeft]);
+
+  useEffect(() => {
+    setSelectedOption(null);
+    setIsSubmitted(false);
+    setIsCorrect(null);
+  }, [qid]);
 
   const handleSubmit = () => {
     if (!quiz) return;
     setIsSubmitted(true);
     setIsCorrect(selectedOption === quiz.correct - 1);
+  };
+
+  const handleNextQuiz = () => {
+    if (!quiz || sameLevelQuizzes.length === 0) return;
+
+    const currentIndex = sameLevelQuizzes.findIndex((q) => q.qid === quiz.qid);
+    const nextQuiz = sameLevelQuizzes[currentIndex + 1];
+
+    if (nextQuiz) {
+      navigate(`/quiz/${nextQuiz.qid}`);
+    } else {
+      alert("마지막 문제입니다.");
+    }
   };
 
   if (!quiz) return <div>퀴즈를 불러오는 중입니다...</div>;
@@ -197,7 +227,7 @@ export default function QuizPage() {
 
   return (
     <div className="quiz-container">
-      <HeaderBar timeLeft={timeLeft} />
+      <HeaderBar timeLeft={timeLeft} maxTime={quiz.timer || 30} />
 
       <div className="question-wrapper">
         <QuestionSection title={quiz.quiz_title} question={quiz.quiz_text} />
@@ -211,15 +241,48 @@ export default function QuizPage() {
         isSubmitted={isSubmitted}
         onSelect={setSelectedOption}
       />
-      <SubmitButton
-        onClick={handleSubmit}
-        disabled={isSubmitted || selectedOption === null}
-      />
+
+      {!isSubmitted && (
+        <SubmitButton
+          onClick={handleSubmit}
+          disabled={selectedOption === null}
+        />
+      )}
 
       {isSubmitted && (
-        <div className="feedback">
-          {isCorrect ? "✅ 정답입니다!" : "❌ 틀렸습니다."}
-        </div>
+        <>
+          <div className="feedback">
+            {isCorrect ? "✅ 정답입니다!" : "❌ 틀렸습니다."}
+          </div>
+
+          <div
+            className="submit-button-container"
+            style={{ display: "flex", gap: "12px", justifyContent: "center" }}
+          >
+            {isCorrect ? (
+              <button className="submit-button" onClick={handleNextQuiz}>
+                다음 문제 풀기
+              </button>
+            ) : (
+              <>
+                <button
+                  className="submit-button"
+                  onClick={() => {
+                    setSelectedOption(null);
+                    setIsSubmitted(false);
+                    setIsCorrect(null);
+                    setTimeLeft(quiz.timer || 30);
+                  }}
+                >
+                  다시 풀어보기
+                </button>
+                <button className="submit-button" onClick={handleNextQuiz}>
+                  다음 문제 풀기
+                </button>
+              </>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

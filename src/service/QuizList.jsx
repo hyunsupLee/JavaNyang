@@ -1,25 +1,52 @@
-// QuizList.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../member/supabaseClient";
 import "./quizList.css";
 
+// 카테고리 맵: id와 한국어 이름 함께 관리
+const categoryMap = {
+  const: { id: 1, name: "상수" },
+  operator: { id: 2, name: "연산자" },
+  array: { id: 3, name: "배열" },
+  function: { id: 4, name: "함수" },
+  control: { id: 5, name: "제어문" },
+  class: { id: 6, name: "클래스" },
+  extends: { id: 7, name: "상속" },
+  generic: { id: 8, name: "제네릭" },
+};
+
 export default function QuizList() {
+  const { categoryPath } = useParams(); // URL 파라미터
+  const isValidCategory = Object.prototype.hasOwnProperty.call(
+    categoryMap,
+    categoryPath
+  );
+  const categoryId = isValidCategory ? categoryMap[categoryPath].id : null;
+  const categoryKorName = isValidCategory
+    ? categoryMap[categoryPath].name
+    : "전체";
+
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const navigate = useNavigate();
-  const [selectedLevel, setSelectedLevel] = useState(0); // 0이면 전체, 1~3은 각각의 난이도
+  const [selectedLevel, setSelectedLevel] = useState(0); // 0: 전체, 1~3: 난이도
 
   useEffect(() => {
     async function fetchQuizzes() {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from("quiz_list")
         .select("*")
         .order("qid", { ascending: true });
+
+      if (categoryId !== null) {
+        query = query.eq("category", categoryId);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         setError(error.message);
@@ -27,10 +54,12 @@ export default function QuizList() {
       } else {
         setQuizzes(data);
       }
+
       setLoading(false);
     }
+
     fetchQuizzes();
-  }, []);
+  }, [categoryId]);
 
   const filteredQuizzes =
     selectedLevel === 0
@@ -57,9 +86,11 @@ export default function QuizList() {
   return (
     <div className="layout-frame">
       <div className="quiz-list-container">
-        <h5>퀴즈</h5>
-        <h2>변수 상수</h2>
+        <h2>{categoryId ? `${categoryKorName} 문제들` : "전체 퀴즈 리스트"}</h2>
+        <br />
+
         <div className="level-buttons">
+          <button onClick={() => setSelectedLevel(0)}>전체</button>
           <button onClick={() => setSelectedLevel(1)}>초급</button>
           <button onClick={() => setSelectedLevel(2)}>중급</button>
           <button onClick={() => setSelectedLevel(3)}>고급</button>
@@ -78,7 +109,10 @@ export default function QuizList() {
           </thead>
           <tbody>
             {paginatedQuizzes.map((quiz, index) => (
-              <tr key={quiz.qid} onClick={() => navigate(`/quiz/${quiz.qid}`)}>
+              <tr
+                key={quiz.qid}
+                onClick={() => navigate(`/quiz/detail/${quiz.qid}`)}
+              >
                 <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                 <td>{quiz.quiz_title}</td>
                 <td>{quiz.quiz_text}</td>
@@ -95,6 +129,7 @@ export default function QuizList() {
             ))}
           </tbody>
         </table>
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
