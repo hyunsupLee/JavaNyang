@@ -1,18 +1,39 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import quizslide from "./mainSlide.svg";
-import { Container, Button, Row, Col } from "react-bootstrap";
+import { Container, Button } from "react-bootstrap";
 import "./Home.css";
 
 export default function Home() {
+  const message = "You Can Enjoy Unlimited Java quiz";
+  const [displayedText, setDisplayedText] = useState("");
+  const indexRef = useRef(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentIndex = indexRef.current;
+      if (currentIndex < message.length) {
+        setDisplayedText((prev) => {
+          const nextText = prev + message[currentIndex];
+          //console.log("index:", currentIndex, "→", nextText);
+          return nextText;
+        });
+        indexRef.current += 1;
+      } else {
+        clearInterval(interval);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <Container className="min-vh-100 d-flex flex-column align-items-center justify-content-center py-5 text-center">
-      <h4>자바냥 에서는</h4>
-      <h2 className="fw-bold display-5 mb-3">
-        <span className="text-dark">5분마다 인생이 바뀐다</span>
-      </h2>
-      <p className="text-purple fw-semibold fs-5 mb-4">
-        모든 Java 퀴즈를 ∞ 무제한으로
-      </p>
+    <Container
+      fluid
+      className="p-0 m-0 d-flex flex-column align-items-center justify-content-center text-center pt-4 pb-4"
+    >
+      <h4 className="fw-bold">자바냥 에서는</h4>
+      <h2 className="fw-bold display-5 mb-3">5분마다 인생이 바뀐다</h2>
+      <h4 className="typewriter">{displayedText}</h4>
 
       <div className="slider-wrapper">
         <div className="slider-track">
