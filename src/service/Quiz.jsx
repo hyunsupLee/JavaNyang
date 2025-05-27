@@ -136,7 +136,7 @@ function OptionList({
   );
 }
 
-export default function QuizPage() {
+export default function Quiz() {
   const { qid } = useParams();
   const navigate = useNavigate();
 
@@ -146,10 +146,13 @@ export default function QuizPage() {
   const [isCorrect, setIsCorrect] = useState(null);
   const [timeLeft, setTimeLeft] = useState(30);
   const [sameLevelQuizzes, setSameLevelQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchQuiz() {
       if (!qid) return;
+
+      setLoading(true);
 
       const { data, error } = await supabase
         .from("quiz_list")
@@ -160,25 +163,32 @@ export default function QuizPage() {
       if (error) {
         console.error("퀴즈 불러오기 실패:", error.message);
         setQuiz(null);
+        setLoading(false);
         return;
       }
 
       setQuiz(data);
       setTimeLeft(data.timer || 30);
 
-      const { data: levelData } = await supabase
+      const { data: levelData, error: levelError } = await supabase
         .from("quiz_list")
         .select("*")
         .eq("level", data.level)
         .order("qid", { ascending: true });
 
-      setSameLevelQuizzes(levelData || []);
+      if (levelError) {
+        console.error("같은 난이도 문제 불러오기 실패:", levelError.message);
+        setSameLevelQuizzes([]);
+      } else {
+        setSameLevelQuizzes(levelData || []);
+      }
+
+      setLoading(false);
     }
 
     fetchQuiz();
   }, [qid]);
 
-  // 타이머 로직
   useEffect(() => {
     if (isSubmitted || timeLeft <= 0) return;
 
@@ -209,19 +219,64 @@ export default function QuizPage() {
   };
 
   const handleNextQuiz = () => {
-    if (!quiz || sameLevelQuizzes.length === 0) return;
+    if (!quiz || sameLevelQuizzes.length === 0) {
+      console.log("퀴즈 또는 문제 리스트가 없습니다.");
+      return;
+    }
 
-    const currentIndex = sameLevelQuizzes.findIndex((q) => q.qid === quiz.qid);
+    const currentIndex = sameLevelQuizzes.findIndex(
+      (q) => String(q.qid) === String(quiz.qid)
+    );
+    console.log("현재 문제 인덱스:", currentIndex);
+
+    if (currentIndex === -1) {
+      alert("현재 문제를 찾을 수 없습니다.");
+      return;
+    }
+
     const nextQuiz = sameLevelQuizzes[currentIndex + 1];
+    console.log("다음 문제:", nextQuiz);
 
     if (nextQuiz) {
-      navigate(`/quiz/${nextQuiz.qid}`);
+      console.log("네비게이트:", nextQuiz.qid);
+      navigate(`/quiz/detail/${nextQuiz.qid}`);
     } else {
       alert("마지막 문제입니다.");
     }
   };
 
-  if (!quiz) return <div>퀴즈를 불러오는 중입니다...</div>;
+  if (loading) {
+    return (
+      <div
+        className="quiz-container"
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        로딩중...
+      </div>
+    );
+  }
+
+  if (!quiz) {
+    return (
+      <div
+        className="quiz-container"
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "red",
+        }}
+      >
+        문제를 불러올 수 없습니다.
+      </div>
+    );
+  }
 
   const options = [quiz.option1, quiz.option2, quiz.option3, quiz.option4];
 

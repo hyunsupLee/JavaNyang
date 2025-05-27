@@ -79,6 +79,7 @@
 
 .submit-button {
   border-radius: 20px; /* 버튼 모서리를 둥글게 */
+  padding: 10px;
   background: var(
     --main-color,
     #9663e8

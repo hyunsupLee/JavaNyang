@@ -1,7 +1,6 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Home from "./main/Home";
-import QuizPage from "./service/Quiz";
 import QuizList from "./service/QuizList";
 import Rank from "./service/Rank";
 import RealTimeQuiz from "./realtime/RealTimeQuiz";
@@ -19,9 +18,12 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/quiz/:categoryPath" element={<QuizList />} />
+
         <Route path="/quiz" element={<QuizList />} />
-        <Route path="/quiz/detail/:qid" element={<QuizPage />} />
+        <Route path="/quiz/detail/:qid" element={<Quiz />} />
+        <Route path="/quiz/:categoryPath" element={<QuizList />} />
+
+        <Route path="/quizlist/:caid" element={<QuizList />} />
         <Route path="/rank" element={<Rank />} />
         <Route path="/realtimequiz" element={<RealTimeQuiz />} />
         <Route path="/adminMembers" element={<MemberList />} />
