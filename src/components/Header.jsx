@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { Container, Nav, Navbar } from "react-bootstrap";
+<<<<<<< HEAD
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { PersonFill, BasketFill, GearFill } from "react-bootstrap-icons";
 import { supabase } from "../config/SupabaseClient";
+=======
+import { Link, useLocation } from "react-router-dom";
+import { PersonFill, BasketFill } from "react-bootstrap-icons";
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
 import logo from "../assets/logo_black.svg";
 
 export default function Header() {
   const [showQuizSubMenu, setShowQuizSubMenu] = useState(false);
+<<<<<<< HEAD
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
   
@@ -75,11 +81,26 @@ export default function Header() {
   // 경로 변경에 따른 서브메뉴 표시/숨김
   useEffect(() => {
     setShowQuizSubMenu(location.pathname.startsWith("/quiz"));
+=======
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log("location.pathname : ", location.pathname);
+    if (location.pathname.startsWith("/quiz")) {
+      setShowQuizSubMenu(true);
+    } else {
+      setShowQuizSubMenu(false);
+    }
+    return () => {
+      setShowQuizSubMenu(false);
+    };
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
   }, [location.pathname]);
 
   return (
     <>
       {/* 상단 네비게이션 바 */}
+<<<<<<< HEAD
       <Navbar className="bg-light" expand="lg">
         <Container>
           <Navbar.Brand as={Link} to="/" className="text-dark fw-bold fs-3">
@@ -127,6 +148,83 @@ export default function Header() {
         </Container>
       </Navbar>
 
+=======
+      <Navbar className="bg-light" data-bs-theme="light" expand="lg">
+        <Container>
+          <Navbar.Brand as={Link} to="/" className="me-5">
+            <img src={logo} width={80} alt="logo" />
+          </Navbar.Brand>
+
+          <Nav className="me-auto">
+            <Nav.Link
+              as={Link}
+              to="/quiz"
+              className={`me-4 topmenu-item ${
+                location.pathname.startsWith("/quiz") ? "active" : ""
+              }`}
+            >
+              퀴즈
+            </Nav.Link>
+            <Nav.Link
+              as={Link}
+              to="/rank"
+              className={`me-4 topmenu-item ${
+                location.pathname.startsWith("/rank") ? "active" : ""
+              }`}
+            >
+              랭킹
+            </Nav.Link>
+            <Nav.Link
+              as={Link}
+              to="/realtimequiz"
+              className={`me-4 topmenu-item ${
+                location.pathname.startsWith("/realtimequiz") ? "active" : ""
+              }`}
+            >
+              실시간대전
+            </Nav.Link>
+            <Nav.Link
+              as={Link}
+              to="/adminMembers"
+              className={`me-4 topmenu-item ${
+                location.pathname.startsWith("/adminMembers") ? "active" : ""
+              }`}
+            >
+              회원관리
+            </Nav.Link>
+            <Nav.Link
+              as={Link}
+              to="/adminQuizs"
+              className={`topmenu-item ${
+                location.pathname.startsWith("/adminQuizs") ? "active" : ""
+              }`}
+            >
+              퀴즈관리
+            </Nav.Link>
+          </Nav>
+
+          <Nav>
+            <Nav.Link
+              as={Link}
+              to="/login"
+              className="d-flex align-items-center"
+            >
+              <PersonFill size={20} className="me-2" />
+              로그인
+            </Nav.Link>
+            <Nav.Link
+              as={Link}
+              to="/join"
+              className="d-flex align-items-center"
+            >
+              <BasketFill size={20} className="me-2" />
+              회원가입
+            </Nav.Link>
+          </Nav>
+        </Container>
+      </Navbar>
+
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
       {/* 퀴즈 서브 메뉴 */}
       {showQuizSubMenu && (
         <div className="header-quiz-submenu-wrapper">

@@ -1,9 +1,15 @@
 import './Login.css';
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../config/SupabaseClient';
 
 export default function Login() {
+=======
+import { supabase } from './SupabaseClient';
+
+function App() {
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [session, setSession] = useState(null);
@@ -46,6 +52,14 @@ export default function Login() {
     }
   };
 
+<<<<<<< HEAD
+=======
+  // 로딩 중일 때
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
+
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
   // 로그인된 상태일 때
   if (session) {
     return (
@@ -61,6 +75,7 @@ export default function Login() {
     );
   }
 
+<<<<<<< HEAD
   // GitHub으로 회원가입/로그인 처리
     const handleGitHubSignUp = async () => {
       setMessage('GitHub 로그인 중...');
@@ -83,6 +98,8 @@ export default function Login() {
       }
     };
 
+=======
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389
   // 로그인 화면
   return (
     <div id='create_user2'>
@@ -115,6 +132,7 @@ export default function Login() {
           </button>
           <button className='submit_btn' type='submit'>Sign up</button>
         </div>
+<<<<<<< HEAD
 
       {/* goole 로그인 버튼
       <div className='google2'>
@@ -145,3 +163,19 @@ export default function Login() {
     </div>
   );
 }
+=======
+        <div className='google2'>
+          <img></img>
+          <a href='#'>Use Goolgle account</a>
+        </div>
+        <div className='git2'>
+          <img></img>
+          <a href='#'>Use Git account</a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+>>>>>>> 7a1a59719045dd12630a0ed4459eb08717a7a389

@@ -1,0 +1,137 @@
+@charset "UTF-8";
+
+main#admin {
+    max-width: 1280px;
+    margin: 80px auto 0;
+}
+
+main#admin button {
+    line-height: 1;
+    height: 100%;
+}
+
+main#admin input[type="checkbox"],
+main#admin input[type="radio"] {
+    width: inherit;
+    accent-color: #9663E8;
+}
+
+main#admin * {
+    /* border: 1px dotted; */
+}
+
+/* serach area */
+
+.admin-search-area {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.admin-search-area button {
+    color: #9663E8;
+    background-color: #E0D0F8;
+    /* color: var(--color-primary);
+    background-color: var(--color-primary-lighter); */
+    padding: 30px;
+}
+
+.admin-search-area .search-input {
+    border: 1px solid #9663E8;
+    border-radius: 10px;
+    overflow: hidden;
+    width: calc(100% - 325px);
+}
+
+.search-input input {
+    padding: 30px;
+    border: 0;
+    width: calc(100% - 100px);
+    height: 100%;
+    float: left;
+}
+
+.search-input .search-button {
+    float: right;
+
+}
+
+.admin-search-area .filter-button {
+    width: 305px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.filter-button span {
+    position: absolute;
+    top: calc(50% - 12px);
+    left: 70%;
+}
+
+/* admin list area */
+
+/* .admin-header {padding: 0 20px;} */
+
+.admin-header,
+.admin-item {
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    text-align: center;
+}
+
+.admin-list {
+    padding: 0;
+}
+
+.admin-item {
+    margin-bottom: 30px;
+    background-color: #f5f5f5;
+}
+
+.admin-list-area .category {
+    min-width: 110px;
+}
+
+.admin-list-area .level {
+    min-width: 40px;
+}
+
+.admin-list-area .title {
+    width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.admin-list-area .text {
+    width: 280px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.admin-list-area .rate {
+    min-width: 50px;
+}
+
+.admin-list-area .btn-wrap {
+    display: flex;
+    justify-content: space-around;
+    width: 180px;
+}
+
+.admin-list .edit {
+    border-right: 1px solid #666;
+}
+
+.btn-wrap button {
+    padding: 12px 30px;
+}
+
+.btn-wrap .material-symbols-rounded {
+    font-size: 30px;
+}

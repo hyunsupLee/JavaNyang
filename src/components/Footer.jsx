@@ -12,7 +12,7 @@ export default function Footer() {
       <Container>
         <Row>
           <Col md={6} className="mb-3">
-            <img src={logo} className="mb-3" alt="logo" />$
+            <img src={logo} className="mb-3" alt="logo" />
             {/* {{import.meta.env.BASE_URL}/} */}
             <p>
               자바냥은 예비 개발자들이 Java 프로그래밍을 학습하고
