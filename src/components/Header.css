@@ -74,3 +74,16 @@
   height: 4px;
   background-color: black;
 }
+
+.header-bg-admin {
+  background-color: #c0a1f1;
+}
+
+.header-avatar {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border: 3px solid #d8b4fe;
+  padding: 4px;
+  background-color: white;
+}
