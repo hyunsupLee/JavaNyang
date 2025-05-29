@@ -175,7 +175,14 @@ export default function Header() {
           <Nav>
             {user ? (
               <>
-                <Image src={profimg} roundedCircle className="header-avatar" />
+                {profimg ? (
+                  <Image
+                    src={profimg}
+                    roundedCircle
+                    className="header-avatar"
+                  />
+                ) : null}
+
                 <Nav.Link
                   as={Link}
                   to="/myPage"

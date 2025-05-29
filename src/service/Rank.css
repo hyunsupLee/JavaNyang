@@ -33,17 +33,19 @@
   background-color: white;
 }
 
+/* 기본 막대 스타일 */
 .rank-bar {
-  border-radius: 15px;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
+  width: 60px;
+  border-radius: 12px;
   margin: 0 auto;
-  margin-top: 8px;
-  padding-bottom: 8px;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  animation: growBar 1s ease-out forwards;
 }
 
 .bar-1 {
@@ -82,4 +84,11 @@
 
 .highlight-purple {
   border-color: #a855f7;
+}
+
+/* 애니메이션 정의 */
+@keyframes growBar {
+  to {
+    transform: scaleY(1);
+  }
 }

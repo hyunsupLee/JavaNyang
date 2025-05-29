@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Container,
   Row,
@@ -8,35 +8,41 @@ import {
   ListGroup,
   Spinner,
 } from "react-bootstrap";
+
 import "./Rank.css";
+import profimg from "../assets/default-avatar.png";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const bucketPath = `${supabaseUrl}/storage/v1/object/public/profile-image/`;
 
 export default function Rank() {
-  let profimg = "";
+  let barLimitHeight = 300.0;
+  let scoreH = useRef(0);
   const [loading, setLoading] = useState(true);
   const [topRankers, setTopRankers] = useState([]);
   const [lowerRankers, setLowerRankers] = useState([]);
-  const [rankType, setRankType] = useState("daily"); // daily, weekly, monthly
+  const [rankType, setRankType] = useState("daily");
 
   useEffect(() => {
     async function fetchRanking() {
       setLoading(true);
-      //console.log("daily", rankType);
-
       try {
         const response = await fetch(
           `${supabaseUrl}/functions/v1/get-rankings?type=${rankType}`
         );
 
         const data = await response.json();
-        console.log("data", data);
-        console.log("data msg", data.msg);
         const top3Rander = data.top.slice(0, 3).map((item) => {
           item.profimg = bucketPath + item.profimg;
           return item;
         });
+
+        if (top3Rander[0]?.score) {
+          scoreH.current = Math.ceil(
+            barLimitHeight / parseInt(top3Rander[0].score)
+          );
+          console.log("scoreH: ", scoreH, parseInt(top3Rander[0].score));
+        }
 
         setTopRankers(top3Rander);
         setLowerRankers(data.top.slice(3));
@@ -45,6 +51,7 @@ export default function Rank() {
       }
       setLoading(false);
     }
+
     fetchRanking();
   }, [rankType]);
 
@@ -82,8 +89,13 @@ export default function Rank() {
       </div>
 
       {loading ? (
-        <div className="my-5">
-          <Spinner animation="border" variant="primary" role="status" />
+        <div className="my-5" style={{ height: "500px" }}>
+          <Spinner
+            animation="border"
+            variant="primary"
+            role="status"
+            className="my-5"
+          />
           <p className="mt-2">랭킹 데이터를 불러오는 중입니다...</p>
         </div>
       ) : (
@@ -105,7 +117,12 @@ export default function Rank() {
                 />
                 <h5 className="text-secondary">🥈 {topRankers[1].name} 님</h5>
                 <p className="text-muted">{topRankers[1].email}</p>
-                <div className="rank-bar bar-2">{topRankers[1].score}</div>
+                <div
+                  className="rank-bar bar-2"
+                  style={{ height: `${topRankers[1].score * scoreH}px` }}
+                >
+                  {topRankers[1].score}
+                </div>
               </Col>
             )}
 
@@ -120,7 +137,12 @@ export default function Rank() {
                   🥇 {topRankers[0].name} 님
                 </h5>
                 <p className="text-muted">{topRankers[0].email}</p>
-                <div className="rank-bar bar-1">{topRankers[0].score}</div>
+                <div
+                  className="rank-bar bar-1"
+                  style={{ height: `${topRankers[0].score * scoreH}px` }}
+                >
+                  {topRankers[0].score}
+                </div>
               </Col>
             )}
 
@@ -133,7 +155,12 @@ export default function Rank() {
                 />
                 <h5 className="text-secondary">🥉 {topRankers[2].name} 님</h5>
                 <p className="text-muted">{topRankers[2].email}</p>
-                <div className="rank-bar bar-3">{topRankers[2].score}</div>
+                <div
+                  className="rank-bar bar-3"
+                  style={{ height: `${topRankers[2].score * scoreH}px` }}
+                >
+                  {topRankers[2].score}
+                </div>
               </Col>
             )}
           </Row>
