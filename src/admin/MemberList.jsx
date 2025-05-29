@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Person, ChevronUp, ChevronDown } from "react-bootstrap-icons";
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../member/supabaseClient';
+import { supabase } from '../config/SupabaseClient';
 import './admin.css';
 
 const requiredExp = (level) => {
