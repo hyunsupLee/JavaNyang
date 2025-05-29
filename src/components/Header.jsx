@@ -186,7 +186,7 @@ export default function Header() {
                 </Nav.Link>
                 <Nav.Link
                   as={Link}
-                  to="/profile/edit"
+                  to="/myEdit"
                   className="d-flex align-items-center"
                 >
                   <GearFill size={20} className="me-2" />

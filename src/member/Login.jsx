@@ -2,85 +2,99 @@ import './Login.css';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../config/SupabaseClient';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
+  const navigate = useNavigate(); 
+  const { user, session, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false); // 로그인 버튼 로딩 상태만 따로
 
-  // 세션 확인 및 로그인 상태 유지
+  // 세션이 존재하면 홈으로 이동
   useEffect(() => {
-    // 현재 세션 가져오기
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    if (session) {
+      navigate('/');
+    }
+  }, [session, navigate]);
 
-    // 세션 변화 감지
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // 로그인 함수
+  // 이메일/비밀번호 로그인
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    const { data, error } = await supabase.auth.signInWithPassword({
+    setIsSubmitting(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
+    if (error) {
+      alert('로그인 실패: ' + error.message);
+      setIsSubmitting(false);
+    }
+    // 로그인 성공 시 Context가 자동으로 갱신되므로 따로 navigate할 필요 없음
   };
 
-  // 로그아웃 함수
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      alert('로그아웃 실패: ' + error.message);
+  // 구글 로그인
+  const handleGoogleSignUp = async () => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/JavaNyang/login`,
+          queryParams: {
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        alert(`구글 로그인 오류: ${error.message}`);
+        console.error('구글 로그인 오류:', error);
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      alert('구글 로그인 중 오류가 발생했습니다.');
+      console.error('구글 로그인 오류:', error);
+      setIsSubmitting(false);
     }
   };
 
-  // 로그인된 상태일 때
-  if (session) {
+  // GitHub 로그인
+  const handleGitHubSignUp = async () => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/JavaNyang/login`,
+          queryParams: {
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        alert(`GitHub 로그인 오류: ${error.message}`);
+        console.error('GitHub 로그인 오류:', error);
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      alert('GitHub 로그인 중 오류가 발생했습니다.');
+      console.error('GitHub 로그인 오류:', error);
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <div id='create_user2'>
-          {session.user.email}님!
-          <button onClick={handleLogout} className='submit_btn'>
-            로그아웃
-          </button>
-        </div>
+      <div id='create_user2' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <p>로딩 중...</p>
+      </div>
     );
   }
 
-  // GitHub으로 회원가입/로그인 처리
-    const handleGitHubSignUp = async () => {
-      setMessage('GitHub 로그인 중...');
-      
-      try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: 'github',
-          options: {
-            redirectTo: `${window.location.origin}/dashboard`
-          }
-        });
-        
-        if (error) {
-          setMessage(`GitHub 로그인 오류: ${error.message}`);
-          console.error('GitHub 로그인 오류:', error);
-        }
-      } catch (error) {
-        setMessage('GitHub 로그인 중 오류가 발생했습니다.');
-        console.error('GitHub 로그인 오류:', error);
-      }
-    };
-
-  // 로그인 화면
   return (
     <div id='create_user2'>
       <div id='login_left'>
@@ -107,37 +121,46 @@ export default function Login() {
           />
         </div>
         <div className='LS'>
-          <button className='submit_btn' type='submit' onClick={handleLogin}>
-            Login
+          <button 
+            className='submit_btn' 
+            type='submit' 
+            onClick={handleLogin}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? '로그인 중...' : '로그인'}
           </button>
-          <button className='submit_btn' type='submit'>Sign up</button>
+          <button 
+            className='submit_btn' 
+            type='button'
+            onClick={() => navigate('/join')}
+          >
+            회원가입
+          </button>
         </div>
 
-      {/* goole 로그인 버튼
-      <div className='google2'>
-        <button 
-          type='button' 
-          className='google2-btn'
-          onClick={handleGitHubSignUp}
-          disabled={loading}
-        >
-          <img src="./ico_github.png" alt="GitHub" />
-          GitHub로 로그인
-        </button>
-      </div> */}
+        <div className='google2'>
+          <button 
+            type='button' 
+            className='google2-btn'
+            onClick={handleGoogleSignUp}
+            disabled={isSubmitting}
+          >
+            <img src="./ico_google.png" alt="Google" />
+            {isSubmitting ? '로그인 중...' : 'Google로 로그인'}
+          </button>
+        </div>
 
-        {/* GitHub 로그인 버튼 */}
-      <div className='git2'>
-        <button 
-          type='button' 
-          className='git2-btn'
-          onClick={handleGitHubSignUp}
-          disabled={loading}
-        >
-          <img src="./ico_github.png" alt="GitHub" />
-          GitHub로 로그인
-        </button>
-      </div>
+        <div className='git2'>
+          <button 
+            type='button' 
+            className='git2-btn'
+            onClick={handleGitHubSignUp}
+            disabled={isSubmitting}
+          >
+            <img src="./ico_github.png" alt="GitHub" />
+            {isSubmitting ? '로그인 중...' : 'GitHub로 로그인'}
+          </button>
+        </div>
       </div>
     </div>
   );
