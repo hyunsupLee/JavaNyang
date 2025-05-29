@@ -16,8 +16,8 @@ export const getImageUrl = (imagePath) => {
 export const extractRelativePath = (fullUrl) => {
   if (!fullUrl) return null
   
-  if (fullUrl.includes('/storage/v1/object/public/')) {
-    const parts = fullUrl.split('/storage/v1/object/public/')
+  if (fullUrl.includes('/storage/v1/object/public/profile-image/')) {
+    const parts = fullUrl.split('/storage/v1/object/public/profile-image/')
     return parts[1] || fullUrl
   }
   

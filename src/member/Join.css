@@ -129,3 +129,9 @@
   height: 28px; /* 고정 높이 - 에러 메시지 공간 확보 */
   margin-top: 8px;
 }
+
+@media (max-width: 960px) {
+  #create_user{
+    padding: 0 25px;
+  }
+}
