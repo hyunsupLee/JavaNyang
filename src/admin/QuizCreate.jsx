@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/SupabaseClient';
 import QuizForm from './ui/QuizForm';
 import CommonModal from './ui/CommonModal';
 

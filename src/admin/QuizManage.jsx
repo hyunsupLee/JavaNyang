@@ -1,7 +1,7 @@
 import "./admin.css";
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/SupabaseClient';
 import CommonModal from "./ui/CommonModal";
 
 // 상수 정의
