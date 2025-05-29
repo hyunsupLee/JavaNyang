@@ -11,6 +11,9 @@ import RealTimeQuiz from "./realtime/RealTimeQuiz";
 
 import MemberList from "./admin/MemberList";
 import QuizManage from "./admin/QuizManage";
+import QuizCreate from "./admin/QuizCreate";
+import QuizEdit from "./admin/QuizEdit";
+
 
 import Login from "./member/Login";
 import Join from "./member/Join";
@@ -37,14 +40,14 @@ function App() {
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/quiz/:caid" element={<QuizList />} />
         
-        
-
-
-
         <Route path="/rank" element={<Rank />} />
         <Route path="/realtimequiz" element={<RealTimeQuiz />} />
+
         <Route path="/adminMembers" element={<MemberList />} />
         <Route path="/adminQuizs" element={<QuizManage />} />
+        <Route path="/adminQuizs/create" element={<QuizCreate />} />
+        <Route path="/adminQuizs/edit/:qid" element={<QuizEdit />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/join" element={<Join />} />
         <Route path="/myEdit" element={<MyEdit />} />

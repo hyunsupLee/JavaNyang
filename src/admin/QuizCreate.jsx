@@ -1,27 +1,37 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../member/supabaseClient';
-import QuizForm from './QuizForm';
+import { supabase } from '../config/SupabaseClient';
+import QuizForm from './ui/QuizForm';
+import CommonModal from './ui/CommonModal';
+
+const RESET_FORM = {
+  category: '',
+  level: '',
+  quiz_title: '',
+  quiz_text: '',
+  hint: undefined,
+  option1: '',
+  option2: '',
+  option3: '',
+  option4: '',
+  correct: null,
+};
+
+const REQUIRED_FIELDS = [
+  'category', 'level', 'quiz_title', 'quiz_text',
+  'option1', 'option2', 'option3', 'option4', 'correct',
+];
+
+const MODAL_TYPES = {
+  SUBMIT: 'create'
+};
 
 function QuizCreate() {
   const navigate = useNavigate();
-
-  // 입력 폼 초기화
-  const [formData, setFormData] = useState({
-    category: '',
-    level: '',
-    quiz_title: '',
-    quiz_text: '',
-    hint: '',
-    option1: '',
-    option2: '',
-    option3: '',
-    option4: '',
-    correct: null,
-  });
-
+  const [formData, setFormData] = useState(RESET_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
+  const [modalType, setModalType] = useState(null);
 
   // 입력 변경 핸들러 
   const handleInputChange = (e) => {
@@ -32,31 +42,42 @@ function QuizCreate() {
     }));
   };
 
-  // 폼 제출 핸들러
-  const handleSubmit = async (e) => {
+  // 모달 관련 핸들러
+  const openSubmitModal = () => {
+    // 필수 필드 검증
+    for (const field of REQUIRED_FIELDS) {
+      if (!formData[field]) {
+        setSubmitMessage('필수 필드를 모두 입력해주세요.');
+        return;
+      }
+    }
+    setModalType(MODAL_TYPES.SUBMIT);
+  };
+
+  const closeModal = () => {
+    setModalType(null);
+  };
+
+  // 폼 제출 핸들러 (모달에서 확인 후 실행)
+  const handleFormSubmit = (e) => {
     e.preventDefault();
+    openSubmitModal();
+  };
+
+  // 실제 퀴즈 등록 처리
+  const handleConfirmSubmit = async () => {
     setIsSubmitting(true);
     setSubmitMessage('');
+    closeModal();
 
     try {
-      // 데이터 유효성 검사
-      const requiredFields = ['category', 'level', 'quiz_title', 'quiz_text', 'hint', 'option1', 'option2', 'option3', 'option4', 'correct'];
-
-      for (const field of requiredFields) {
-        if (!formData[field]) {
-          throw new Error('필수 필드를 모두 입력해주세요.');
-        }
-      }
-
-      // Supabase에 저장할 데이터 구성
       const quizData = {
         ...formData,
-        category: parseInt(formData.category),
-        level: parseInt(formData.level),
-        correct: parseInt(formData.correct),
+        category: Number(formData.category),
+        level: Number(formData.level),
+        correct: Number(formData.correct),
       };
 
-      // Supabase에 데이터 삽입
       const { error } = await supabase
         .from('quiz_list')
         .insert([quizData])
@@ -66,24 +87,8 @@ function QuizCreate() {
         throw error;
       }
 
-      // 성공 메시지 설정
       setSubmitMessage('퀴즈가 성공적으로 등록되었습니다!');
 
-      // 폼 리셋
-      setFormData({
-        category: '',
-        level: '',
-        quiz_title: '',
-        quiz_text: '',
-        hint: '',
-        option1: '',
-        option2: '',
-        option3: '',
-        option4: '',
-        correct: null,
-      });
-
-      // 일정 시간 후 퀴즈 목록으로 이동 
       setTimeout(() => navigate('/adminQuizs'), 1000);
 
     } catch (error) {
@@ -94,22 +99,38 @@ function QuizCreate() {
     }
   };
 
-
   return (
     <main id='admin'>
-      {/* 제출 메시지 표시 */}
+      {isSubmitting && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+          <p>퀴즈를 등록 중입니다...</p>
+        </div>
+      )}
+      {/* 등록 확인 모달 */}
+      <CommonModal
+        type={modalType}
+        isOpen={modalType !== null}
+        onCancel={closeModal}
+        onConfirm={modalType === MODAL_TYPES.SUBMIT ? handleConfirmSubmit : null}
+      />
+
+      {/* 제출 메시지 */}
       {submitMessage && (
         <div className={`message ${submitMessage.includes('실패') ? 'error' : 'success'}`}>
           {submitMessage}
         </div>
       )}
+
       <Link to='/adminQuizs' className='back-btn'>
-        <span className='material-symbols-rounded'>keyboard_arrow_left</span>퀴즈 목록으로
+        <span className='material-symbols-rounded'>keyboard_arrow_left</span>
+        퀴즈 목록으로
       </Link>
+
       <QuizForm
         formData={formData}
         onChange={handleInputChange}
-        onSubmit={handleSubmit}
+        onSubmit={handleFormSubmit}
         isSubmitting={isSubmitting}
         submitMessage={submitMessage}
       />
