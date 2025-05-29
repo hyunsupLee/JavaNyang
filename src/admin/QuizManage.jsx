@@ -158,7 +158,7 @@ function QuizManage() {
       }
 
       setError(err.message);
-      navigate('../error');
+      navigate("../error");
     } finally {
       setLoading(false);
     }
@@ -517,11 +517,17 @@ function QuizManage() {
                 onChange={(e) => setSearchKeyword(e.target.value)}
               />
             </div>
-            <button type="submit" className="search-btn">검색</button>
+            <button type="submit" className="search-btn">
+              검색
+            </button>
           </div>
 
           <div className="search-filter">
-            <button type="button" className="filter-btn" onClick={toggleFilterPanel}>
+            <button
+              type="button"
+              className="filter-btn"
+              onClick={toggleFilterPanel}
+            >
               검색 조건
               <span className="material-symbols-rounded">
                 {isFilterOpen ? "keyboard_arrow_up" : "keyboard_arrow_down"}
@@ -555,6 +561,10 @@ function QuizManage() {
             </fieldset>
 
             <div className="panel-btn-wrap">
+              {/* <button type="button" className="filter-btn">초기화</button> */}
+              <button type="submit" className="filter-btn">
+                적용
+              </button>
               <button type="submit" className="filter-btn">적용</button>
             </div>
           </div>
