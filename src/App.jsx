@@ -23,17 +23,20 @@ import MyPage from './member/MyPage';
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 
+import { AuthProvider } from './contexts/AuthContext';
+
 import NotFoundPage from "./components/NotFoundPage";
 
 function App() {
   const location = useLocation();
   
   // 푸터를 숨길 페이지들
-  const hideFooterPages = ['/join', '/login'];
+  const hideFooterPages = ['/join', '/login','/myEdit'];
   const shouldHideFooter = hideFooterPages.includes(location.pathname);
 
   return (
     <div>
+      <AuthProvider>
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -56,6 +59,7 @@ function App() {
       </Routes>
       {/* 조건부로 푸터 렌더링 */}
       {!shouldHideFooter && <Footer />}
+      </AuthProvider>
     </div>
   );
 }

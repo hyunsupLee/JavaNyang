@@ -2,6 +2,7 @@ import './Join.css';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../config/SupabaseClient';
+import { Button } from 'react-bootstrap';
 
 function Join() {
   // 페이지 제목 설정
@@ -288,9 +289,13 @@ function Join() {
       {/* 로그인 페이지 이동 링크 */}
       <div className="login-link">
         이미 계정이 있으신가요? 
-        <Link to="/Login">
+        <button 
+            className='login_btn' 
+            type='button'
+            onClick={() => navigate('/login')}
+          >
           로그인하기
-        </Link>
+        </button>
       </div>
       
     </div>

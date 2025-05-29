@@ -1,9 +1,3 @@
-.clear::after {
-    content: '';
-    display: block;
-    clear: both;
-}
-
 #create_user2 {
     max-width: 1224px;
     display: flex;
@@ -20,7 +14,7 @@
     margin-bottom: 25px;
 }
 
-/* .google2 {
+.google2 {
   max-width: 560px;
   height: 70px;
   line-height: 70px;
@@ -37,13 +31,13 @@
   position: relative;
 }
 .google2 button img{
-  width: 60px;
+  width: 50px;
   position: absolute;
-  left: 5px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
   
-} */
+}
 
 .git2 {
   max-width: 560px;
@@ -64,7 +58,7 @@
 .git2 button img{
   width: 60px;
   position: absolute;
-  left: 5px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
   
