@@ -25,7 +25,7 @@ const getExpForCurrentLevel = (totalExp) => {
   const currentLevel = calculateLevelByExperience(totalExp);
   const currentLevelExp = currentLevel > 1 ? requiredExp(currentLevel - 1) : 0;
   const nextLevelExp = requiredExp(currentLevel);
-  
+
   return {
     currentLevel,
     currentExp: totalExp - currentLevelExp,
@@ -36,10 +36,10 @@ const getExpForCurrentLevel = (totalExp) => {
 
 function MyPage() {
   const navigate = useNavigate();
-  
+
   // AuthContext에서 사용자 정보 가져오기
   const { user, session, loading: authLoading } = useAuth();
-  
+
   const [name, setName] = useState('');
   const [image, setImage] = useState('/JavaNyang/default-avatar.png');
   const [userInfo, setUserInfo] = useState({
@@ -50,7 +50,7 @@ function MyPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // 동적 데이터 상태
   const [categoryStats, setCategoryStats] = useState([]);
   const [difficultyStats, setDifficultyStats] = useState([]);
@@ -65,7 +65,7 @@ function MyPage() {
   const calculateUserStats = async (uid) => {
     try {
       console.log('사용자 통계 계산 시작 - User ID:', uid);
-      
+
       // score_board와 quiz_list를 JOIN해서 데이터 가져오기
       const { data, error } = await supabase
         .from('score_board')
@@ -85,9 +85,9 @@ function MyPage() {
 
       if (error) {
         console.error(`통계 로딩 실패 (uid: ${uid}):`, error);
-        return { 
-          totalExperience: 0, 
-          totalProblems: 0, 
+        return {
+          totalExperience: 0,
+          totalProblems: 0,
           accuracy: 0,
           detailedData: []
         };
@@ -110,22 +110,22 @@ function MyPage() {
 
       console.log('계산된 통계:', {
         totalProblems,
-        totalExperience, 
+        totalExperience,
         correctCount,
         accuracy
       });
 
-      return { 
-        totalExperience, 
-        totalProblems, 
+      return {
+        totalExperience,
+        totalProblems,
         accuracy,
         detailedData
       };
     } catch (error) {
       console.error('사용자 통계 계산 오류:', error);
-      return { 
-        totalExperience: 0, 
-        totalProblems: 0, 
+      return {
+        totalExperience: 0,
+        totalProblems: 0,
         accuracy: 0,
         detailedData: []
       };
@@ -188,7 +188,7 @@ function MyPage() {
       const { data, error } = await supabase
         .from('quiz_list')
         .select('qid, category, level');
-      
+
       if (error) {
         console.error('전체 문제 수 조회 오류:', error);
         return { categoryTotals: {}, levelTotals: {} };
@@ -199,7 +199,7 @@ function MyPage() {
       // 카테고리별, 레벨별 문제 개수 계산
       const categoryTotals = {};
       const levelTotals = {};
-      
+
       data.forEach(item => {
         // 카테고리별 집계
         if (item.category) {
@@ -223,7 +223,7 @@ function MyPage() {
   const calculateCategoryStats = (detailedData, categoryTotals) => {
     const categoryNames = {
       1: '변수·상수',
-      2: '연산자', 
+      2: '연산자',
       3: '배열',
       4: 'function',
       5: '제어문',
@@ -234,12 +234,12 @@ function MyPage() {
 
     return Object.keys(categoryNames).map(categoryId => {
       const categoryNum = parseInt(categoryId);
-      
+
       // 해당 카테고리에서 정답인 문제 개수
       const correctCount = detailedData.filter(
         item => item.category === categoryNum && item.correct === true
       ).length;
-      
+
       const totalCount = categoryTotals[categoryNum] || 0;
 
       return {
@@ -262,12 +262,12 @@ function MyPage() {
 
     return Object.keys(levelNames).map(levelId => {
       const levelNum = parseInt(levelId);
-      
+
       // 해당 레벨에서 정답인 문제 개수
       const correctCount = detailedData.filter(
         item => item.level === levelNum && item.correct === true
       ).length;
-      
+
       const totalCount = levelTotals[levelNum] || 0;
       const percentage = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
 
@@ -378,18 +378,18 @@ function MyPage() {
   }, [user, authLoading]);
 
   // 로그아웃 함수
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
-      navigate('/login');
-    } catch (error) {
-      console.error('로그아웃 오류:', error);
-      alert('로그아웃에 실패했습니다.');
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     const { error } = await supabase.auth.signOut();
+  //     if (error) {
+  //       throw error;
+  //     }
+  //     navigate('/login');
+  //   } catch (error) {
+  //     console.error('로그아웃 오류:', error);
+  //     alert('로그아웃에 실패했습니다.');
+  //   }
+  // };
 
   // 이미지 로드 에러 핸들링
   const handleImageError = (e) => {
@@ -474,9 +474,9 @@ function MyPage() {
       {/* 사용자 정보 상단 */}
       <div className='user-top'>
         <div className='user-info'>
-          <img 
-            className='user-img' 
-            src={image} 
+          <img
+            className='user-img'
+            src={image}
             alt='유저이미지'
             onError={handleImageError}
             onLoad={() => console.log('이미지 로드 성공:', image)}
@@ -488,9 +488,9 @@ function MyPage() {
         </div>
         <div className='level-section'>
           <div className='level-bar-container'>
-            <div 
-              className='level-bar-fill' 
-              style={{ width: `${levelProgress}%` }}
+            <div
+              className='level-bar-fill'
+              style={{ width: `${levelProgress} %` }}
             ></div>
             <div className='level-bar-bg'></div>
           </div>
@@ -500,15 +500,12 @@ function MyPage() {
           <button className='profile-edit-btn' onClick={() => navigate('/myEdit')}>
             프로필 수정
           </button>
-          <button className='logout-btn' onClick={handleLogout}>
-            로그아웃
-          </button>
         </div>
       </div>
 
       {/* 통계 중간 영역 */}
       <div className='stats-section'>
-        {/* 카테고리별 학습 현황 */}
+        {/* 카테고리별 학습 현황 - 수정된 버전 */}
         <div className='stats-card'>
           <p className='card-title'>카테고리별 학습 현황</p>
           <div className='category-list'>
@@ -517,10 +514,12 @@ function MyPage() {
                 <div key={index} className='category-item'>
                   <div className='category-info'>
                     <p className='category-name'>{category.name}</p>
-                    <p className='category-score'>{category.current}/{category.total}</p>
                   </div>
-                  <div className='progress-bar-container'>
-                    <div 
+                  <div
+                    className='progress-bar-container'
+                    data-score={`${category.current}/${category.total}`}
+                  >
+                    <div
                       className='progress-bar-fill'
                       style={{ width: `${getProgressPercentage(category.current, category.total)}%` }}
                     ></div>
@@ -534,7 +533,7 @@ function MyPage() {
           </div>
         </div>
 
-        {/* 난이도별 현황 */}
+        {/* 난이도별 현황 - 수정된 버전 */}
         <div className='stats-card'>
           <p className='card-title'>난이도별 현황</p>
           <div className='difficulty-list'>
@@ -543,10 +542,12 @@ function MyPage() {
                 <div key={index} className='difficulty-item'>
                   <div className='difficulty-info'>
                     <p className='difficulty-name'>{difficulty.level}</p>
-                    <p className='difficulty-score'>{difficulty.solved}/{difficulty.total} ({difficulty.percentage}%)</p>
                   </div>
-                  <div className='progress-bar-container'>
-                    <div 
+                  <div
+                    className='progress-bar-container'
+                    data-score={`${difficulty.solved}/${difficulty.total} (${difficulty.percentage}%)`}
+                  >
+                    <div
                       className='progress-bar-fill'
                       style={{ width: `${difficulty.percentage}%` }}
                     ></div>
@@ -558,43 +559,45 @@ function MyPage() {
               <p>학습 데이터가 없습니다.</p>
             )}
           </div>
-          
-          {/* 정답률 원형 그래프 */}
+
+          {/* 정답률 원형 그래프 - 수정된 버전 */}
           <div className='accuracy-section'>
             <p className='accuracy-title'>정답률</p>
-            <div className='accuracy-circle'>
-              <div className='circle-progress'>
-                <svg width="120" height="120" viewBox="0 0 120 120">
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="45"
-                    fill="none"
-                    stroke="#e0e0e0"
-                    strokeWidth="10"
-                  />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="45"
-                    fill="none"
-                    stroke="#8b5cf6"
-                    strokeWidth="10"
-                    strokeDasharray={`${overallStats.accuracy * 2.83} 283`}
-                    strokeDashoffset="0"
-                    transform="rotate(-90 60 60)"
-                  />
-                </svg>
-                <div className='circle-text'>
-                  <span className='percentage'>{overallStats.accuracy}%</span>
+            <div className='accuracy-content'>
+              <div className='accuracy-circle'>
+                <div className='circle-progress'>
+                  <svg width="120" height="120" viewBox="0 0 120 120">
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="45"
+                      fill="none"
+                      stroke="#e0e0e0"
+                      strokeWidth="10"
+                    />
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="45"
+                      fill="none"
+                      stroke="#8b5cf6"
+                      strokeWidth="10"
+                      strokeDasharray={`${overallStats.accuracy * 2.83} 283`}
+                      strokeDashoffset="0"
+                      transform="rotate(-90 60 60)"
+                    />
+                  </svg>
+                  <div className='circle-text'>
+                    <span className='percentage'>{overallStats.accuracy}%</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className='total-stats'>
-              <p className='total-questions'>총 문제: {overallStats.totalProblems}개</p>
-              <div className='stats-breakdown'>
-                <span className='correct-count'>정답: {overallStats.totalCorrect}개</span>
-                <span className='wrong-count'>오답: {overallStats.totalProblems - overallStats.totalCorrect}개</span>
+              <div className='total-stats'>
+                <p className='total-questions'>총 문제: {overallStats.totalProblems}개</p>
+                <div className='stats-breakdown'>
+                  <span className='correct-count'>정답: {overallStats.totalCorrect}개</span>
+                  <span className='wrong-count'>오답: {overallStats.totalProblems - overallStats.totalCorrect}개</span>
+                </div>
               </div>
             </div>
           </div>

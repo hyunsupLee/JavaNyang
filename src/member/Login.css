@@ -6,7 +6,6 @@
     justify-content: space-between;
     margin-top: 190px;
 }
-
 .sign_up2 {
     color: black;
     font-size: 50px;
@@ -120,3 +119,36 @@ input {
     border-radius: 50px;
 }
 
+
+/****** 반응형 ******/
+@media (max-width: 960px) {
+  #create_user2 {
+    flex-direction: column;
+    align-items: center;
+    gap: 50px;
+    margin-top: 100px;
+    padding: 0 25px;
+  }
+
+  #login_left {
+        order: 1; /* 위쪽 배치 */
+        width: 100%;
+    }
+    
+    #login_right {
+        order: 2; /* 아래쪽 배치 */
+        width: 100%;
+        max-width: 560px;
+    }
+    
+    .sign_up2 {
+        font-size: 40px;
+        margin-bottom: 20px;
+    }
+    
+    #login_left img {
+        max-width: 300px;
+        width: 100%;
+        height: auto;
+    }
+}

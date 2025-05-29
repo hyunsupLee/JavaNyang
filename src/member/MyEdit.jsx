@@ -2,12 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import './MyEdit.css';
 import { supabase } from '../config/SupabaseClient';
 import { getImageUrl, extractRelativePath } from '../utils/imageUtils';
+import CommonModal from '../components/CommonModal';
+
+
+const MODAL_TYPES = {
+        SUBMIT: 'check'
+};
 
 export default function MyEdit() {
     useEffect(() => {
         document.title = '자바냥 | 프로필 수정';
     }, []);
-    
+
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [image, setImage] = useState(null);
@@ -16,7 +22,13 @@ export default function MyEdit() {
     const [loading, setLoading] = useState(true);
     const [profileLoaded, setProfileLoaded] = useState(false);
     const fileInputRef = useRef(null);
+
+    const [modalType, setModalType] = useState(null);
     
+    const closeModal = () => {
+        setModalType(null);
+    };
+
     useEffect(() => {
         getCurrentUser();
         loadProfileFromSupabase();
@@ -24,7 +36,7 @@ export default function MyEdit() {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (event, session) => {
                 console.log('세션 변화 감지:', event, session);
-                
+
                 if (event === 'SIGNED_OUT' || !session) {
                     // 프로필 로딩 상태 초기화
                     setUser(null);
@@ -32,7 +44,7 @@ export default function MyEdit() {
                     setPassword('');
                     setImage(null);
                     setProfileLoaded(false);
-                    
+
                     console.log('로그아웃 감지 - 상태 초기화 완료');
                 } else if (event === 'SIGNED_IN' && session) {
                     setUser(session.user);
@@ -41,7 +53,7 @@ export default function MyEdit() {
                 setLoading(false);
             }
         );
-        
+
         return () => {
             subscription.unsubscribe();
         };
@@ -91,12 +103,12 @@ export default function MyEdit() {
         const file = e.target.files[0];
         if (file) {
             // 파일 유효성 검사
-            if(file.size > 5 * 1024 *1024){
+            if (file.size > 5 * 1024 * 1024) {
                 alert('이미지 크기는 5MB 이하로 업로드해주세요')
                 return;
             }
             // 이미지 타입 확인
-            if(!file.type.startsWith('image/')){
+            if (!file.type.startsWith('image/')) {
                 alert('이미지 파일만 업로드 가능합니다.')
                 return;
             }
@@ -123,21 +135,21 @@ export default function MyEdit() {
                     const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
                     // 기존 이미지 삭제(기본 이미지가 아닌 경우)
-                    if(currentData?.profimg &&
+                    if (currentData?.profimg &&
                         currentData.profimg !== '/JavaNyang/default-avatar.png' &&
-                        !currentData.profimg.startsWith('/JavaNyang/')){
-                            console.log('삭제할 이미지: ', currentData.profimg);
+                        !currentData.profimg.startsWith('/JavaNyang/')) {
+                        console.log('삭제할 이미지: ', currentData.profimg);
 
-                            const { error:deleteError } = await supabase.storage
-                                .from('profile-image')
-                                .remove([currentData.profimg]);
+                        const { error: deleteError } = await supabase.storage
+                            .from('profile-image')
+                            .remove([currentData.profimg]);
 
-                            if(deleteError) {
-                                console.log('기존 이미지 삭제 실패: ', deleteError.message);
-                            } else {
-                                console.log('기존 이미지 삭제 성공');
-                            }
+                        if (deleteError) {
+                            console.log('기존 이미지 삭제 실패: ', deleteError.message);
+                        } else {
+                            console.log('기존 이미지 삭제 성공');
                         }
+                    }
 
                     // 새 이미지 업로드
                     const { error: uploadError } = await supabase.storage
@@ -157,7 +169,7 @@ export default function MyEdit() {
 
                         const { error: updateError } = await supabase
                             .from('user_info')
-                            .update({profimg: relativePath }) // 이미지만 올라감
+                            .update({ profimg: relativePath }) // 이미지만 올라감
                             .eq('uid', user.id);
 
                         if (updateError) {
@@ -182,44 +194,45 @@ export default function MyEdit() {
     };
 
     const handleSave = async () => {
-    if (!user) return;
+        if (!user) return;
 
-    try {
-        console.log('현재 사용자 ID:', user.id);
-        
-        // 이름만 업데이트 (이미지는 이미 저장됨)
-        const { error } = await supabase
-            .from('user_info')
-            .update({ name: name })
-            .eq('uid', user.id);
+        try {
+            console.log('현재 사용자 ID:', user.id);
 
-        if (error) {
-            console.log('이름 저장 실패:', error.message);
-            alert('프로필 저장에 실패했습니다.');
-            return; // 실패 시 중단
-        }
+            // 이름만 업데이트 (이미지는 이미 저장됨)
+            const { error } = await supabase
+                .from('user_info')
+                .update({ name: name })
+                .eq('uid', user.id);
 
-        // 비밀번호 변경 (입력된 경우만)
-        if (password && password.trim()) {
-            const { error: passwordError } = await supabase.auth.updateUser({
-                password: password
-            });
-            
-            if (passwordError) {
-                console.log('비밀번호 변경 실패:', passwordError.message);
-                alert('이름은 저장되었지만 비밀번호 변경에 실패했습니다.');
-                return;
+            if (error) {
+                console.log('이름 저장 실패:', error.message);
+                alert('프로필 저장에 실패했습니다.');
+                return; // 실패 시 중단
             }
+
+            // 비밀번호 변경 (입력된 경우만)
+            if (password && password.trim()) {
+                const { error: passwordError } = await supabase.auth.updateUser({
+                    password: password
+                });
+
+                if (passwordError) {
+                    console.log('비밀번호 변경 실패:', passwordError.message);
+                    alert('이름은 저장되었지만 비밀번호 변경에 실패했습니다.');
+                    return;
+                }
+            }
+
+            console.log('모든 정보 저장 성공');
+            // alert('프로필 정보가 저장되었습니다.');
+            setModalType(MODAL_TYPES.SUBMIT);
+
+        } catch (error) {
+            console.log('저장 중 오류:', error.message);
+            alert('저장 중 오류가 발생했습니다.');
         }
-
-        console.log('모든 정보 저장 성공');
-        alert('프로필 정보가 저장되었습니다.');
-
-    } catch (error) {
-        console.log('저장 중 오류:', error.message);
-        alert('저장 중 오류가 발생했습니다.');
-    }
-};
+    };
 
     // 로딩 중일 때 표시
     if (loading) {
@@ -237,7 +250,7 @@ export default function MyEdit() {
                 <p>로그인이 필요합니다.</p>
             </div>
         );
-    } 
+    }
 
     return (
         <div className="edit-container">
@@ -294,6 +307,15 @@ export default function MyEdit() {
             </div>
 
             <button className="save-button" onClick={handleSave}>저장</button>
+            {/* 수정 확인 모달 */}
+            <CommonModal
+                type={modalType}
+                isOpen={modalType !== null}
+                onCancel={closeModal}
+                onConfirm={closeModal}
+                oneButton={true}
+            />
         </div>
     );
+
 }
