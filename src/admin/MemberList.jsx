@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Search, Person, ChevronUp, ChevronDown } from "react-bootstrap-icons";
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/SupabaseClient';
+import LoadingSpinner from '../components/LoadingSpinner';
 import './admin.css';
 
 const requiredExp = (level) => {
@@ -241,13 +242,8 @@ const MemberList = () => {
     startIndex + itemsPerPage
   );
 
-  if (loading) {
-    return (
-      <div className="member-list-container">
-        <div className="loading-spinner">로딩 중...</div>
-      </div>
-    );
-  }
+  
+    if (loading) return <LoadingSpinner/>;
 
   return (
     <div className="member-list-container">
