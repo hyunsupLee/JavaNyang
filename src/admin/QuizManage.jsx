@@ -2,7 +2,8 @@ import "./admin.css";
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '../config/SupabaseClient';
-import CommonModal from "./ui/CommonModal";
+import CommonModal from "../components/CommonModal";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 // 상수 정의
 const CATEGORY_MAP = {
@@ -60,6 +61,18 @@ function QuizManage() {
   const [deleteTargetQid, setDeleteTargetQid] = useState(null);
   const [selectedQuizIds, setSelectedQuizIds] = useState([]);
 
+  // 스크롤탑
+  function scrollToTop(speed = 5000) {
+    const scrollStep = () => {
+      const currentScroll = window.pageYOffset;
+      if (currentScroll > 0) {
+        window.scrollTo(0, currentScroll - speed);
+        requestAnimationFrame(scrollStep);
+      }
+    };
+    requestAnimationFrame(scrollStep);
+  }
+
   // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -97,6 +110,7 @@ function QuizManage() {
     alert(message);
     navigate('/');
   }, [navigate]);
+
 
   // API 호출 함수
   const makeApiRequest = useCallback(async (action, additionalData = {}) => {
@@ -185,7 +199,8 @@ function QuizManage() {
     setModalType(MODAL_TYPES.DELETE);
   }, []);
 
-  const openDeleteCheckedModal = useCallback(() => {
+  const openDeleteCheckedModal = useCallback((e) => {
+
     if (selectedQuizIds.length === 0) {
       alert("삭제할 퀴즈를 선택해주세요.");
       return;
@@ -255,7 +270,7 @@ function QuizManage() {
   }, [selectedQuizIds, makeApiRequest, closeModal]);
 
   // 체크박스 관련 핸들러
-  const handleCheckboxChange = useCallback((qid) => {
+  const handleCheckboxChange = useCallback((qid, e) => {
     setSelectedQuizIds(prev =>
       prev.includes(qid)
         ? prev.filter(id => id !== qid)
@@ -298,6 +313,7 @@ function QuizManage() {
 
   // 수정 페이지로 이동
   const handleEditQuiz = useCallback((qid) => {
+    scrollToTop();
     navigate(`/adminQuizs/edit/${qid}`);
   }, [navigate]);
 
@@ -351,13 +367,17 @@ function QuizManage() {
   };
 
   const QuizItem = ({ quiz }) => (
-    <li key={quiz.qid} id={quiz.qid} className="admin-item">
+    <li className="admin-item">
       <span className="checkbox">
         <input
           type="checkbox"
           name="itemCheckbox"
           checked={selectedQuizIds.includes(quiz.qid)}
-          onChange={() => handleCheckboxChange(quiz.qid)}
+          onChange={(e) => {
+            e.preventDefault();
+            handleCheckboxChange(quiz.qid);
+          }
+          }
         />
       </span>
       <span className="category">{quiz.category_text || '이름 없음'}</span>
@@ -373,7 +393,12 @@ function QuizManage() {
         <button type="button" className="edit" onClick={() => handleEditQuiz(quiz.qid)}>
           <span className="material-symbols-rounded">edit</span>
         </button>
-        <button type="button" className="delete" onClick={() => openDeleteModal(quiz.qid)}>
+        <button type="button" className="delete"
+          onClick={(e) => {
+            e.preventDefault();
+            openDeleteModal(quiz.qid);
+          }
+          }>
           <span className="material-symbols-rounded">delete</span>
         </button>
       </span>
@@ -444,18 +469,14 @@ function QuizManage() {
         >
           <span className="material-symbols-rounded">chevron_right</span>
         </button>
-
-        {/* <div className="pagination-info">
-          {startIndex + 1}-{Math.min(endIndex, quizList.length)} of {quizList.length}
-        </div> */}
       </div>
     );
   };
 
   // 로딩 및 에러 상태 처리
-  if (loading) return <p className="admin-loading">로딩 중...</p>;
+  if (loading) return <LoadingSpinner/>;
   if (error) return <p>오류: {error}</p>;
-
+  
   return (
     <main id="admin">
       {/* 삭제 확인 모달 */}
@@ -475,7 +496,7 @@ function QuizManage() {
       {/* 상단 버튼 영역 */}
       <div className="quiz-toolbar-fixed">
         <div className="tool-wrap">
-          <Link to="/adminQuizs/create" className="quiz-create-btn">
+          <Link to="/adminQuizs/create" className="quiz-create-btn" onClick={scrollToTop}>
             <span className="material-symbols-rounded">add</span>
             퀴즈 등록
           </Link>
@@ -499,7 +520,7 @@ function QuizManage() {
           <span className="material-symbols-rounded fs-3">Assignment</span>
           자바냥 퀴즈 관리
         </h2>
-        <span className="text-muted">총 {quizList.length} 문제</span>
+        <span className="total-count">총 {quizList.length} 문제</span>
       </div>
       {/* 검색 영역 */}
       <div className="admin-search-area">
@@ -562,9 +583,6 @@ function QuizManage() {
 
             <div className="panel-btn-wrap">
               {/* <button type="button" className="filter-btn">초기화</button> */}
-              <button type="submit" className="filter-btn">
-                적용
-              </button>
               <button type="submit" className="filter-btn">적용</button>
             </div>
           </div>
@@ -597,9 +615,10 @@ function QuizManage() {
           <ul className="admin-list">
             {currentQuizList.length > 0
               ? currentQuizList.map((quiz) => (
+
                 <QuizItem key={quiz.qid} quiz={quiz} />
               ))
-              : <li>데이터가 없습니다.</li>
+              : <li className="no-data">데이터가 없습니다.</li>
             }
           </ul>
         </div>

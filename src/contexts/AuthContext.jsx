@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
           setUserInfo(data);
 
           const path = location.pathname.toLowerCase();
-           // 관리자 페이지 접근 제어
+          // 관리자 페이지 접근 제어
           if (path.startsWith('/admin')) {
             if (data.role === 2) {
               const quizPaths = [
@@ -51,16 +51,17 @@ export const AuthProvider = ({ children }) => {
           }
         }
       } else {
-  setUserInfo(null);
-  const path = location.pathname.toLowerCase();
-  const allowedPaths = ['/', '/home', '/login', '/join'];
+        setUserInfo(null);
+        const path = location.pathname.toLowerCase();
+        const allowedPaths = ['/', '/home', '/login', '/join', '/rank', '/quizlist'];
 
-  if (!allowedPaths.includes(path)) {
-    setTimeout(() => {
-      navigate('/home');
-    }, 0);
-  }
-}
+        if (!allowedPaths.includes(path)) {
+          alert('로그인 후 이용할 수 있습니다.');
+          setTimeout(() => {
+            navigate('/login');
+          }, 0);
+        }
+      }
 
       setLoading(false);
     };

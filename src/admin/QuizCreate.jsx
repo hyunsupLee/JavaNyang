@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../config/SupabaseClient';
 import QuizForm from './ui/QuizForm';
-import CommonModal from './ui/CommonModal';
+import CommonModal from '../components/CommonModal';
 
 const RESET_FORM = {
   category: '',
   level: '',
   quiz_title: '',
   quiz_text: '',
-  hint: undefined,
+  desc: undefined,
   option1: '',
   option2: '',
   option3: '',

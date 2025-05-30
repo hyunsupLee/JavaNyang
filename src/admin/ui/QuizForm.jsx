@@ -47,7 +47,7 @@ function QuizForm({ formData, onChange, onSubmit, isSubmitting, submitMessage, i
         {/* 설명 */}
         <div className='form-row'>
           <label htmlFor='quiz-desc'>퀴즈 설명</label>
-          <textarea id='quiz-desc' name='quiz_text' value={formData.quiz_text} onChange={onChange} className='quiz-input' rows='3' placeholder='설명을 입력하세요' required />
+          <textarea id='quiz-desc' name='quiz_text' value={formData.quiz_text} onChange={onChange} className='quiz-input' rows='5' placeholder='설명을 입력하세요' required />
         </div>
 
         {/* 보기 및 정답 */}
@@ -81,8 +81,8 @@ function QuizForm({ formData, onChange, onSubmit, isSubmitting, submitMessage, i
         <div className='form-row'>
           <label htmlFor='quiz-commentary'>퀴즈 해설</label>
           <textarea id='quiz-commentary'
-            name='hint'
-            value={formData.hint}
+            name='desc'
+            value={formData.desc}
             onChange={onChange}
             className='quiz-input'
             rows='3'

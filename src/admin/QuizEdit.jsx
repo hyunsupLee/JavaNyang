@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../config/SupabaseClient';
 import QuizForm from './ui/QuizForm';
-import CommonModal from './ui/CommonModal';
+import CommonModal from '../components/CommonModal';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const RESET_FORM = {
   category: '',
   level: '',
   quiz_title: '',
   quiz_text: '',
-  hint: undefined,
+  desc: undefined,
   option1: '',
   option2: '',
   option3: '',
@@ -60,7 +61,7 @@ function QuizEdit() {
             level: data.level.toString(),
             quiz_title: data.quiz_title,
             quiz_text: data.quiz_text,
-            hint: data.hint || '',
+            desc: data.desc || '',
             option1: data.option1,
             option2: data.option2,
             option3: data.option3,
@@ -153,7 +154,7 @@ function QuizEdit() {
   };
 
   // 로딩 중일 때 표시
-  if (isLoading) return <p className="admin-loading">로딩 중...</p>;
+  if (isLoading) return <LoadingSpinner />;
 
   return (
     <main id='admin'>

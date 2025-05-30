@@ -3,7 +3,7 @@
 /* === 공통 Admin 스타일 === */
 
 main#admin {
-    max-width: 1320px;
+    max-width: 1240px;
     padding: 0 20px;
     margin: 30px auto 60px;
     color: black;
@@ -131,12 +131,16 @@ main#admin .quiz-toolbar-fixed {
     z-index: 1;
 }
 
+
+.quiz-toolbar-fixed .tool-wrap {
+    position: relative;
+}
+
 .quiz-toolbar-fixed a,
 .quiz-toolbar-fixed button {
-    border: 1px solid #999;
     padding: 20px;
     background-color: #fff;
-    border-radius: 100px;
+    border-radius: 10px;
     display: inline-flex;
     align-items: center;
     height: 50px;
@@ -148,7 +152,11 @@ main#admin .quiz-toolbar-fixed {
     background-color: #9663E8;
     border-color: transparent;
     color: #fff;
-    margin: 0 5vw 15px 0;
+    margin: 0 5vw 10px 0;
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    width: max-content;
 }
 
 .quiz-toolbar-fixed .quiz-delete-btn {
@@ -166,15 +174,10 @@ main#admin .quiz-toolbar-fixed {
 .quiz-toolbar-fixed .checked-toolbar {
     width: 100vw;
     background: #ff4848;
-    /* border-top: 1px solid #9663E8; */
-    padding: 15px 5vw;
+    padding: 10px 5vw;
 }
 
 /* === 공통 검색 영역 스타일 === */
-
-.admin-search-area {
-    margin-bottom: 20px;
-}
 
 .admin-search-area form {
     display: flex;
@@ -191,7 +194,7 @@ main#admin .quiz-toolbar-fixed {
 
 .admin-search-area .search-controls {
     display: flex;
-    width: calc(100% - 325px);
+    width: calc(80% - 20px);
     border: 1px solid #9663E8;
     border-radius: 10px;
     overflow: hidden;
@@ -232,13 +235,14 @@ main#admin .quiz-toolbar-fixed {
 /* === 검색 필터 === */
 
 .admin-search-area .search-filter {
+    width: 20%;
     border: none;
     padding: 0;
     border-radius: 0;
 }
 
 .search-filter .filter-btn {
-    width: 305px;
+    width: 100%;
     height: 100%;
     border-radius: 10px;
     position: relative;
@@ -337,11 +341,19 @@ main#admin .quiz-toolbar-fixed {
     padding: 0;
 }
 
+.admin-list .no-data {
+    padding: 40px 0;
+    text-align: center;
+    color: #999;
+}
+
 .admin-item {
     margin-bottom: 30px;
     background-color: #f5f5f5;
 }
-
+.admin-list-area .checkbox {
+    margin-left: 10px;
+}
 .admin-list-area .category {
     min-width: 110px;
 }
@@ -418,6 +430,10 @@ main#admin .quiz-toolbar-fixed {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
+}
+
+.header-top .total-count {
+    color: #999;
 }
 
 .page-title {
@@ -642,7 +658,7 @@ main#admin .quiz-toolbar-fixed {
 /* === 퀴즈 작성/수정 폼 스타일 === */
 
 main#admin .back-btn {
-    display: flex;
+    display: inline-flex;
     color: #999;
     margin-bottom: 40px;
 }
@@ -675,10 +691,24 @@ main#admin .back-btn span {
     width: 120px;
     font-size: 18px;
     font-weight: normal;
+    margin: 2px 0 0;
+    font-weight: 500;
 }
 
-.quiz-form-area .form-row label+*:not(select) {
+.quiz-form-area .form-row label .required {
+    color: #9663E8;
+}
+
+.quiz-form-area .form-row label+* {
     width: 100%;
+}
+
+.quiz-form-area .form-row *:focus-visible {
+    outline: auto;
+    outline-color: #c0a1f1;
+}
+.quiz-form-area .form-row input[type="text"]:read-only:focus-visible {
+    outline-color: #666;
 }
 
 .quiz-form-area .form-row input[type='text'] {
@@ -691,19 +721,39 @@ main#admin .back-btn span {
     cursor: auto;
 }
 
+
 .form-row .quiz-select select {
     background-color: #E0D0F8;
-    padding: 20px 90px;
-    text-align: center;
+    padding: 10px 40px;
     color: #666;
     border-radius: 10px;
     margin-right: 20px;
+    text-align: center;
+    text-align-last: center;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0%20-960%20960%20960' width='24px' fill='%23666'%3E%3Cpath d='M480-357.85%20253.85-584%20296-626.15l184%20184%20184-184L706.15-584%20480-357.85Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+}
+
+.form-row .quiz-select select::-ms-expand {
+    display: none;
+}
+
+.form-row .quiz-select select option {
+    background-color: #fff;
+    text-align: left;
 }
 
 .form-row .quiz-input {
     padding: 20px;
     border: 1px solid #999;
     border-radius: 10px;
+    position: relative;
 }
 
 .form-row .quiz-input.readonly {
@@ -715,17 +765,26 @@ main#admin .back-btn span {
 }
 
 .form-row .options-list li {
+    padding: 0;
     display: flex;
     margin-bottom: 10px;
 }
 
+.form-row .options-list li input[type="text"] {
+    padding: 20px;
+}
+
 main#admin .options-list li input[type="radio"] {
-    scale: 1.5;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    top: calc(50% - 8px);
+    right: 20px;
 }
 
 .quiz-form-area .admin-quiz-btn {
     background-color: #9663E8;
     color: #fff;
-    padding: 20px 30px;
+    padding: 15px 30px;
     border-radius: 10px;
 }
