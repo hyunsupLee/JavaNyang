@@ -10,9 +10,11 @@ import {
 import logo from "../assets/logo_black.svg";
 import { supabase } from "../config/SupabaseClient";
 import "./Header.css";
+import { useAuth } from "../contexts/AuthContext";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const bucketPath = `${supabaseUrl}/storage/v1/object/public/profile-image/`;
+//const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+//const bucketPath = `${supabaseUrl}/storage/v1/object/public/profile-image/`;
+const bucketPath = import.meta.env.VITE_SUPABASE_STORAGE_URL;
 
 export default function Header() {
   const [showQuizSubMenu, setShowQuizSubMenu] = useState(false);
@@ -22,32 +24,63 @@ export default function Header() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  //const context = useContext();
   const role = useRef(0);
 
-  // 사용자 이름 가져오기
-  const loadUserName = async (userId) => {
-    try {
-      const { data, error } = await supabase
-        .from("user_info")
-        .select("name,email,profimg,role")
-        .eq("uid", userId)
-        .single();
+  // use Context session 관리로 인한 주석 처리
+  // // 사용자 이름 가져오기
+  // const loadUserName = async (userId) => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from("user_info")
+  //       .select("name,email,profimg,role")
+  //       .eq("uid", userId)
+  //       .single();
 
-      //console.log(data?.name, data?.email, data?.profimg, data?.role);
-      if (error) {
-        console.error("사용자 정보 로드 실패:", error);
-        return;
-      }
+  //     //console.log(data?.name, data?.email, data?.profimg, data?.role);
+  //     if (error) {
+  //       console.error("사용자 정보 로드 실패:", error);
+  //       return;
+  //     }
 
-      let proimgPath = bucketPath + data.profimg;
-      role.current = data?.role;
-      setProfImg(proimgPath);
-      setUsername(data?.name || user?.email?.split("@")[0] || "사용자");
-    } catch (error) {
-      console.error("사용자 이름 로드 중 오류:", error);
-    }
-  };
+  //     let proimgPath = bucketPath + data.profimg;
+  //     role.current = data?.role;
+  //     setProfImg(proimgPath);
+  //     setUsername(data?.name || user?.email?.split("@")[0] || "사용자");
+  //   } catch (error) {
+  //     console.error("사용자 이름 로드 중 오류:", error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   // 초기 사용자 정보 가져오기
+  //   const getInitialUser = async () => {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser();
+  //     if (user) {
+  //       setUser(user);
+  //       loadUserName(user.id);
+  //     }
+  //   };
+
+  //   getInitialUser();
+
+  //   // 실시간 인증 상태 변경 감지
+  //   const {
+  //     data: { subscription },
+  //   } = supabase.auth.onAuthStateChange((event, session) => {
+  //     if (session) {
+  //       setUser(session.user);
+  //       loadUserName(session.user.id);
+  //     } else {
+  //       role.current = 0;
+  //       setUser(null);
+  //       setUsername("");
+  //     }
+  //   });
+
+  //   return () => subscription.unsubscribe();
+  // }, []);
 
   // 로그아웃 처리
   const handleLogout = async () => {
@@ -63,39 +96,33 @@ export default function Header() {
     }
   };
 
-  useEffect(() => {
-    // 초기 사용자 정보 가져오기
-    const getInitialUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setUser(user);
-        loadUserName(user.id);
-      }
-    };
-
-    getInitialUser();
-
-    // 실시간 인증 상태 변경 감지
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        setUser(session.user);
-        loadUserName(session.user.id);
-      } else {
-        role.current = 0;
-        setUser(null);
-        setUsername("");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  //console.log("Header 렌더링");
+  const auth = useAuth();
 
   // 경로 변경에 따른 서브메뉴 표시/숨김
   useEffect(() => {
+    if (auth.session) {
+      // console.log("token : ", auth.session?.access_token);
+      // console.log("profimg : ", auth.userInfo?.profimg);
+      // console.log("name : ", auth.userInfo?.name);
+      // console.log("email : ", auth.userInfo?.email);
+      // console.log("role : ", auth.userInfo?.role);
+      // console.log("user : ", auth.user.id);
+      let proimgPath = bucketPath + auth.userInfo?.profimg;
+      role.current = auth.userInfo?.role;
+      setUser(auth.user);
+      setProfImg(proimgPath);
+      setUsername(
+        auth.userInfo?.name || auth.userInfo?.email?.split("@")[0] || "사용자"
+      );
+    } else {
+      //console.log("auth is null");
+      role.current = 0;
+      setUser(null);
+      setProfImg("");
+      setUsername("");
+    }
+
     // console.log("location.pathname : ", location.pathname);
     if (location.pathname.startsWith("/quiz")) {
       setShowQuizSubMenu(true);
@@ -105,7 +132,7 @@ export default function Header() {
     return () => {
       setShowQuizSubMenu(false);
     };
-  }, [location.pathname]);
+  }, [location.pathname, auth]);
 
   return (
     <>
