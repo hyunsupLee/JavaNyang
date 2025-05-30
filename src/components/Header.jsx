@@ -1,7 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { Container, Nav, Navbar, Image } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { PersonFill, BasketFill, GearFill } from "react-bootstrap-icons";
+import {
+  PersonFill,
+  BoxArrowRight,
+  People,
+  GearWide,
+} from "react-bootstrap-icons";
 import logo from "../assets/logo_black.svg";
 import { supabase } from "../config/SupabaseClient";
 import "./Header.css";
@@ -179,7 +184,7 @@ export default function Header() {
                   <Image
                     src={profimg}
                     roundedCircle
-                    className="header-avatar"
+                    className="header-avatar mt-1"
                   />
                 ) : null}
 
@@ -188,7 +193,6 @@ export default function Header() {
                   to="/myPage"
                   className="d-flex align-items-center"
                 >
-                  {/* <PersonFill size={20} className="me-2" /> */}
                   {username}님
                 </Nav.Link>
                 <Nav.Link
@@ -196,15 +200,23 @@ export default function Header() {
                   to="/myEdit"
                   className="d-flex align-items-center"
                 >
-                  <GearFill size={20} className="me-2" />
+                  <GearWide size={18} className="me-2" />
                   프로필 수정
                 </Nav.Link>
                 <Nav.Link
                   onClick={handleLogout}
                   className="d-flex align-items-center"
                 >
-                  <BasketFill size={20} className="me-2" />
-                  로그아웃
+                  <div
+                    style={{
+                      border: "1px solid #8f8f8f",
+                      padding: "3px 10px",
+                      borderRadius: "5px",
+                    }}
+                  >
+                    <BoxArrowRight size={20} className="me-2" />
+                    logout
+                  </div>
                 </Nav.Link>
               </>
             ) : (
@@ -215,15 +227,15 @@ export default function Header() {
                   className="d-flex align-items-center"
                 >
                   <PersonFill size={20} className="me-2" />
-                  로그인
+                  login
                 </Nav.Link>
                 <Nav.Link
                   as={Link}
                   to="/join"
                   className="d-flex align-items-center"
                 >
-                  <BasketFill size={20} className="me-2" />
-                  회원가입
+                  <People size={20} className="me-2" />
+                  Join
                 </Nav.Link>
               </>
             )}
