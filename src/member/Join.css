@@ -3,6 +3,7 @@
   margin: 0 auto;
   text-align: center;
   margin-top: 50px;
+  
 }
 .sign_up {
   color: #9663E8;
@@ -62,7 +63,9 @@
 }
 .email input,
 .pw input,
-.pw_check input {
+.pw_check input,
+.pw2
+{
   border: none;
   border-bottom: 2px solid #C0A1F1;
   outline: none;
@@ -87,7 +90,7 @@
 .login-link {
   margin-top: 20px;
 }
-.login-link a {
+.login-link .login_btn {
   color: #9663E8;
   margin-left: 10px;
 }
@@ -125,4 +128,10 @@
 .error-container {
   height: 28px; /* 고정 높이 - 에러 메시지 공간 확보 */
   margin-top: 8px;
+}
+
+@media (max-width: 960px) {
+  #create_user{
+    padding: 0 25px;
+  }
 }
