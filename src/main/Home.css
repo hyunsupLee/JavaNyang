@@ -65,3 +65,24 @@
     border-color: transparent;
   }
 }
+
+.welcome-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #9663E8; /* 기존 보라색 유지 */
+  color: #ffffff;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 6px; /* 둥글기 최소화 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  opacity: 1;
+  transition: opacity 1s ease-out;
+}
+
+.fade-out {
+  opacity: 0;
+}

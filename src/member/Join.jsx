@@ -153,8 +153,10 @@ function Join() {
         setMessage('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
         resetForm(); // 폼 초기화
         console.log('회원가입 성공:', data.user);
-        
-        // 성공 후 자동으로 로그인 페이지로 이동
+
+        // *** 여기에 한 줄만 추가 ***
+        sessionStorage.setItem('welcomeMessage', email);
+
         setTimeout(() => {
           navigate('/login');
         }, 2000);
