@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "../member/supabaseClient";
+import { supabase } from "../config/supabaseClient";
 import "./quiz.css";
 
 function HeaderBar({ timeLeft, maxTime }) {
@@ -13,10 +13,8 @@ function HeaderBar({ timeLeft, maxTime }) {
           &lt; 문제 목록으로
         </button>
       </div>
-
       <div className="header-row">
         <div className="question-title-1">문제풀기</div>
-
         <div className="timer-bar-group">
           <div className="timer-progress">
             <div
@@ -136,7 +134,7 @@ function OptionList({
   );
 }
 
-export default function Quiz() {
+export default function QuizPage() {
   const { qid } = useParams();
   const navigate = useNavigate();
 
@@ -145,14 +143,23 @@ export default function Quiz() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null);
   const [timeLeft, setTimeLeft] = useState(30);
-  const [sameLevelQuizzes, setSameLevelQuizzes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [sameLevelCategoryQuizzes, setSameLevelCategoryQuizzes] = useState([]);
+  const [solvedQids, setSolvedQids] = useState([]);
+  const [uid, setUid] = useState(null);
+
+  useEffect(() => {
+    async function fetchUid() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) setUid(user.id);
+    }
+    fetchUid();
+  }, []);
 
   useEffect(() => {
     async function fetchQuiz() {
       if (!qid) return;
-
-      setLoading(true);
 
       const { data, error } = await supabase
         .from("quiz_list")
@@ -163,31 +170,53 @@ export default function Quiz() {
       if (error) {
         console.error("퀴즈 불러오기 실패:", error.message);
         setQuiz(null);
-        setLoading(false);
         return;
       }
 
       setQuiz(data);
       setTimeLeft(data.timer || 30);
 
-      const { data: levelData, error: levelError } = await supabase
+      const { data: filteredData, error: filteredError } = await supabase
         .from("quiz_list")
         .select("*")
         .eq("level", data.level)
+        .eq("category", data.category)
         .order("qid", { ascending: true });
 
-      if (levelError) {
-        console.error("같은 난이도 문제 불러오기 실패:", levelError.message);
-        setSameLevelQuizzes([]);
+      if (filteredError) {
+        console.error(
+          "레벨+카테고리 문제 불러오기 실패:",
+          filteredError.message
+        );
+        setSameLevelCategoryQuizzes([]);
       } else {
-        setSameLevelQuizzes(levelData || []);
+        setSameLevelCategoryQuizzes(filteredData || []);
       }
-
-      setLoading(false);
     }
 
     fetchQuiz();
   }, [qid]);
+
+  useEffect(() => {
+    if (!uid) return;
+
+    async function fetchSolvedQids() {
+      const { data, error } = await supabase
+        .from("score_board")
+        .select("qid")
+        .eq("uid", uid);
+
+      if (error) {
+        console.error("푼 문제 목록 불러오기 실패:", error.message);
+        setSolvedQids([]);
+        return;
+      }
+
+      setSolvedQids(data.map((item) => item.qid));
+    }
+
+    fetchSolvedQids();
+  }, [uid, qid]);
 
   useEffect(() => {
     if (isSubmitted || timeLeft <= 0) return;
@@ -212,78 +241,108 @@ export default function Quiz() {
     setIsCorrect(null);
   }, [qid]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!quiz) return;
+
+    if (selectedOption === null) {
+      alert("옵션을 선택해주세요.");
+      return;
+    }
+
     setIsSubmitted(true);
-    setIsCorrect(selectedOption === quiz.correct - 1);
+
+    // 정답 여부 판정 (quiz.correct는 1-based index, selectedOption은 0-based index)
+    const correctAnswer = selectedOption === quiz.correct - 1;
+    setIsCorrect(correctAnswer);
+
+    if (!uid) {
+      alert("로그인 후 문제를 풀어주세요.");
+      return;
+    }
+
+    const payload = {
+      qid: Number(quiz.qid), // bigint 숫자 타입
+      uid: uid, // uuid string
+      correct: correctAnswer, // boolean
+      reward: correctAnswer ? Number(quiz.reward ?? 0) : 0, // bigint 숫자
+    };
+
+    console.log("제출할 데이터:", payload);
+
+    try {
+      // 중복 제출 방지 확인
+      const { data: existing, error: existError } = await supabase
+        .from("score_board")
+        .select("sid")
+        .eq("qid", payload.qid)
+        .eq("uid", payload.uid)
+        .limit(1)
+        .maybeSingle();
+
+      if (existError) {
+        console.error("중복 확인 오류:", existError);
+        return;
+      }
+
+      if (existing) {
+        alert("이미 푼 문제입니다!");
+        return;
+      }
+
+      // 결과 저장
+      const { data, error: insertError } = await supabase
+        .from("score_board")
+        .insert([payload]);
+
+      if (insertError) {
+        console.error("결과 저장 중 오류:", insertError);
+        alert("결과 저장 중 오류가 발생했습니다.");
+      } else {
+        console.log("결과 저장 성공!", data);
+      }
+    } catch (err) {
+      console.error("예외 발생:", err);
+      alert("오류가 발생했습니다.");
+    }
   };
 
   const handleNextQuiz = () => {
-    if (!quiz || sameLevelQuizzes.length === 0) {
-      console.log("퀴즈 또는 문제 리스트가 없습니다.");
-      return;
-    }
+    if (!quiz || sameLevelCategoryQuizzes.length === 0) return;
 
-    const currentIndex = sameLevelQuizzes.findIndex(
-      (q) => String(q.qid) === String(quiz.qid)
+    const currentQid = Number(quiz.qid);
+    const sortedQuizzes = [...sameLevelCategoryQuizzes].sort(
+      (a, b) => Number(a.qid) - Number(b.qid)
     );
-    console.log("현재 문제 인덱스:", currentIndex);
 
-    if (currentIndex === -1) {
-      alert("현재 문제를 찾을 수 없습니다.");
+    const nextUnsolved = sortedQuizzes.find(
+      (q) => Number(q.qid) > currentQid && !solvedQids.includes(Number(q.qid))
+    );
+
+    if (nextUnsolved) {
+      navigate(`/quiz/detail/${nextUnsolved.qid}`);
       return;
     }
 
-    const nextQuiz = sameLevelQuizzes[currentIndex + 1];
-    console.log("다음 문제:", nextQuiz);
+    const prevUnsolvedList = sortedQuizzes.filter(
+      (q) => Number(q.qid) < currentQid && !solvedQids.includes(Number(q.qid))
+    );
 
-    if (nextQuiz) {
-      console.log("네비게이트:", nextQuiz.qid);
-      navigate(`/quiz/detail/${nextQuiz.qid}`);
-    } else {
-      alert("마지막 문제입니다.");
+    if (prevUnsolvedList.length > 0) {
+      const lastUnsolved = prevUnsolvedList[prevUnsolvedList.length - 1];
+      navigate(`/quiz/detail/${lastUnsolved.qid}`);
+      return;
     }
+
+    alert("모든 문제를 다 푸셨습니다!");
   };
 
-  if (loading) {
-    return (
-      <div
-        className="quiz-container"
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        로딩중...
-      </div>
-    );
-  }
-
-  if (!quiz) {
-    return (
-      <div
-        className="quiz-container"
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "red",
-        }}
-      >
-        문제를 불러올 수 없습니다.
-      </div>
-    );
-  }
+  if (!quiz) return <div>퀴즈를 불러오는 중입니다...</div>;
 
   const options = [quiz.option1, quiz.option2, quiz.option3, quiz.option4];
 
   return (
     <div className="quiz-container">
       <HeaderBar timeLeft={timeLeft} maxTime={quiz.timer || 30} />
-
       <div className="question-wrapper">
         <QuestionSection title={quiz.quiz_title} question={quiz.quiz_text} />
         <DifficultyBadge level={quiz.level} />
@@ -309,7 +368,6 @@ export default function Quiz() {
           <div className="feedback">
             {isCorrect ? "✅ 정답입니다!" : "❌ 틀렸습니다."}
           </div>
-
           <div
             className="submit-button-container"
             style={{ display: "flex", gap: "12px", justifyContent: "center" }}

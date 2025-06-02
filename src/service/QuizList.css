@@ -1,5 +1,6 @@
 .quiz-list-container {
-  padding: 150px 300px;
+  min-height: 1000px;
+  padding: 100px 300px 150px 300px;
   text-align: center;
 }
 
@@ -12,6 +13,7 @@
 .quiz-table th {
   color: #666;
   padding: 16px 8px;
+  background-color: #eee;
 }
 
 .quiz-table td {
@@ -74,7 +76,7 @@
 
 .level-buttons button {
   margin: 0 20px;
-  padding: 12px 16px;
+  padding: 10px 16px;
   background-color: #fff;
   border: 1px solid #9663e8; /* 선택된 버튼은 흰 테두리 */
   color: #9663e8;
@@ -89,33 +91,6 @@
 
 h5 {
   color: #9663e8 !important;
-}
-.quiz-list-container {
-  padding: 150px 300px;
-  text-align: center;
-}
-
-.quiz-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 60px auto;
-}
-
-.quiz-table th {
-  color: #666;
-  padding: 16px 8px;
-}
-
-.quiz-table td {
-  border-top: 1px solid #999;
-  border-bottom: 1px solid #999;
-  padding: 8px;
-  padding: 16px 8px;
-}
-
-.quiz-table tr:hover {
-  background-color: #f2f2f2;
-  cursor: pointer;
 }
 
 .pagination {
@@ -174,20 +149,32 @@ h2 {
 .search-box {
   margin: 30px 0;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #999;
+  width: 300px;
+  justify-content: flex-start; /* 내부 아이콘 + input 정렬 */
+}
+
+.search-input-wrapper svg {
+  margin-right: 8px;
+  transform: translateY(2px); /* 살짝 아래로 */
+  flex-shrink: 0;
 }
 
 .search-input {
-  padding: 10px 16px;
-  width: 300px;
+  padding: 10px 0;
+  flex: 1;
+  border: none;
   font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #9663e8;
-  box-shadow: 0 0 5px rgba(150, 99, 232, 0.4);
+  border: none;
+  box-shadow: none;
 }
