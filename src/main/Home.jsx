@@ -58,7 +58,7 @@ export default function Home() {
         </div>
       </div>
 
-      <Link to="/quiz">
+      <Link to="/quiz" style={{ paddingBottom: "150px" }}>
         <Button
           className="btn-purple px-4 py-2 mt-4 mb-5"
           size="lg"
