@@ -1,13 +1,20 @@
 import { useEffect, useState, useRef } from "react";
 import { Container, Nav, Navbar, Image } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { PersonFill, BasketFill, GearFill } from "react-bootstrap-icons";
+import {
+  PersonFill,
+  BoxArrowRight,
+  People,
+  GearWide,
+} from "react-bootstrap-icons";
 import logo from "../assets/logo_black.svg";
 import { supabase } from "../config/SupabaseClient";
 import "./Header.css";
+import { useAuth } from "../contexts/AuthContext";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const bucketPath = `${supabaseUrl}/storage/v1/object/public/profile-image/`;
+//const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+//const bucketPath = `${supabaseUrl}/storage/v1/object/public/profile-image/`;
+const bucketPath = import.meta.env.VITE_SUPABASE_STORAGE_URL;
 
 export default function Header() {
   const [showQuizSubMenu, setShowQuizSubMenu] = useState(false);
@@ -17,32 +24,63 @@ export default function Header() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  //const context = useContext();
   const role = useRef(0);
 
-  // 사용자 이름 가져오기
-  const loadUserName = async (userId) => {
-    try {
-      const { data, error } = await supabase
-        .from("user_info")
-        .select("name,email,profimg,role")
-        .eq("uid", userId)
-        .single();
+  // use Context session 관리로 인한 주석 처리
+  // // 사용자 이름 가져오기
+  // const loadUserName = async (userId) => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from("user_info")
+  //       .select("name,email,profimg,role")
+  //       .eq("uid", userId)
+  //       .single();
 
-      //console.log(data?.name, data?.email, data?.profimg, data?.role);
-      if (error) {
-        console.error("사용자 정보 로드 실패:", error);
-        return;
-      }
+  //     //console.log(data?.name, data?.email, data?.profimg, data?.role);
+  //     if (error) {
+  //       console.error("사용자 정보 로드 실패:", error);
+  //       return;
+  //     }
 
-      let proimgPath = bucketPath + data.profimg;
-      role.current = data?.role;
-      setProfImg(proimgPath);
-      setUsername(data?.name || user?.email?.split("@")[0] || "사용자");
-    } catch (error) {
-      console.error("사용자 이름 로드 중 오류:", error);
-    }
-  };
+  //     let proimgPath = bucketPath + data.profimg;
+  //     role.current = data?.role;
+  //     setProfImg(proimgPath);
+  //     setUsername(data?.name || user?.email?.split("@")[0] || "사용자");
+  //   } catch (error) {
+  //     console.error("사용자 이름 로드 중 오류:", error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   // 초기 사용자 정보 가져오기
+  //   const getInitialUser = async () => {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser();
+  //     if (user) {
+  //       setUser(user);
+  //       loadUserName(user.id);
+  //     }
+  //   };
+
+  //   getInitialUser();
+
+  //   // 실시간 인증 상태 변경 감지
+  //   const {
+  //     data: { subscription },
+  //   } = supabase.auth.onAuthStateChange((event, session) => {
+  //     if (session) {
+  //       setUser(session.user);
+  //       loadUserName(session.user.id);
+  //     } else {
+  //       role.current = 0;
+  //       setUser(null);
+  //       setUsername("");
+  //     }
+  //   });
+
+  //   return () => subscription.unsubscribe();
+  // }, []);
 
   // 로그아웃 처리
   const handleLogout = async () => {
@@ -58,39 +96,33 @@ export default function Header() {
     }
   };
 
-  useEffect(() => {
-    // 초기 사용자 정보 가져오기
-    const getInitialUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setUser(user);
-        loadUserName(user.id);
-      }
-    };
-
-    getInitialUser();
-
-    // 실시간 인증 상태 변경 감지
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        setUser(session.user);
-        loadUserName(session.user.id);
-      } else {
-        role.current = 0;
-        setUser(null);
-        setUsername("");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  //console.log("Header 렌더링");
+  const auth = useAuth();
 
   // 경로 변경에 따른 서브메뉴 표시/숨김
   useEffect(() => {
+    if (auth.session) {
+      // console.log("token : ", auth.session?.access_token);
+      // console.log("profimg : ", auth.userInfo?.profimg);
+      // console.log("name : ", auth.userInfo?.name);
+      // console.log("email : ", auth.userInfo?.email);
+      // console.log("role : ", auth.userInfo?.role);
+      // console.log("user : ", auth.user.id);
+      let proimgPath = bucketPath + auth.userInfo?.profimg;
+      role.current = auth.userInfo?.role;
+      setUser(auth.user);
+      setProfImg(proimgPath);
+      setUsername(
+        auth.userInfo?.name || auth.userInfo?.email?.split("@")[0] || "사용자"
+      );
+    } else {
+      //console.log("auth is null");
+      role.current = 0;
+      setUser(null);
+      setProfImg("");
+      setUsername("");
+    }
+
     // console.log("location.pathname : ", location.pathname);
     if (location.pathname.startsWith("/quiz")) {
       setShowQuizSubMenu(true);
@@ -100,7 +132,7 @@ export default function Header() {
     return () => {
       setShowQuizSubMenu(false);
     };
-  }, [location.pathname]);
+  }, [location.pathname, auth]);
 
   return (
     <>
@@ -179,7 +211,7 @@ export default function Header() {
                   <Image
                     src={profimg}
                     roundedCircle
-                    className="header-avatar"
+                    className="header-avatar mt-1"
                   />
                 ) : null}
 
@@ -188,7 +220,6 @@ export default function Header() {
                   to="/myPage"
                   className="d-flex align-items-center"
                 >
-                  {/* <PersonFill size={20} className="me-2" /> */}
                   {username}님
                 </Nav.Link>
                 <Nav.Link
@@ -196,15 +227,23 @@ export default function Header() {
                   to="/myEdit"
                   className="d-flex align-items-center"
                 >
-                  <GearFill size={20} className="me-2" />
+                  <GearWide size={18} className="me-2" />
                   프로필 수정
                 </Nav.Link>
                 <Nav.Link
                   onClick={handleLogout}
                   className="d-flex align-items-center"
                 >
-                  <BasketFill size={20} className="me-2" />
-                  로그아웃
+                  <div
+                    style={{
+                      border: "1px solid #8f8f8f",
+                      padding: "3px 10px",
+                      borderRadius: "5px",
+                    }}
+                  >
+                    <BoxArrowRight size={20} className="me-2" />
+                    logout
+                  </div>
                 </Nav.Link>
               </>
             ) : (
@@ -215,15 +254,15 @@ export default function Header() {
                   className="d-flex align-items-center"
                 >
                   <PersonFill size={20} className="me-2" />
-                  로그인
+                  login
                 </Nav.Link>
                 <Nav.Link
                   as={Link}
                   to="/join"
                   className="d-flex align-items-center"
                 >
-                  <BasketFill size={20} className="me-2" />
-                  회원가입
+                  <People size={20} className="me-2" />
+                  Join
                 </Nav.Link>
               </>
             )}
