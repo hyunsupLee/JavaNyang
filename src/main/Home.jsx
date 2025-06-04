@@ -17,7 +17,7 @@ export default function Home() {
   // 자동 출석 등록
   const [attended, setAttended] = useState(false);
   useEffect(() => {
-    const atcheck = async () => {
+    const attcheck = async () => {
       if (auth.session && !attended) {
         let isAttend = await hasAttendedToday();
         console.log("오늘 출석여부 : ", isAttend);
@@ -25,7 +25,7 @@ export default function Home() {
         if (!isAttend) attendClick();
       }
     };
-    atcheck();
+    attcheck();
   }, []);
 
   const attendClick = async () => {
@@ -72,16 +72,6 @@ export default function Home() {
           {welcomeMessage}
         </div>
       )}
-
-      {/* <button
-        onClick={attendClick}
-        disabled={attended}
-        className={`px-4 py-2 rounded ${
-          attended ? "bg-primary" : "bg-primary hover:bg-green-600"
-        } text-white`}
-      >
-        {attended ? "오늘 출석 완료" : "출석하기"}
-      </button> */}
 
       <h4 className="fw-bold mt-5">자바냥 에서는</h4>
       <h2 className="fw-bold display-5 mb-3">5분마다 인생이 바뀐다</h2>
