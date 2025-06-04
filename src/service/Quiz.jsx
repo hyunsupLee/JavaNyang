@@ -1,15 +1,35 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "../config/supabaseClient";
+import { supabase } from "../config/SupabaseClient";
 import "./quiz.css";
 
-function HeaderBar({ timeLeft, maxTime }) {
+const categoryMapReverse = {
+  1: "const",
+  2: "operator",
+  3: "array",
+  4: "function",
+  5: "control",
+  6: "class",
+  7: "extends",
+  8: "generic",
+};
+
+function HeaderBar({ timeLeft, maxTime, category }) {
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    const categoryPath = categoryMapReverse[category];
+    if (categoryPath) {
+      navigate(`/quizlist/${categoryPath}`);
+    } else {
+      navigate(`/quizlist`);
+    }
+  };
 
   return (
     <div className="header-bar">
       <div className="top-bar">
-        <button className="back-button" onClick={() => navigate("/quiz")}>
+        <button className="back-button" onClick={handleBack}>
           &lt; 문제 목록으로
         </button>
       </div>
@@ -159,12 +179,22 @@ export default function QuizPage() {
 
   useEffect(() => {
     async function fetchQuiz() {
-      if (!qid) return;
+      if (!qid) {
+        setQuiz(null);
+        return;
+      }
+
+      const numericQid = Number(qid);
+      if (isNaN(numericQid)) {
+        console.error("유효하지 않은 qid:", qid);
+        setQuiz(null);
+        return;
+      }
 
       const { data, error } = await supabase
         .from("quiz_list")
         .select("*")
-        .eq("qid", Number(qid))
+        .eq("qid", numericQid)
         .single();
 
       if (error) {
@@ -261,10 +291,10 @@ export default function QuizPage() {
     }
 
     const payload = {
-      qid: Number(quiz.qid), // bigint 숫자 타입
-      uid: uid, // uuid string
-      correct: correctAnswer, // boolean
-      reward: correctAnswer ? Number(quiz.reward ?? 0) : 0, // bigint 숫자
+      qid: Number(quiz.qid),
+      uid: uid,
+      correct: correctAnswer,
+      reward: correctAnswer ? Number(quiz.reward ?? 0) : 0,
     };
 
     console.log("제출할 데이터:", payload);
@@ -281,11 +311,6 @@ export default function QuizPage() {
 
       if (existError) {
         console.error("중복 확인 오류:", existError);
-        return;
-      }
-
-      if (existing) {
-        alert("이미 푼 문제입니다!");
         return;
       }
 
@@ -310,39 +335,53 @@ export default function QuizPage() {
     if (!quiz || sameLevelCategoryQuizzes.length === 0) return;
 
     const currentQid = Number(quiz.qid);
-    const sortedQuizzes = [...sameLevelCategoryQuizzes].sort(
-      (a, b) => Number(a.qid) - Number(b.qid)
-    );
 
-    const nextUnsolved = sortedQuizzes.find(
-      (q) => Number(q.qid) > currentQid && !solvedQids.includes(Number(q.qid))
-    );
+    const unsolvedQuizzes = sameLevelCategoryQuizzes
+      .filter((q) => !solvedQids.includes(Number(q.qid)))
+      .map((q) => Number(q.qid))
+      .sort((a, b) => a - b);
 
-    if (nextUnsolved) {
-      navigate(`/quiz/detail/${nextUnsolved.qid}`);
+    const nextQid = unsolvedQuizzes.find((qid) => qid > currentQid);
+    if (nextQid !== undefined) {
+      navigate(`/quiz/${nextQid}`);
       return;
     }
 
-    const prevUnsolvedList = sortedQuizzes.filter(
-      (q) => Number(q.qid) < currentQid && !solvedQids.includes(Number(q.qid))
-    );
-
-    if (prevUnsolvedList.length > 0) {
-      const lastUnsolved = prevUnsolvedList[prevUnsolvedList.length - 1];
-      navigate(`/quiz/detail/${lastUnsolved.qid}`);
+    const prevQid = [...unsolvedQuizzes]
+      .reverse()
+      .find((qid) => qid < currentQid);
+    if (prevQid !== undefined) {
+      navigate(`/quiz/${prevQid}`);
       return;
     }
 
     alert("모든 문제를 다 푸셨습니다!");
   };
 
-  if (!quiz) return <div>퀴즈를 불러오는 중입니다...</div>;
+  if (!quiz)
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        로딩중...
+      </div>
+    );
 
   const options = [quiz.option1, quiz.option2, quiz.option3, quiz.option4];
 
   return (
     <div className="quiz-container">
-      <HeaderBar timeLeft={timeLeft} maxTime={quiz.timer || 30} />
+      <HeaderBar
+        timeLeft={timeLeft}
+        maxTime={quiz.timer || 30}
+        category={quiz.category}
+      />
+
       <div className="question-wrapper">
         <QuestionSection title={quiz.quiz_title} question={quiz.quiz_text} />
         <DifficultyBadge level={quiz.level} />
@@ -366,8 +405,14 @@ export default function QuizPage() {
       {isSubmitted && (
         <>
           <div className="feedback">
-            {isCorrect ? "✅ 정답입니다!" : "❌ 틀렸습니다."}
+            {isCorrect ? "정답입니다!" : "틀렸습니다."}
           </div>
+
+          <div className="explanation-section">
+            <div> </div>
+            <p>{quiz.desc || "해설이 없습니다."}</p>
+          </div>
+
           <div
             className="submit-button-container"
             style={{ display: "flex", gap: "12px", justifyContent: "center" }}

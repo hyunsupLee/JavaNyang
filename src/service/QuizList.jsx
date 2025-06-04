@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "../config/supabaseClient";
+import { supabase } from "../config/SupabaseClient";
 import "./quizList.css";
+import { Ellipsis } from "react-bootstrap/esm/PageItem";
 
-// 카테고리 맵: id와 한국어 이름 함께 관리
 const categoryMap = {
   const: { id: 1, name: "상수" },
   operator: { id: 2, name: "연산자" },
@@ -16,7 +16,7 @@ const categoryMap = {
 };
 
 export default function QuizList() {
-  const { categoryPath } = useParams(); // URL 파라미터
+  const { categoryPath } = useParams();
   const isValidCategory = Object.prototype.hasOwnProperty.call(
     categoryMap,
     categoryPath
@@ -32,34 +32,113 @@ export default function QuizList() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const navigate = useNavigate();
-  const [selectedLevel, setSelectedLevel] = useState(0); // 0: 전체, 1~3: 난이도
+  const [selectedLevel, setSelectedLevel] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [solvedQuizIds, setSolvedQuizIds] = useState([]); // 푼 문제 ID 목록
 
+  const [sortBy, setSortBy] = useState("번호순");
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+
+  // 로그인한 유저의 푼 문제 목록 가져오기
   useEffect(() => {
-    async function fetchQuizzes() {
-      setLoading(true);
-      let query = supabase
-        .from("quiz_list")
-        .select("*")
-        .order("qid", { ascending: true });
+    async function fetchSolvedQuizIds() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      if (categoryId !== null) {
-        query = query.eq("category", categoryId);
+      if (!user) {
+        setSolvedQuizIds([]);
+        return;
       }
 
-      const { data, error } = await query;
+      const { data, error } = await supabase
+        .from("score_board")
+        .select("qid")
+        .eq("uid", user.id);
 
       if (error) {
-        setError(error.message);
-        setQuizzes([]);
+        console.error("score_board 조회 에러:", error.message);
+        setSolvedQuizIds([]);
       } else {
-        setQuizzes(data);
+        setSolvedQuizIds(data.map((item) => item.qid));
+      }
+    }
+    fetchSolvedQuizIds();
+  }, []);
+
+  // 퀴즈 및 제출/맞힌 사람 수 가져오기
+  useEffect(() => {
+    async function fetchQuizzesWithStats() {
+      setLoading(true);
+      setError(null);
+      setCurrentPage(1);
+
+      // quiz_list 기본 데이터 쿼리
+      let quizQuery = supabase.from("quiz_list").select("*");
+      if (categoryId !== null) {
+        quizQuery = quizQuery.eq("category", categoryId);
+      }
+      quizQuery = quizQuery.order("qid", { ascending: true });
+
+      const { data: quizData, error: quizError } = await quizQuery;
+
+      if (quizError) {
+        setError(quizError.message);
+        setQuizzes([]);
+        setLoading(false);
+        return;
       }
 
+      if (!quizData || quizData.length === 0) {
+        setQuizzes([]);
+        setLoading(false);
+        return;
+      }
+
+      // score_board에서 퀴즈별 제출, 맞힌 사람 수 집계
+      // qid별로 제출 수, 맞힌 수 계산 (correct=true인 수)
+      let scoreQuery = supabase
+        .from("score_board")
+        .select("qid, correct", { count: "exact" });
+
+      if (categoryId !== null) {
+        // 카테고리 필터가 있으면, 해당 퀴즈 qid 목록에 한정
+        // 퀴즈 ID 배열 뽑기
+        const quizIds = quizData.map((quiz) => quiz.qid);
+        scoreQuery = scoreQuery.in("qid", quizIds);
+      }
+
+      const { data: scoreData, error: scoreError } = await scoreQuery;
+
+      if (scoreError) {
+        console.error("score_board 집계 오류:", scoreError.message);
+      }
+
+      const submitCountMap = {}; // qid -> 제출횟수
+      const correctCountMap = {}; // qid -> 맞힌 사람 수
+
+      if (scoreData) {
+        scoreData.forEach(({ qid, correct }) => {
+          if (!submitCountMap[qid]) submitCountMap[qid] = 0;
+          if (!correctCountMap[qid]) correctCountMap[qid] = 0;
+
+          submitCountMap[qid]++;
+          if (correct === true) correctCountMap[qid]++;
+        });
+      }
+
+      // 3) quizData에 맞힌 사람, 제출 칸 데이터 합치기
+      const quizzesWithStats = quizData.map((quiz) => ({
+        ...quiz,
+        submit_count: submitCountMap[quiz.qid] || 0,
+        correct_count: correctCountMap[quiz.qid] || 0,
+      }));
+
+      setQuizzes(quizzesWithStats);
       setLoading(false);
     }
 
-    fetchQuizzes();
+    fetchQuizzesWithStats();
   }, [categoryId]);
 
   const filteredQuizzes =
@@ -67,13 +146,35 @@ export default function QuizList() {
       ? quizzes
       : quizzes.filter((quiz) => quiz.level === selectedLevel);
 
-  // 🟣 여기부터 새로 추가되는 부분!
   const searchedQuizzes = filteredQuizzes.filter((quiz) =>
     quiz.quiz_title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(searchedQuizzes.length / itemsPerPage);
-  const paginatedQuizzes = searchedQuizzes.slice(
+  const sortQuizzes = (quizzes) => {
+    const sorted = [...quizzes];
+
+    switch (sortBy) {
+      case "번호순":
+        return sorted.sort((a, b) => a.qid - b.qid);
+      case "제출순":
+        return sorted.sort((a, b) => b.submit_count - a.submit_count);
+      case "정답률순":
+        return sorted.sort((a, b) => {
+          const aRate =
+            a.submit_count > 0 ? a.correct_count / a.submit_count : 0;
+          const bRate =
+            b.submit_count > 0 ? b.correct_count / b.submit_count : 0;
+          return bRate - aRate;
+        });
+      default:
+        return sorted;
+    }
+  };
+
+  const sortedQuizzes = sortQuizzes(searchedQuizzes);
+
+  const totalPages = Math.ceil(sortedQuizzes.length / itemsPerPage);
+  const paginatedQuizzes = sortedQuizzes.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -84,6 +185,13 @@ export default function QuizList() {
     }
   };
 
+  const handleSortSelect = (option) => {
+    setSortBy(option);
+    setShowSortDropdown(false);
+    setCurrentPage(1);
+  };
+
+  // 로딩 상태
   if (loading) {
     return (
       <div className="layout-frame">
@@ -101,15 +209,18 @@ export default function QuizList() {
     );
   }
 
+  // 에러 발생 시
   if (error) return <div className="layout-frame">에러 발생: {error}</div>;
+
+  // 퀴즈가 없을 때
   if (quizzes.length === 0)
     return <div className="layout-frame">퀴즈가 없습니다.</div>;
 
   return (
     <div className="layout-frame">
       <div className="quiz-list-container">
-        <h5> 퀴즈 </h5>
-        <h2>{categoryId ? `${categoryKorName} ` : "전체 퀴즈 리스트"}</h2>
+        <h5>퀴즈</h5>
+        <h2>{categoryId ? `${categoryKorName} 퀴즈` : "전체 퀴즈 리스트"}</h2>
         <br />
 
         <div className="level-buttons">
@@ -138,8 +249,66 @@ export default function QuizList() {
             고급
           </button>
         </div>
-        <div className="search-box">
-          <div className="search-input-wrapper">
+
+        <div className="qsearch-box">
+          <div className="sort-dropdown-container">
+            <button
+              className="sort-dropdown-button"
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+            >
+              {sortBy}
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                style={{
+                  marginLeft: "8px",
+                  transform: showSortDropdown
+                    ? "rotate(180deg)"
+                    : "rotate(0deg)",
+                }}
+              >
+                <path
+                  d="M3 4.5L6 7.5L9 4.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            {showSortDropdown && (
+              <div className="sort-dropdown-menu">
+                <div
+                  className={`sort-dropdown-item ${
+                    sortBy === "번호순" ? "active" : ""
+                  }`}
+                  onClick={() => handleSortSelect("번호순")}
+                >
+                  번호순
+                </div>
+                <div
+                  className={`sort-dropdown-item ${
+                    sortBy === "제출순" ? "active" : ""
+                  }`}
+                  onClick={() => handleSortSelect("제출순")}
+                >
+                  제출순
+                </div>
+                <div
+                  className={`sort-dropdown-item ${
+                    sortBy === "정답률순" ? "active" : ""
+                  }`}
+                  onClick={() => handleSortSelect("정답률순")}
+                >
+                  정답률순
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="qsearch-input-wrapper">
             <svg
               width="20"
               height="20"
@@ -154,42 +323,48 @@ export default function QuizList() {
             </svg>
             <input
               type="text"
-              className="search-input"
+              className="qsearch-input"
               placeholder="검색어 입력"
-              value={searchTerm} // 현재 상태값 바인딩
-              onChange={(e) => setSearchTerm(e.target.value)} // 입력값 변경 시 상태 업데이트
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
 
+        {/* 퀴즈 테이블 */}
         <table className="quiz-table">
           <thead>
             <tr>
-              <th>문제</th>
-              <th>제목</th>
-              <th>설명</th>
-              <th>맞힌 사람</th>
-              <th>제출</th>
-              <th>정답률</th>
+              <th style={{ width: "62px" }}>문제</th>
+              <th style={{ width: "174px" }}>제목</th>
+              <th style={{ width: "750px" }}>설명</th>
+              <th style={{ width: "108px" }}>맞힌 사람</th>
+              <th style={{ width: "62px" }}>제출</th>
+              <th style={{ width: "66px" }}>정답률</th>
             </tr>
           </thead>
           <tbody>
             {paginatedQuizzes.map((quiz, index) => (
               <tr
                 key={quiz.qid}
-                onClick={() => navigate(`/quiz/detail/${quiz.qid}`)}
+                onClick={() => navigate(`/quiz/${quiz.qid}`)}
+                className={solvedQuizIds.includes(quiz.qid) ? "solved" : ""}
+                style={{ cursor: "pointer" }}
               >
                 <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                 <td>{quiz.quiz_title}</td>
-                <td>{quiz.quiz_text}</td>
+                <td>
+                  <div className="quiz-text">{quiz.quiz_text}</div>
+                </td>
+
                 <td>{quiz.correct_count}</td>
                 <td>{quiz.submit_count}</td>
                 <td>
                   {quiz.submit_count > 0
                     ? ((quiz.correct_count / quiz.submit_count) * 100).toFixed(
-                        2
+                        1
                       ) + "%"
-                    : "0%"}
+                    : "-"}
                 </td>
               </tr>
             ))}
@@ -236,11 +411,10 @@ function Pagination({ currentPage, totalPages, goToPage }) {
         );
       }
     }
-
     return pages;
   };
 
-  const pageNumbers = createPageNumbers();
+  const pages = createPageNumbers();
 
   return (
     <div className="pagination">
@@ -248,20 +422,20 @@ function Pagination({ currentPage, totalPages, goToPage }) {
         onClick={() => goToPage(currentPage - 1)}
         disabled={currentPage === 1}
       >
-        {"<"}
+        &lt;
       </button>
-      {pageNumbers.map((p, i) =>
-        p === "..." ? (
-          <span key={i} className="ellipsis">
+      {pages.map((page, idx) =>
+        page === "..." ? (
+          <span key={"ellipsis" + idx} className="ellipsis">
             ...
           </span>
         ) : (
           <button
-            key={i}
-            className={p === currentPage ? "active" : ""}
-            onClick={() => goToPage(p)}
+            key={page}
+            className={page === currentPage ? "active" : ""}
+            onClick={() => goToPage(page)}
           >
-            <span className="btn-num">{p}</span>
+            {page}
           </button>
         )
       )}
@@ -269,7 +443,7 @@ function Pagination({ currentPage, totalPages, goToPage }) {
         onClick={() => goToPage(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
-        {">"}
+        &gt;
       </button>
     </div>
   );
