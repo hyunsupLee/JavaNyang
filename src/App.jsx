@@ -24,6 +24,7 @@ import Login from "./member/Login";
 import Join from "./member/Join";
 import MyEdit from "./member/MyEdit";
 import MyPage from "./member/MyPage";
+import Achievement from "./member/Achievement";
 
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -67,6 +68,8 @@ function App() {
             <Route path="/join" element={<Join />} />
             <Route path="/myEdit" element={<MyEdit />} />
             <Route path="/myPage" element={<MyPage />} />
+            <Route path="/myPage/achievement" element={<Achievement />} />
+
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
           {/* 조건부로 푸터 렌더링 */}

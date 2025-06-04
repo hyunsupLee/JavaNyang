@@ -17,7 +17,7 @@ export default function Home() {
   // 자동 출석 등록
   const [attended, setAttended] = useState(false);
   useEffect(() => {
-    const atcheck = async () => {
+    const attcheck = async () => {
       if (auth.session && !attended) {
         let isAttend = await hasAttendedToday();
         console.log("오늘 출석여부 : ", isAttend);
@@ -25,7 +25,7 @@ export default function Home() {
         if (!isAttend) attendClick();
       }
     };
-    atcheck();
+    attcheck();
   }, []);
 
   const attendClick = async () => {

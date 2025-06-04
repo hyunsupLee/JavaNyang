@@ -442,22 +442,22 @@ function MyPage() {
   }
 
   // 최근 획득 업적 데이터 (하드코딩 유지)
-  const recentAchievements = [
-    {
-      id: 1,
-      title: '첫 번째 문제 해결',
-      description: '첫 번째 Java 문제를 성공적으로 해결했습니다!',
-      date: '2025.05.16',
-      icon: '🎯'
-    },
-    {
-      id: 2,
-      title: '연속 학습 3일',
-      description: '3일 연속으로 학습을 진행했습니다!',
-      date: '2025.05.18',
-      icon: '🔥'
-    }
-  ];
+  // const recentAchievements = [
+  //   {
+  //     id: 1,
+  //     title: '첫 번째 문제 해결',
+  //     description: '첫 번째 Java 문제를 성공적으로 해결했습니다!',
+  //     date: '2025.05.16',
+  //     icon: '🎯'
+  //   },
+  //   {
+  //     id: 2,
+  //     title: '연속 학습 3일',
+  //     description: '3일 연속으로 학습을 진행했습니다!',
+  //     date: '2025.05.18',
+  //     icon: '🔥'
+  //   }
+  // ];
 
   // 프로그레스 바 계산 함수
   const getProgressPercentage = (current, total) => {
@@ -633,7 +633,7 @@ function MyPage() {
         <div className='achievement-card'>
           <p className='card-title'>최근 획득 업적</p>
           <div className='achievement-list'>
-            {recentAchievements.map((achievement) => (
+            {/* {recentAchievements.map((achievement) => (
               <div key={achievement.id} className='achievement-item'>
                 <div className='achievement-icon'>{achievement.icon}</div>
                 <div className='achievement-content'>
@@ -642,9 +642,9 @@ function MyPage() {
                   <span className='achievement-date'>{achievement.date}</span>
                 </div>
               </div>
-            ))}
+            ))} */}
           </div>
-          <button className='view-more-btn'>모든 업적 보기</button>
+          <button className='view-more-btn' onClick={() => navigate('/myPage/achievement')}>모든 업적 보기</button>
         </div>
       </div>
     </div>
