@@ -1,4 +1,4 @@
-import { supabase } from "../config/supabaseClient";
+import { supabase } from "../config/SupabaseClient";
 
 export const attendToday = async () => {
   const user = (await supabase.auth.getUser()).data.user;
