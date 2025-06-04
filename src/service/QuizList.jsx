@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../config/SupabaseClient";
-import "./quizList.css";
+import "./QuizList.css";
 import { Ellipsis } from "react-bootstrap/esm/PageItem";
 
 const categoryMap = {
