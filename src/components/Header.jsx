@@ -276,14 +276,14 @@ export default function Header() {
           <Container>
             <Nav className="justify-content-center gap-4">
               {[
-                { label: "변수·상수", path: "/quiz/const" },
-                { label: "연산자", path: "/quiz/operator" },
-                { label: "배열", path: "/quiz/array" },
-                { label: "function", path: "/quiz/function" },
-                { label: "제어문", path: "/quiz/control" },
-                { label: "클래스", path: "/quiz/class" },
-                { label: "상속·추상화", path: "/quiz/extends" },
-                { label: "제네릭·람다식", path: "/quiz/generic" },
+                { label: "변수·상수", path: "/quizlist/const" },
+                { label: "연산자", path: "/quizlist/operator" },
+                { label: "배열", path: "/quizlist/array" },
+                { label: "function", path: "/quizlist/function" },
+                { label: "제어문", path: "/quizlist/control" },
+                { label: "클래스", path: "/quizlist/class" },
+                { label: "상속·추상화", path: "/quizlist/extends" },
+                { label: "제네릭·람다식", path: "/quizlist/generic" },
               ].map((item) => (
                 <Nav.Link
                   as={Link}

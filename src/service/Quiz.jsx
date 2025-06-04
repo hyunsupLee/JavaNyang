@@ -3,6 +3,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../config/SupabaseClient";
 import "./quiz.css";
 
+const categoryNameMap = {
+  const: "상수",
+  operator: "연산자",
+  array: "예시 배열",
+  function: "함수",
+  control: "제어문",
+  class: "클래스",
+  extends: "상속",
+  generic: "제네릭",
+};
+
 const categoryMapReverse = {
   1: "const",
   2: "operator",
@@ -12,6 +23,12 @@ const categoryMapReverse = {
   6: "class",
   7: "extends",
   8: "generic",
+};
+
+const levelMap = {
+  1: "초급",
+  2: "중급",
+  3: "고급",
 };
 
 function HeaderBar({ timeLeft, maxTime, category }) {
@@ -153,6 +170,18 @@ function OptionList({
     </div>
   );
 }
+function AlertModal({ message, onClose }) {
+  return (
+    <div className="alert-overlay">
+      <div className="alert-box">
+        <p className="alert-message">{message}</p>
+        <button className="alert-button" onClick={onClose}>
+          확인
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function QuizPage() {
   const { qid } = useParams();
@@ -166,6 +195,18 @@ export default function QuizPage() {
   const [sameLevelCategoryQuizzes, setSameLevelCategoryQuizzes] = useState([]);
   const [solvedQids, setSolvedQids] = useState([]);
   const [uid, setUid] = useState(null);
+
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+
+  const showCustomAlert = (message) => {
+    setAlertMessage(message);
+    setShowAlert(true);
+  };
+
+  const closeAlert = () => {
+    setShowAlert(false);
+  };
 
   useEffect(() => {
     async function fetchUid() {
@@ -275,7 +316,7 @@ export default function QuizPage() {
     if (!quiz) return;
 
     if (selectedOption === null) {
-      alert("옵션을 선택해주세요.");
+      showCustomAlert("옵션을 선택해주세요.");
       return;
     }
 
@@ -286,7 +327,7 @@ export default function QuizPage() {
     setIsCorrect(correctAnswer);
 
     if (!uid) {
-      alert("로그인 후 문제를 풀어주세요.");
+      showCustomAlert("로그인 후 문제를 풀어주세요.");
       return;
     }
 
@@ -321,13 +362,13 @@ export default function QuizPage() {
 
       if (insertError) {
         console.error("결과 저장 중 오류:", insertError);
-        alert("결과 저장 중 오류가 발생했습니다.");
+        showCustomAlert("결과 저장 중 오류가 발생했습니다.");
       } else {
         console.log("결과 저장 성공!", data);
       }
     } catch (err) {
       console.error("예외 발생:", err);
-      alert("오류가 발생했습니다.");
+      showCustomAlert("오류가 발생했습니다.");
     }
   };
 
@@ -336,17 +377,20 @@ export default function QuizPage() {
 
     const currentQid = Number(quiz.qid);
 
+    // 아직 풀지 않은 퀴즈들 필터링
     const unsolvedQuizzes = sameLevelCategoryQuizzes
       .filter((q) => !solvedQids.includes(Number(q.qid)))
       .map((q) => Number(q.qid))
       .sort((a, b) => a - b);
 
+    // 다음 문제 찾기
     const nextQid = unsolvedQuizzes.find((qid) => qid > currentQid);
     if (nextQid !== undefined) {
       navigate(`/quiz/${nextQid}`);
       return;
     }
 
+    // 이전 문제 찾기
     const prevQid = [...unsolvedQuizzes]
       .reverse()
       .find((qid) => qid < currentQid);
@@ -355,7 +399,12 @@ export default function QuizPage() {
       return;
     }
 
-    alert("모든 문제를 다 푸셨습니다!");
+    // 여기는 마지막 문제를 푼 경우만 실행됨
+    const categoryPath = categoryMapReverse[quiz.category]; // 예: "operator"
+    const categoryName = categoryNameMap[categoryPath] || "해당 카테고리"; // 예: "연산자"
+    const levelName = levelMap[quiz.level] || "해당 난이도"; // 예: "중급"
+
+    showCustomAlert(`${categoryName}의 ${levelName} 단계를 모두 푸셨습니다!`);
   };
 
   if (!quiz)
@@ -401,11 +450,12 @@ export default function QuizPage() {
           disabled={selectedOption === null}
         />
       )}
+      {showAlert && <AlertModal message={alertMessage} onClose={closeAlert} />}
 
       {isSubmitted && (
         <>
           <div className="feedback">
-            {isCorrect ? "정답입니다!" : "틀렸습니다."}
+            {isCorrect ? "정답입니다!" : "땡! 틀렸습니다."}
           </div>
 
           <div className="explanation-section">
