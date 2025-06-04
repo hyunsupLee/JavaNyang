@@ -171,12 +171,12 @@ export default function Header() {
             </Nav.Link>
             <Nav.Link
               as={Link}
-              to="/realtimequiz"
+              to="/chat"
               className={`me-4 topmenu-item ${
-                location.pathname.startsWith("/realtimequiz") ? "active" : ""
+                location.pathname.startsWith("/chat") ? "active" : ""
               }`}
             >
-              실시간대전
+              실시간 채팅
             </Nav.Link>
 
             {role.current > 1 && (

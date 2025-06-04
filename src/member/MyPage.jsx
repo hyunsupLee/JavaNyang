@@ -5,11 +5,9 @@ import { supabase } from '../config/SupabaseClient';
 import { getImageUrl } from '../utils/imageUtils';
 import { useAuth } from '../contexts/AuthContext'; // AuthContext 사용
 
-// 팀원 코드에서 가져온 레벨 계산 함수들
+// 레벨 계산 함수
 const requiredExp = (level) => {
-  if (level <= 5) return 5000 * level;
-  else if (level <= 15) return 25000 + 10000 * (level - 5);
-  else return 125000 + 50000 * (level - 15);
+  return 500 * level;
 };
 
 const calculateLevelByExperience = (exp) => {
@@ -45,7 +43,7 @@ function MyPage() {
   const [userInfo, setUserInfo] = useState({
     level: 1,
     exp: 0,
-    maxExp: 5000,
+    maxExp: 500,
     totalExp: 0
   });
   const [loading, setLoading] = useState(true);

@@ -88,41 +88,45 @@ export default function Login() {
         <img src="./img_loginCat.png" alt="loginCat" />
       </div>
       <div id='login_right'>
-        <div className='email'>
-          <label>Email</label>
-          <input 
-            type='email' 
-            placeholder='google@gmail.com'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className='pw2'>
-          <label>Password</label>
-          <input 
-            type='password' 
-            placeholder='********'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className='LS'>
-          <button 
-            className='submit_btn' 
-            type='submit' 
-            onClick={handleLogin}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? '로그인 중...' : '로그인'}
-          </button>
-          <button 
-            className='submit_btn' 
-            type='button'
-            onClick={() => navigate('/join')}
-          >
-            회원가입
-          </button>
-        </div>
+
+        {/* ✅ form 시작 */}
+        <form onSubmit={handleLogin} className='signup_form'>
+          <div className='email'>
+            <label>Email</label>
+            <input 
+              type='email' 
+              placeholder='google@gmail.com'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className='pw2'>
+            <label>Password</label>
+            <input 
+              type='password' 
+              placeholder='********'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className='LS'>
+            <button 
+              className='submit_btn' 
+              type='submit' 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '로그인 중...' : '로그인'}
+            </button>
+            <button 
+              className='submit_btn' 
+              type='button'
+              onClick={() => navigate('/join')}
+            >
+              회원가입
+            </button>
+          </div>
+        </form>
+        {/* ✅ form 끝 */}
 
         <div className='google2'>
           <button 
