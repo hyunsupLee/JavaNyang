@@ -73,6 +73,16 @@ export default function Home() {
         </div>
       )}
 
+      {/* <button
+        onClick={attendClick}
+        disabled={attended}
+        className={`px-4 py-2 rounded ${
+          attended ? "bg-primary" : "bg-primary hover:bg-green-600"
+        } text-white`}
+      >
+        {attended ? "오늘 출석 완료" : "출석하기"}
+      </button> */}
+
       <h4 className="fw-bold mt-5">자바냥 에서는</h4>
       <h2 className="fw-bold display-5 mb-3">5분마다 인생이 바뀐다</h2>
       <h4 className="typewriter mb-3">{displayedText}</h4>
