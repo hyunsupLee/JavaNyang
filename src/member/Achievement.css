@@ -1,0 +1,101 @@
+@charset "UTF-8";
+
+main#achievement {
+    max-width: 1320px;
+    padding: 0 20px;
+    margin: 60px auto;
+}
+
+main#achievement a {
+    text-decoration: none;
+}
+
+main#achievement .back-btn {
+    display: flex;
+    color: #999;
+}
+
+main#achievement .back-btn span {
+    color: inherit;
+    padding-right: 4px;
+}
+
+main#achievement h2 {
+    font-size: 26px;
+    font-weight: bold;
+    text-align: center;
+}
+
+main#achievement h2>span {
+    color: #9663E8;
+}
+
+.achieve-btn-area {
+    text-align: center;
+}
+
+.achieve-btn-area button {
+    padding: 4px 12px;
+    margin: 0 5px;
+    border: 1px solid #9663E8;
+    color: #9663E8;
+    border-radius: 20px;
+}
+
+.achieve-btn-area button.active {
+    background-color: #9663E8;
+    color: #fff;
+}
+
+.achieve-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.achieve-area .achievement-icon {
+    font-size: 18px;
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    margin-right: 10px;
+    background-color: #F6F1FA;
+    align-content: center;
+    text-align: center;
+}
+
+.achieve-area .achievement-item {
+    display: flex;
+    align-items: center;
+    width: calc(25% - 15px);
+    padding: 20px;
+    border: 1px solid #9663E8;
+    border-radius: 10px;
+    position: relative;
+}
+.achieve-area .achievement-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.achieve-area .achievement-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 0;
+}
+.achieve-area .achieved-date {
+    color: #E0D0F8;
+    position: absolute;
+    font-size: 12px;
+    right: 0;
+    bottom: 0;
+    margin: 10px;
+}
+
+.achieve-area .achievement-item:not(.achieved) {
+    border: 1px solid #eee;
+    filter: grayscale(1);
+}
+.achieve-area .achievement-item:not(.achieved) .achievement-content {
+    opacity: 0.5;
+}

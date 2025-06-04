@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../config/SupabaseClient";
-import "./quiz.css";
+import "./Quiz.css";
 
 const categoryNameMap = {
   const: "상수",
