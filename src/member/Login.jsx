@@ -9,21 +9,19 @@ export default function Login() {
   const { user, session, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // 로그인 버튼 로딩 상태만 따로
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 세션이 존재하면 홈으로 이동
   useEffect(() => {
     if (session) {
       navigate('/');
     }
   }, [session, navigate]);
 
-  // 이메일/비밀번호 로그인
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -31,16 +29,30 @@ export default function Login() {
     if (error) {
       alert('로그인 실패: ' + error.message);
       setIsSubmitting(false);
+    } else {
+      const { data: userInfo, error: userInfoError } = await supabase
+        .from('user_info')
+        .select('name')
+        .eq('uid', data.user.id)
+        .single();
+
+      if (userInfoError) {
+        console.error('사용자 이름 조회 오류:', userInfoError);
+        sessionStorage.setItem("welcomeMessage", email);
+      } else {
+        sessionStorage.setItem("welcomeMessage", userInfo.name);
+      }
+
+      navigate('/');
+      window.location.reload(); // ✅ 로그인 성공 후 새로고침
     }
-    // 로그인 성공 시 Context가 자동으로 갱신되므로 따로 navigate할 필요 없음
   };
 
-  // 구글 로그인
-  const handleGoogleSignUp = async () => {
+  const handleOAuthLogin = async (provider) => {
     setIsSubmitting(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider,
         options: {
           redirectTo: `${window.location.origin}/JavaNyang/login`,
           queryParams: {
@@ -50,39 +62,13 @@ export default function Login() {
       });
 
       if (error) {
-        alert(`구글 로그인 오류: ${error.message}`);
-        console.error('구글 로그인 오류:', error);
+        alert(`${provider} 로그인 오류: ${error.message}`);
+        console.error(`${provider} 로그인 오류:`, error);
         setIsSubmitting(false);
       }
     } catch (error) {
-      alert('구글 로그인 중 오류가 발생했습니다.');
-      console.error('구글 로그인 오류:', error);
-      setIsSubmitting(false);
-    }
-  };
-
-  // GitHub 로그인
-  const handleGitHubSignUp = async () => {
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: {
-          redirectTo: `${window.location.origin}/JavaNyang/login`,
-          queryParams: {
-            prompt: 'consent',
-          },
-        },
-      });
-
-      if (error) {
-        alert(`GitHub 로그인 오류: ${error.message}`);
-        console.error('GitHub 로그인 오류:', error);
-        setIsSubmitting(false);
-      }
-    } catch (error) {
-      alert('GitHub 로그인 중 오류가 발생했습니다.');
-      console.error('GitHub 로그인 오류:', error);
+      alert(`${provider} 로그인 중 오류가 발생했습니다.`);
+      console.error(`${provider} 로그인 오류:`, error);
       setIsSubmitting(false);
     }
   };
@@ -102,47 +88,51 @@ export default function Login() {
         <img src="./img_loginCat.png" alt="loginCat" />
       </div>
       <div id='login_right'>
-        <div className='email'>
-          <label>Email</label>
-          <input 
-            type='email' 
-            placeholder='google@gmail.com'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className='pw2'>
-          <label>Password</label>
-          <input 
-            type='password' 
-            placeholder='********'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className='LS'>
-          <button 
-            className='submit_btn' 
-            type='submit' 
-            onClick={handleLogin}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? '로그인 중...' : '로그인'}
-          </button>
-          <button 
-            className='submit_btn' 
-            type='button'
-            onClick={() => navigate('/join')}
-          >
-            회원가입
-          </button>
-        </div>
+
+        {/* ✅ form 시작 */}
+        <form onSubmit={handleLogin} className='signup_form'>
+          <div className='email'>
+            <label>Email</label>
+            <input 
+              type='email' 
+              placeholder='google@gmail.com'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className='pw2'>
+            <label>Password</label>
+            <input 
+              type='password' 
+              placeholder='********'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className='LS'>
+            <button 
+              className='submit_btn' 
+              type='submit' 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '로그인 중...' : '로그인'}
+            </button>
+            <button 
+              className='submit_btn' 
+              type='button'
+              onClick={() => navigate('/join')}
+            >
+              회원가입
+            </button>
+          </div>
+        </form>
+        {/* ✅ form 끝 */}
 
         <div className='google2'>
           <button 
             type='button' 
             className='google2-btn'
-            onClick={handleGoogleSignUp}
+            onClick={() => handleOAuthLogin('google')}
             disabled={isSubmitting}
           >
             <img src="./ico_google.png" alt="Google" />
@@ -154,7 +144,7 @@ export default function Login() {
           <button 
             type='button' 
             className='git2-btn'
-            onClick={handleGitHubSignUp}
+            onClick={() => handleOAuthLogin('github')}
             disabled={isSubmitting}
           >
             <img src="./ico_github.png" alt="GitHub" />
