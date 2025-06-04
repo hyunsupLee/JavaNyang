@@ -171,9 +171,42 @@ function OptionList({
   );
 }
 function AlertModal({ message, onClose }) {
+  // ESC 키로 닫기
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [onClose]);
+
+  // 오버레이 클릭으로 닫기
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="alert-overlay">
+    <div className="alert-overlay" onClick={handleOverlayClick}>
       <div className="alert-box">
+        <div className="alert-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="29"
+            viewBox="0 0 32 29"
+            fill="none"
+          >
+            <path
+              d="M11.5648 22.6704L28.5549 0.775056C28.9558 0.258352 29.4236 0 29.9582 0C30.4928 0 30.9605 0.258352 31.3615 0.775056C31.7624 1.29176 31.9629 1.90578 31.9629 2.6171C31.9629 3.32843 31.7624 3.94159 31.3615 4.45657L12.9681 28.2249C12.5672 28.7416 12.0994 29 11.5648 29C11.0302 29 10.5624 28.7416 10.1615 28.2249L1.54118 17.1158C1.14023 16.5991 0.947778 15.986 0.963816 15.2763C0.979854 14.5667 1.18901 13.9527 1.59129 13.4343C1.99358 12.9159 2.47003 12.6575 3.02066 12.6592C3.5713 12.661 4.04708 12.9193 4.44803 13.4343L11.5648 22.6704Z"
+              fill="#C0A1F1"
+            />
+          </svg>
+        </div>
         <p className="alert-message">{message}</p>
         <button className="alert-button" onClick={onClose}>
           확인
@@ -335,7 +368,6 @@ export default function QuizPage() {
       qid: Number(quiz.qid),
       uid: uid,
       correct: correctAnswer,
-      reward: correctAnswer ? Number(quiz.reward ?? 0) : 0,
     };
 
     console.log("제출할 데이터:", payload);
