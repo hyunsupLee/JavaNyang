@@ -3,7 +3,7 @@ import { supabase } from "../config/SupabaseClient";
 export const attendToday = async () => {
   const user = (await supabase.auth.getUser()).data.user;
   if (!user) {
-    console.log("로그인이 필요합니다.");
+    console.log("로그인이 필요합니다.....");
     return;
   }
 
