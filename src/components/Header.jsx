@@ -8,9 +8,11 @@ import {
   GearWide,
 } from "react-bootstrap-icons";
 import logo from "../assets/logo_black.svg";
-import { supabase } from "../config/SupabaseClient";
+
 import "./Header.css";
 import { useAuth } from "../contexts/AuthContext";
+
+import { supabase } from "../config/SupabaseClient";
 
 //const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 //const bucketPath = `${supabaseUrl}/storage/v1/object/public/profile-image/`;

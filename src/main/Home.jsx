@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import quizslide from "./mainSlide.svg";
 import { Container, Button } from "react-bootstrap";
 import "./Home.css";
+import { hasAttendedToday, attendToday } from "./AttendToday";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Home() {
   const message = "You Can Enjoy Unlimited Java quiz";
@@ -10,6 +12,30 @@ export default function Home() {
   const [welcomeMessage, setWelcomeMessage] = useState("");
   const [fadeOut, setFadeOut] = useState(false);
   const indexRef = useRef(0);
+  const auth = useAuth();
+
+  // 자동 출석 등록
+  const [attended, setAttended] = useState(false);
+  useEffect(() => {
+    const attcheck = async () => {
+      if (auth.session && !attended) {
+        let isAttend = await hasAttendedToday();
+        console.log("오늘 출석여부 : ", isAttend);
+        setAttended(isAttend);
+        if (!isAttend) attendClick();
+      }
+    };
+    attcheck();
+  }, []);
+
+  const attendClick = async () => {
+    if (attended) return;
+    console.log("attendClick..", attended);
+    await attendToday();
+    setAttended(true);
+  };
+
+  //
 
   useEffect(() => {
     const interval = setInterval(() => {
