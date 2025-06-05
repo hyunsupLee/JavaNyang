@@ -4,7 +4,6 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #f8f9fa;
   min-height: calc(100vh - 100px);
 }
 
@@ -28,7 +27,7 @@
   border-radius: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   min-height: 500px;
-  max-height: 600px;
+  max-height: 700px;
 }
 
 .no-messages {
@@ -42,7 +41,7 @@
 .message-bubble {
   margin-bottom: 8px;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start; /* flex-end에서 flex-start로 변경 */
   gap: 8px;
 }
 
@@ -56,12 +55,14 @@
   margin-right: 80px;
 }
 
-/* 아바타 스타일 */
+/* 아바타 스타일 - 위치 고정 */
 .message-avatar {
   width: 40px;
   height: 40px;
   flex-shrink: 0;
-  margin-bottom: 4px;
+  margin-top: 0; /* 상단 고정 */
+  position: sticky; /* 스크롤 시에도 위치 유지 */
+  top: 0;
 }
 
 .avatar-image {
@@ -102,7 +103,9 @@
 .message-content-wrapper {
   display: flex;
   align-items: flex-end;
+  /* white-space: nowrap; */
   gap: 8px;
+  position: relative;
 }
 
 /* 내 메시지의 경우 시간이 왼쪽에 */
@@ -119,27 +122,14 @@
   max-width: 280px;
   min-width: auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
 }
 
 /* 내 메시지 스타일 */
-.my-content {
-  background-color: #8b5cf6; /* 프로젝트 메인 컬러 */
-  color: white;
-  border-radius: 12px 12px 4px 12px;
-}
-
-/* 내 메시지 꼬리 */
-.my-content::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: -6px;
-  width: 0;
-  height: 0;
-  border: 8px solid transparent;  
-  border-left-color: #8b5cf6;
-  border-right: 0;
-  border-bottom: 0;
+.my-content {/* 프로젝트 메인 컬러 */
+  color: #333;
+  border-radius: 12px 12px 0px 12px;
+  background-color: rgba(139, 92, 246, 0.1);
 }
 
 /* 상대방 메시지 스타일 */
@@ -147,34 +137,7 @@
   background-color: white;
   color: #333;
   border: 1px solid #e9ecef;
-  border-radius: 4px 12px 12px 12px;
-}
-
-/* 상대방 메시지 꼬리 */
-.other-content::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: -7px;
-  width: 0;
-  height: 0;
-  border: 8px solid transparent;
-  border-right-color: white;
-  border-left: 0;
-  border-bottom: 0;
-}
-
-.other-content::before {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: -8px;
-  width: 0;
-  height: 0;
-  border: 8px solid transparent;
-  border-right-color: #e9ecef;
-  border-left: 0;
-  border-bottom: 0;
+  border-radius: 12px 12px 12px 0px;
 }
 
 /* 메시지 텍스트 */
@@ -244,7 +207,55 @@
   visibility: hidden;
 }
 
-/* 메시지 입력 영역 */
+/* 답장 미리보기 */
+.reply-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-left: 3px solid #8b5cf6;
+}
+
+.reply-preview-content {
+  flex: 1;
+}
+
+.reply-preview-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b5cf6;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.reply-preview-text {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.cancel-reply {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.cancel-reply:hover {
+  background-color: rgba(0,0,0,0.1);
+  color: #666;
+}
+
 .message-input-area {
   background: white;
   border-top: 1px solid #f0f0f0;
@@ -266,7 +277,7 @@
   border-radius: 12px;
   padding: 10px 16px;
   font-size: 14px;
-  max-height: 120px;
+  height: 90px;
   background-color: white;
   outline: none;
   transition: all 0.2s ease;
@@ -425,8 +436,8 @@
 }
 
 /* 로딩 및 에러 상태 */
-.loading-container,
-.error-container {
+.chat-loading-container,
+.chat-error-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -435,14 +446,14 @@
   text-align: center;
 }
 
-.loading-container p,
-.error-container p {
+.chat-loading-container p,
+.chat-error-container p {
   font-size: 16px;
   color: #666;
   margin: 0 0 20px 0;
 }
 
-.error-container button {
+.chat-error-container button {
   padding: 12px 24px;
   background-color: #8b5cf6;
   color: white;
@@ -454,11 +465,193 @@
   transition: all 0.2s ease;
 }
 
-.error-container button:hover {
+.chat-error-container button:hover {
   background-color: #7c3aed;
 }
 
-/* 반응형 디자인 */
+/* 메시지 액션 (이모지 버튼) */
+.message-actions {
+  white-space: nowrap;
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10; /* 시간보다 위에 표시 */
+}
+
+/* 내 메시지: 이모지 버튼을 시간 위치에 겹쳐서 */
+.my-message .message-actions {
+  right: 95%; /* 시간이 있는 위치에 */
+  bottom: 0;
+}
+
+/* 상대방 메시지: 이모지 버튼을 시간 위치에 겹쳐서 */
+.other-message .message-actions {
+  left: 95%;
+  bottom: 0;
+}
+
+/* 메시지에 호버했을 때만 이모지 버튼 표시 (시간 가림) */
+.message-content-wrapper:hover .message-actions {
+  opacity: 1;
+}
+
+/* 호버했을 때 시간 숨기기 */
+.message-content-wrapper:hover .message-time {
+  opacity: 0;
+}
+
+.emoji-add-button {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e9ecef;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  margin-right: 4px;
+}
+
+.emoji-add-button:hover {
+  background-color: white;
+  border-color: #8b5cf6;
+  transform: scale(1.05);
+}
+
+.reply-button {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e9ecef;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+.reply-button:hover {
+  background-color: white;
+  border-color: #8b5cf6;
+  transform: scale(1.05);
+}
+
+/* 답장된 메시지 표시 */
+.reply-to-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background-color: rgba(139, 92, 246, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid #8b5cf6;
+}
+
+.reply-indicator {
+  width: 2px;
+  height: 100%;
+  background-color: #8b5cf6;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.reply-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reply-user {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8b5cf6;
+}
+
+.reply-text {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.3;
+}
+
+/* 이모지 선택기 */
+.emoji-picker {
+  position: absolute;
+  bottom: 130%;
+  left: 0px;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+.emoji-option {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.emoji-option:hover {
+  background-color: #f8f9fa;
+}
+
+/* 반응 표시 - 위치 고정 */
+.reaction-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  max-width: 280px;
+  /* 부모 요소와 독립적으로 위치 유지 */
+  position: relative;
+  z-index: 1;
+}
+
+.reaction-item {
+  background-color: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+}
+
+.reaction-item:hover {
+  background-color: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.reaction-item.user-reacted {
+  background-color: rgba(139, 92, 246, 0.2);
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  font-weight: 500;
+}
+
+/* 내 메시지의 반응은 오른쪽 정렬 */
+.my-message .reaction-display {
+  justify-content: flex-end;
+}
+
+/* 상대방 메시지의 반응은 왼쪽 정렬 */
+.other-message .reaction-display {
+  justify-content: flex-start;
+}
+
 @media (max-width: 768px) {
   .chat-container {
     max-width: 100%;
@@ -466,10 +659,10 @@
   }
   
   .chat-messages {
-    padding: 15px 20px;
-    min-height: 400px;
-    max-height: 500px;
-  }
+  padding: 15px 20px;
+  min-height: 400px;
+  max-height: 500px;
+}
   
   .message-bubble.my-message {
     margin-left: 60px;

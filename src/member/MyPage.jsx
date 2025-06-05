@@ -32,6 +32,22 @@ const getExpForCurrentLevel = (totalExp) => {
   };
 };
 
+// 업적 조건 확인 함수들
+const checkAchievementConditions = {
+  attendance: (stats, conditionValue) => {
+    // 출석일 기반 업적 (연속 학습일)
+    return stats.streakDays >= conditionValue;
+  },
+  correct: (stats, conditionValue) => {
+    // 정답 개수 기반 업적
+    return stats.totalCorrect >= conditionValue;
+  },
+  level: (stats, conditionValue) => {
+    // 레벨 기반 업적
+    return stats.level >= conditionValue;
+  }
+};
+
 function MyPage() {
   const navigate = useNavigate();
 
@@ -53,11 +69,177 @@ function MyPage() {
   const [categoryStats, setCategoryStats] = useState([]);
   const [difficultyStats, setDifficultyStats] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [recentAchievements, setRecentAchievements] = useState([]);
   const [overallStats, setOverallStats] = useState({
     totalProblems: 0,
     totalCorrect: 0,
     accuracy: 0
   });
+
+  // 연속 학습일 계산 (수정된 버전)
+  const calculateStreakDays = (detailedData) => {
+    if (!detailedData || detailedData.length === 0) return 0;
+
+    // 날짜별로 그룹화
+    const dateGroups = {};
+    detailedData.forEach(item => {
+      const date = new Date(item.created_at).toDateString();
+      if (!dateGroups[date]) {
+        dateGroups[date] = true;
+      }
+    });
+
+    // 날짜 배열로 변환하고 정렬
+    const dates = Object.keys(dateGroups)
+      .map(date => new Date(date))
+      .sort((a, b) => b - a);
+
+    if (dates.length === 0) return 0;
+
+    // 오늘부터 연속 일수 계산
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let streak = 0;
+    let currentDate = new Date(today);
+
+    // 오늘부터 과거로 거슬러 올라가며 연속일 확인
+    for (let i = 0; i < dates.length; i++) {
+      const studyDate = new Date(dates[i]);
+      studyDate.setHours(0, 0, 0, 0);
+      
+      if (studyDate.getTime() === currentDate.getTime()) {
+        streak++;
+        currentDate.setDate(currentDate.getDate() - 1);
+      } else if (studyDate.getTime() < currentDate.getTime()) {
+        // 연속이 끊어짐
+        break;
+      }
+    }
+
+    return streak;
+  };
+
+  // 업적 확인 및 저장 (수정된 버전)
+  const checkAndSaveAchievements = async (stats) => {
+    if (!user) return [];
+
+    try {
+      // 1. 모든 업적 정보 가져오기
+      const { data: allAchievements, error: achievementsError } = await supabase
+        .from('achievements')
+        .select('*');
+
+      if (achievementsError) {
+        console.error('업적 정보 조회 오류:', achievementsError);
+        return [];
+      }
+
+      console.log('모든 업적 정보:', allAchievements);
+
+      // 2. 기존 달성한 업적 조회
+      const { data: existingAchievements, error: fetchError } = await supabase
+        .from('user_achievements')
+        .select('achievement_id')
+        .eq('uid', user.id);
+
+      if (fetchError) {
+        console.error('기존 업적 조회 오류:', fetchError);
+        return [];
+      }
+
+      const existingIds = existingAchievements?.map(a => a.achievement_id) || [];
+      const newAchievements = [];
+
+      console.log('현재 사용자 통계:', stats);
+      console.log('기존 달성 업적:', existingIds);
+
+      // 3. 각 업적 조건 확인
+      for (const achievement of allAchievements) {
+        if (!existingIds.includes(achievement.id)) {
+          const checkFunction = checkAchievementConditions[achievement.type];
+          
+          if (checkFunction && checkFunction(stats, achievement.condition_value)) {
+            console.log(`새로운 업적 달성: ${achievement.title}`);
+            
+            // 새로운 업적 달성
+            const { error: insertError } = await supabase
+              .from('user_achievements')
+              .insert({
+                uid: user.id,
+                achievement_id: achievement.id,
+                achieved_at: new Date().toISOString()
+              });
+
+            if (!insertError) {
+              newAchievements.push({
+                ...achievement,
+                date: new Date().toLocaleDateString('ko-KR'),
+                achieved_at: new Date().toISOString()
+              });
+            } else {
+              console.error('업적 저장 오류:', insertError);
+            }
+          }
+        }
+      }
+
+      // 4. 최근 달성한 업적 3개 조회 (JOIN 사용)
+      const { data: recentAchievementsData, error: recentError } = await supabase
+        .from('user_achievements')
+        .select(`
+          achievement_id,
+          achieved_at,
+          achievements:achievement_id (
+            id,
+            type,
+            title,
+            description,
+            condition_value
+          )
+        `)
+        .eq('uid', user.id)
+        .order('achieved_at', { ascending: false })
+        .limit(3);
+
+      if (recentError) {
+        console.error('최근 업적 조회 오류:', recentError);
+        return newAchievements;
+      }
+
+      console.log('최근 업적 데이터:', recentAchievementsData);
+
+      // 5. 업적 정보 매핑 및 아이콘 추가
+      const achievementIcons = {
+        attendance: '🔥',
+        correct: '🎯',
+        level: '⭐'
+      };
+
+      const achievementsWithDetails = recentAchievementsData?.map(item => {
+        const achievement = item.achievements;
+        if (!achievement) return null;
+        
+        return {
+          id: achievement.id,
+          title: achievement.title,
+          description: achievement.description,
+          icon: achievementIcons[achievement.type] || '🏆',
+          type: achievement.type,
+          condition_value: achievement.condition_value,
+          date: new Date(item.achieved_at).toLocaleDateString('ko-KR'),
+          achieved_at: item.achieved_at
+        };
+      }).filter(item => item !== null) || [];
+
+      console.log('최종 업적 데이터:', achievementsWithDetails);
+      return achievementsWithDetails;
+
+    } catch (error) {
+      console.error('업적 처리 오류:', error);
+      return [];
+    }
+  };
 
   // 수정된 사용자 통계 계산 (JOIN 사용)
   const calculateUserStats = async (uid) => {
@@ -304,7 +486,7 @@ function MyPage() {
     }));
   };
 
-  // 모든 데이터를 불러오는 통합 함수
+  // 모든 데이터를 불러오는 통합 함수 (수정된 버전)
   const loadAllUserData = async () => {
     try {
       console.log('🔄 데이터 로드 시작');
@@ -342,9 +524,10 @@ function MyPage() {
       });
 
       // 4. 전체 통계 설정
+      const totalCorrect = Math.round(userStats.totalProblems * userStats.accuracy / 100);
       setOverallStats({
         totalProblems: userStats.totalProblems,
-        totalCorrect: Math.round(userStats.totalProblems * userStats.accuracy / 100),
+        totalCorrect: totalCorrect,
         accuracy: userStats.accuracy
       });
 
@@ -360,6 +543,22 @@ function MyPage() {
       const activityData = calculateRecentActivities(userStats.detailedData);
       setRecentActivities(activityData);
 
+      // 8. 업적 확인 및 로드 (수정된 부분)
+      const streakDays = calculateStreakDays(userStats.detailedData);
+      
+      const statsForAchievements = {
+        ...userStats,
+        level: levelInfo.currentLevel,
+        streakDays: streakDays,
+        totalCorrect: totalCorrect,
+        categoryStats: categoryData,
+        detailedData: userStats.detailedData
+      };
+      
+      console.log('업적 확인용 통계:', statsForAchievements);
+      const achievementsData = await checkAndSaveAchievements(statsForAchievements);
+      setRecentAchievements(achievementsData);
+
     } catch (error) {
       console.error('데이터 로드 오류:', error);
       setError('데이터를 불러오는데 실패했습니다: ' + error.message);
@@ -374,20 +573,6 @@ function MyPage() {
       loadAllUserData();
     }
   }, [user, authLoading]);
-
-  // 로그아웃 함수
-  // const handleLogout = async () => {
-  //   try {
-  //     const { error } = await supabase.auth.signOut();
-  //     if (error) {
-  //       throw error;
-  //     }
-  //     navigate('/login');
-  //   } catch (error) {
-  //     console.error('로그아웃 오류:', error);
-  //     alert('로그아웃에 실패했습니다.');
-  //   }
-  // };
 
   // 이미지 로드 에러 핸들링
   const handleImageError = (e) => {
@@ -441,24 +626,6 @@ function MyPage() {
     );
   }
 
-  // 최근 획득 업적 데이터 (하드코딩 유지)
-  // const recentAchievements = [
-  //   {
-  //     id: 1,
-  //     title: '첫 번째 문제 해결',
-  //     description: '첫 번째 Java 문제를 성공적으로 해결했습니다!',
-  //     date: '2025.05.16',
-  //     icon: '🎯'
-  //   },
-  //   {
-  //     id: 2,
-  //     title: '연속 학습 3일',
-  //     description: '3일 연속으로 학습을 진행했습니다!',
-  //     date: '2025.05.18',
-  //     icon: '🔥'
-  //   }
-  // ];
-
   // 프로그레스 바 계산 함수
   const getProgressPercentage = (current, total) => {
     return total > 0 ? Math.round((current / total) * 100) : 0;
@@ -488,7 +655,7 @@ function MyPage() {
           <div className='level-bar-container'>
             <div
               className='level-bar-fill'
-              style={{ width: `${levelProgress} %` }}
+              style={{ width: `${levelProgress}%` }}
             ></div>
             <div className='level-bar-bg'></div>
           </div>
@@ -633,16 +800,23 @@ function MyPage() {
         <div className='achievement-card'>
           <p className='card-title'>최근 획득 업적</p>
           <div className='achievement-list'>
-            {/* {recentAchievements.map((achievement) => (
-              <div key={achievement.id} className='achievement-item'>
-                <div className='achievement-icon'>{achievement.icon}</div>
-                <div className='achievement-content'>
-                  <p className='achievement-title'>{achievement.title}</p>
-                  <p className='achievement-description'>{achievement.description}</p>
-                  <span className='achievement-date'>{achievement.date}</span>
+            {recentAchievements.length > 0 ? (
+              recentAchievements.map((achievement, index) => (
+                <div key={index} className='achievement-item'>
+                  <div className='achievement-icon'>{achievement.icon}</div>
+                  <div className='achievement-content'>
+                    <p className='achievement-title'>{achievement.title}</p>
+                    <p className='achievement-description'>{achievement.description}</p>
+                    <span className='achievement-date'>{achievement.date}</span>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className='no-achievements'>
+                <p>아직 달성한 업적이 없습니다.</p>
+                <p>문제를 풀어보고 첫 번째 업적을 달성해보세요! 🎯</p>
               </div>
-            ))} */}
+            )}
           </div>
           <button className='view-more-btn' onClick={() => navigate('/myPage/achievement')}>모든 업적 보기</button>
         </div>

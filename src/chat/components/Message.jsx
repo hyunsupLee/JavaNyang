@@ -1,15 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { getImageUrl } from '../../utils/imageUtils';
+import { useChat } from '../ChatContext';
 
 function Message({ 
-  message,              // 메시지 데이터
-  isMyMessage,          // 내 메시지인지 여부  
-  userName,             // 현재 사용자명
-  user,                 // 현재 사용자 정보
-  getUserProfileImage,   // 프로필 이미지 함수
-  showAvatar = true,    // 아바타 표시 여부 (연속 메시지 처리용)
-  showUsername = true   // 사용자명 표시 여부 (연속 메시지 처리용)
+  message,              
+  isMyMessage,          
+  userName,             
+  user,                 
+  getUserProfileImage,   
+  showAvatar = true,    
+  showUsername = true   
 }) {
+  const { toggleReaction, setReplyMessage, messages } = useChat();
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // 사용할 이모지 목록
+  const availableEmojis = ['👍', '❤️', '😄', '😮', '😢', '😡'];
+
   // 시간 포맷팅 (HH:MM)
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -25,12 +32,11 @@ function Message({
   const formatUserName = (name) => {
     if (!name) return '사용자';
     
-    // 이메일 형태인지 확인 (@ 포함여부)
     if (name.includes('@')) {
-      return name.split('@')[0]; // @ 앞부분만 반환
+      return name.split('@')[0];
     }
     
-    return name; // 이메일이 아니면 그대로 반환
+    return name;
   };
 
   // 프로필 이미지 가져오기
@@ -40,6 +46,95 @@ function Message({
     }
     const profileImg = getUserProfileImage(message.uid);
     return getImageUrl(profileImg);
+  };
+
+  // 답장할 원본 메시지 찾기
+  const findOriginalMessage = (replyToId) => {
+    return messages.find(msg => msg.cid === replyToId);
+  };
+
+  // 답장된 메시지 표시 컴포넌트
+  const ReplyToMessage = ({ replyToId }) => {
+    if (!replyToId) return null;
+    
+    const originalMessage = findOriginalMessage(replyToId);
+    if (!originalMessage) {
+      return (
+        <div className="reply-to-message">
+          <div className="reply-indicator"></div>
+          <div className="reply-content">
+            <span className="reply-user">삭제된 메시지</span>
+            <span className="reply-text">이 메시지는 더 이상 사용할 수 없습니다.</span>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="reply-to-message">
+        <div className="reply-indicator"></div>
+        <div className="reply-content">
+          <span className="reply-user">{formatUserName(originalMessage.user_name)}</span>
+          <span className="reply-text">
+            {originalMessage.message.length > 50 
+              ? originalMessage.message.substring(0, 50) + '...' 
+              : originalMessage.message}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const handleEmojiClick = (emoji) => {
+    toggleReaction(message.cid, emoji);
+    setShowEmojiPicker(false);
+  };
+
+  // 반응 표시 컴포넌트
+  const ReactionDisplay = ({ reactions }) => {
+    if (!reactions || Object.keys(reactions).length === 0) return null;
+
+    return (
+      <div className="reaction-display">
+        {Object.entries(reactions).map(([emoji, reactionList]) => {
+          if (!reactionList || reactionList.length === 0) return null;
+          
+          const count = reactionList.length;
+          const userReacted = reactionList.some(reaction => reaction.userId === user?.id);
+          const reactorNames = reactionList.map(r => formatUserName(r.userName)).join(', ');
+          
+          return (
+            <button
+              key={emoji}
+              className={`reaction-item ${userReacted ? 'user-reacted' : ''}`}
+              onClick={() => handleEmojiClick(emoji)}
+              title={`${reactorNames}님이 반응했습니다`}
+            >
+              {emoji} {count}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // 이모지 선택기 컴포넌트
+  const EmojiPicker = () => {
+    if (!showEmojiPicker) return null;
+
+    return (
+      <div className="emoji-picker">
+        {availableEmojis.map(emoji => (
+          <button
+            key={emoji}
+            className="emoji-option"
+            onClick={() => handleEmojiClick(emoji)}
+          >
+            {emoji}
+          </button>
+        ))}
+      </div>
+    );
   };
 
   const profileImage = getProfileImage(message);
@@ -69,9 +164,31 @@ function Message({
         {/* 메시지 내용과 시간을 담는 컨테이너 */}
         <div className="message-content-wrapper">
           <div className={`message-content ${isMyMessage ? 'my-content' : 'other-content'}`}>
+            {/* 답장된 메시지 표시 */}
+            <ReplyToMessage replyToId={message.reply_to_message_id} />
+            
             <div className="message-text">
               {message.message}
             </div>
+          </div>
+          
+          {/* 이모지 반응 추가 버튼 - 말풍선 바깥에 */}
+          <div className="message-actions">
+            <button 
+              className="emoji-add-button"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              title="반응 추가"
+            >
+              😊
+            </button>
+            <button 
+              className="reply-button"
+              onClick={() => setReplyMessage(message)}
+              title="답장"
+            >
+              ↩️
+            </button>
+            <EmojiPicker />
           </div>
           
           {/* 시간은 메시지 옆에 표시 (카카오톡 스타일) */}
@@ -79,6 +196,9 @@ function Message({
             {formatTime(message.created_at)}
           </div>
         </div>
+
+        {/* 반응 표시 */}
+        <ReactionDisplay reactions={message.reactions} />
       </div>
     </div>
   );
