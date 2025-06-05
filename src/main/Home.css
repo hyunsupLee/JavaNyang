@@ -16,14 +16,17 @@
 
 /* 슬라이더 영역 */
 .slider-wrapper {
-  width: 1541px; /* 고정 너비 */
+  margin: 0; /* 이미지 간의 간격이 필요 없다면 */
+  padding: 0;
+  width: 100%; /* 고정 너비 */
   overflow: hidden;
   position: relative;
-  margin-bottom: 2rem;
 }
 
 /* 슬라이더 트랙 */
 .slider-track {
+  margin: 0; /* 이미지 간의 간격이 필요 없다면 */
+  padding: 0;
   display: flex;
   width: 3082px; /* 1541px * 2 */
   animation: slideLeft 20s linear infinite;
@@ -45,4 +48,41 @@
   100% {
     transform: translateX(-1541px);
   }
+}
+
+.typewriter {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #9663e8;
+  white-space: pre-wrap;
+  border-right: 2px solid #9663e8;
+  animation: blink 0.7s step-end infinite;
+  min-height: 1.5em;
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
+.welcome-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #9663E8; /* 기존 보라색 유지 */
+  color: #ffffff;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 6px; /* 둥글기 최소화 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  opacity: 1;
+  transition: opacity 1s ease-out;
+}
+
+.fade-out {
+  opacity: 0;
 }

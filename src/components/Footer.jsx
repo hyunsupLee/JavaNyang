@@ -1,5 +1,6 @@
 import { Container, Row, Col } from "react-bootstrap";
 import logo from "../assets/logo_white.svg";
+import { Link } from "react-router-dom";
 
 //import "./Footer.css"; // 추가로 스타일링이 필요할 경우
 
@@ -7,7 +8,7 @@ export default function Footer() {
   return (
     <footer
       className="bg-dark text-light py-5 border-top"
-      style={{ height: "300px", minHeight: "300px" }}
+      style={{ height: "100px", minHeight: "300px" }}
     >
       <Container>
         <Row>
@@ -23,9 +24,30 @@ export default function Footer() {
           <Col md={3} className="mb-3">
             <h5>서비스</h5>
             <ul className="list-unstyled">
-              <li>퀴즈</li>
-              <li>랭킹</li>
-              <li>마이페이지</li>
+              <li>
+                <Link
+                  to="/quiz"
+                  style={{ color: "white", textDecoration: "none" }}
+                >
+                  퀴즈
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/rank"
+                  style={{ color: "white", textDecoration: "none" }}
+                >
+                  랭킹
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/myPage"
+                  style={{ color: "white", textDecoration: "none" }}
+                >
+                  마이페이지
+                </Link>
+              </li>
             </ul>
           </Col>
           <Col md={3} className="mb-3">
