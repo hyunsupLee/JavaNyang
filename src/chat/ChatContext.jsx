@@ -13,6 +13,8 @@ const ChatProvider = ({ children }) => {
   const [userInfoCache, setUserInfoCache] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [replyingTo, setReplyingTo] = useState(null);
 
    // 이메일에서 @ 앞부분만 추출하는 함수
   const formatEmailToUsername = (email) => {
@@ -23,7 +25,6 @@ const ChatProvider = ({ children }) => {
     return email;
   };
 
-  // const userName = userInfo?.name || user?.email || '사용자';
   const userName = userInfo?.name || formatEmailToUsername(user?.email) || '사용자';
   const scrollRef = useRef();
 
@@ -56,6 +57,101 @@ const ChatProvider = ({ children }) => {
     }
   };
 
+  // 답장 설정 함수
+  const setReplyMessage = (message) => {
+    setReplyingTo(message);
+  };
+
+  // 답장 취소 함수
+  const cancelReply = () => {
+    setReplyingTo(null);
+  };
+
+  // 이모지 반응 토글 함수 (한 사용자당 하나의 반응만 허용)
+  const toggleReaction = async (messageId, emoji) => {
+    if (!user) {
+      setError({ message: '로그인이 필요합니다.' });
+      return;
+    }
+
+    try {
+      // 이모지 반응은 자동 스크롤 하지 않음
+      setShouldAutoScroll(false);
+
+      // 현재 메시지의 reactions 가져오기
+      const { data: currentMessage, error: fetchError } = await supabase
+        .from('chat_messages')
+        .select('reactions')
+        .eq('cid', messageId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const currentReactions = currentMessage.reactions || {};
+      const userId = user.id;
+
+      // 새로운 반응 객체 생성
+      let updatedReactions = { ...currentReactions };
+
+      // 먼저 해당 사용자의 모든 기존 반응을 제거
+      Object.keys(updatedReactions).forEach(existingEmoji => {
+        if (updatedReactions[existingEmoji]) {
+          updatedReactions[existingEmoji] = updatedReactions[existingEmoji].filter(
+            reaction => reaction.userId !== userId
+          );
+          
+          // 빈 배열이면 해당 이모지 키 삭제
+          if (updatedReactions[existingEmoji].length === 0) {
+            delete updatedReactions[existingEmoji];
+          }
+        }
+      });
+
+      // 현재 선택한 이모지에 사용자가 이미 반응했는지 확인
+      const currentEmojiReactions = currentReactions[emoji] || [];
+      const userAlreadyReacted = currentEmojiReactions.some(reaction => reaction.userId === userId);
+
+      // 만약 이미 같은 이모지에 반응했다면 제거만 하고 끝
+      // 다른 이모지에 반응했거나 반응이 없었다면 새 반응 추가
+      if (!userAlreadyReacted) {
+        // 새로운 이모지 반응 추가
+        updatedReactions[emoji] = [
+          ...(updatedReactions[emoji] || []),
+          {
+            userId: userId,
+            userName: userName,
+            timestamp: new Date().toISOString()
+          }
+        ];
+      }
+
+      // DB 업데이트
+      const { error: updateError } = await supabase
+        .from('chat_messages')
+        .update({ reactions: updatedReactions })
+        .eq('cid', messageId);
+
+      if (updateError) throw updateError;
+
+      // 로컬 메시지 상태 업데이트 (실시간 구독이 있지만 즉시 반영을 위해)
+      setMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.cid === messageId 
+            ? { ...msg, reactions: updatedReactions }
+            : msg
+        )
+      );
+
+      // 잠시 후 자동 스크롤 다시 활성화
+      setTimeout(() => setShouldAutoScroll(true), 500);
+
+    } catch (error) {
+      console.error('반응 처리 실패:', error);
+      setError({ message: '반응 처리에 실패했습니다.' });
+      setShouldAutoScroll(true);
+    }
+  };
+
   // 초기화
   useEffect(() => {
     if (user && userInfo) {
@@ -76,7 +172,22 @@ const ChatProvider = ({ children }) => {
       await getUserInfo(payload.new.uid);
     }
     
+    // 새 메시지는 자동 스크롤 활성화
+    setShouldAutoScroll(true);
     setMessages(prevMessages => [...prevMessages, payload.new]);
+  };
+
+  // 메시지 업데이트 처리 (반응 변경 시)
+  const handleMessageUpdate = async (payload) => {
+    // 메시지 업데이트는 자동 스크롤 하지 않음
+    setShouldAutoScroll(false);
+    setMessages(prevMessages => 
+      prevMessages.map(msg => 
+        msg.cid === payload.new.cid ? payload.new : msg
+      )
+    );
+    // 잠시 후 자동 스크롤 다시 활성화
+    setTimeout(() => setShouldAutoScroll(true), 500);
   };
 
   // 초기 메시지 로드
@@ -84,7 +195,7 @@ const ChatProvider = ({ children }) => {
     try {
       const { data, error } = await supabase
         .from("chat_messages")
-        .select("*")
+        .select("*") // reactions와 reply_to_message_id가 기본으로 포함됨
         .order("cid", { ascending: false })
         .limit(50);
 
@@ -122,6 +233,11 @@ const ChatProvider = ({ children }) => {
           schema: "public",
           table: "chat_messages"
         }, handleNewMessage)
+        .on("postgres_changes", {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_messages"
+        }, handleMessageUpdate)
         .subscribe((status) => {
           console.log('구독 상태:', status);
           if (status === 'CHANNEL_ERROR') {
@@ -131,7 +247,7 @@ const ChatProvider = ({ children }) => {
     }
   };
 
-  // 메시지 전송
+  // 텍스트 메시지 전송
   const sendMessage = async (messageText) => {
     if (!messageText.trim()) return;
     
@@ -141,15 +257,28 @@ const ChatProvider = ({ children }) => {
     }
 
     try {
+      const messageData = {
+        message: messageText.trim(),
+        user_name: userName,
+        message_type: 'text',
+        reactions: {}
+      };
+
+      // 답장인 경우 원본 메시지 ID 추가
+      if (replyingTo) {
+        messageData.reply_to_message_id = replyingTo.cid;
+      }
+
       const { error } = await supabase
         .from('chat_messages')
-        .insert([{
-          message: messageText.trim(),
-          user_name: userName,
-          message_type: 'text'
-        }]);
+        .insert([messageData]);
 
       if (error) throw error;
+      
+      // 답장 상태 초기화
+      setReplyingTo(null);
+      // 새 메시지 전송 시 자동 스크롤 활성화
+      setShouldAutoScroll(true);
       
     } catch (error) {
       console.error('메시지 전송 실패:', error);
@@ -177,12 +306,17 @@ const ChatProvider = ({ children }) => {
         error: { message: '로그인 후 채팅을 이용할 수 있습니다.' },
         userName: '',
         sendMessage: () => {},
+        toggleReaction: () => {},
+        setReplyMessage: () => {},
+        cancelReply: () => {},
+        replyingTo: null,
         scrollRef: { current: null },
         scrollToBottom: () => {},
         getUserProfileImage: () => null,
         userInfoCache: {},
         clearError: () => {},
-        toKoreaTime: () => new Date()
+        toKoreaTime: () => new Date(),
+        shouldAutoScroll: true
       }}>
         {children}
       </ChatContext.Provider>
@@ -198,11 +332,16 @@ const ChatProvider = ({ children }) => {
       user,
       userInfoCache,
       sendMessage,
+      toggleReaction,
+      setReplyMessage,
+      cancelReply,
+      replyingTo,
       getUserProfileImage,
       scrollRef,
       scrollToBottom,
       clearError,
-      toKoreaTime
+      toKoreaTime,
+      shouldAutoScroll
     }}>
       {children}
     </ChatContext.Provider>

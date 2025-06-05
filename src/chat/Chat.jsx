@@ -27,10 +27,12 @@ function Chat() {
   if (loading) {
     return (
       <Container className="mt-4 text-center">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">로딩 중...</span>
+        <div className="chat-loading-container">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">로딩 중...</span>
+          </div>
+          <p className="mt-2">채팅을 불러오는 중입니다...</p>
         </div>
-        <p className="mt-2">채팅을 불러오는 중입니다...</p>
       </Container>
     );
   }
@@ -41,8 +43,8 @@ function Chat() {
       
       {/* 에러 메시지 */}
       {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
+        <div className="chat-error-container" role="alert">
+          <p>{error.message || error}</p>
         </div>
       )}
 
