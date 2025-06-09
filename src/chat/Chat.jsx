@@ -15,7 +15,9 @@ function Chat() {
     user,
     sendMessage,
     scrollRef,
-    getUserProfileImage
+    getUserProfileImage,
+    hasUnreadMessages,
+    forceScrollToBottom
   } = useChat();
 
   // 페이지 제목 설정
@@ -38,28 +40,43 @@ function Chat() {
   }
 
   return (
-    <Container className="chat-container">
-      <AlwaysScrollToBottom />
-      
-      {/* 에러 메시지 */}
-      {error && (
-        <div className="chat-error-container" role="alert">
-          <p>{error.message || error}</p>
+    <>
+      <Container className="chat-container">
+        <AlwaysScrollToBottom />
+
+        {/* 에러 메시지 */}
+        {error && (
+          <div className="chat-error-container" role="alert">
+            <p>{error.message || error}</p>
+          </div>
+        )}
+
+        {/* 채팅 메시지 영역 */}
+        <MessageList
+          messages={messages}
+          userName={userName}
+          user={user}
+          getUserProfileImage={getUserProfileImage}
+          scrollRef={scrollRef}
+        />
+
+        {/* 메시지 입력 영역 */}
+        <MessageForm onSendMessage={sendMessage} />
+      </Container>
+
+      {/* 🆕 새 메시지 알림 버튼 - Container 밖으로 이동 */}
+      {hasUnreadMessages && (
+        <div className="new-message-notification">
+          <button
+            className="new-message-btn"
+            onClick={forceScrollToBottom}
+            aria-label="새로운 메시지로 이동"
+          >
+            ⬇️ 새로운 메시지
+          </button>
         </div>
       )}
-
-      {/* 채팅 메시지 영역 */}
-      <MessageList 
-        messages={messages}
-        userName={userName}
-        user={user}
-        getUserProfileImage={getUserProfileImage}
-        scrollRef={scrollRef}
-      />
-      
-      {/* 메시지 입력 영역 */}
-      <MessageForm onSendMessage={sendMessage} />
-    </Container>
+    </>
   );
 }
 

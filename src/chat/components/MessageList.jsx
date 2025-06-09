@@ -1,5 +1,6 @@
 import React from 'react';
 import Message from './Message';
+import { useChat } from '../ChatContext';
 import '../Chat.css';
 
 function MessageList({ 
@@ -9,15 +10,9 @@ function MessageList({
   getUserProfileImage, 
   scrollRef 
 }) {
-  // 이메일에서 @ 앞부분만 추출하는 함수
-  const formatUserName = (name) => {
-    if (!name) return '사용자';
-    if (name.includes('@')) {
-      return name.split('@')[0];
-    }
-    return name;
-  };
-
+  
+  const { formatEmailToUsername } = useChat();
+  
   // 날짜 포맷팅 (YYYY년 M월 D일 요일)
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
@@ -88,7 +83,7 @@ function MessageList({
         type: 'message',
         data: {
           ...message,
-          user_name: formatUserName(message.user_name)
+          user_name: formatEmailToUsername(message.user_name)
         },
         isConsecutive: isConsecutive,
         id: message.cid || `temp-${index}`
@@ -131,14 +126,14 @@ function MessageList({
 
         // 메시지 렌더링
         const message = item.data;
-        const isMyMessage = message.user_name === formatUserName(userName) || message.uid === user?.id;
+        const isMyMessage = message.user_name === formatEmailToUsername(userName) || message.uid === user?.id;
 
         return (
           <Message
             key={item.id}
             message={message}
             isMyMessage={isMyMessage}
-            userName={formatUserName(userName)}
+            userName={formatEmailToUsername(userName)}
             user={user}
             getUserProfileImage={getUserProfileImage}
             showAvatar={!item.isConsecutive} // 연속 메시지면 아바타 숨김

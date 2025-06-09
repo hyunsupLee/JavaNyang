@@ -2,14 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import './MyEdit.css';
 import { supabase } from '../config/SupabaseClient';
 import { getImageUrl, extractRelativePath } from '../utils/imageUtils';
+import { useAuth } from '../contexts/AuthContext';
 import CommonModal from '../components/CommonModal';
 
-
 const MODAL_TYPES = {
-        SUBMIT: 'check'
+    SUBMIT: 'check'
 };
 
 export default function MyEdit() {
+    const { user, userInfo, displayName, formatEmailToUsername, loading } = useAuth();
     useEffect(() => {
         document.title = '자바냥 | 프로필 수정';
     }, []);
@@ -17,82 +18,48 @@ export default function MyEdit() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [image, setImage] = useState(null);
-    const [user, setUser] = useState(null);
     const [uploading, setUploading] = useState(false);
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
     const [profileLoaded, setProfileLoaded] = useState(false);
     const fileInputRef = useRef(null);
 
     const [modalType, setModalType] = useState(null);
-    
+
     const closeModal = () => {
         setModalType(null);
     };
 
+    // AuthContext 기반으로 간소화된 프로필 로딩
     useEffect(() => {
-        getCurrentUser();
-        loadProfileFromSupabase();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (event, session) => {
-                console.log('세션 변화 감지:', event, session);
-
-                if (event === 'SIGNED_OUT' || !session) {
-                    // 프로필 로딩 상태 초기화
-                    setUser(null);
-                    setName('');
-                    setPassword('');
-                    setImage(null);
-                    setProfileLoaded(false);
-
-                    console.log('로그아웃 감지 - 상태 초기화 완료');
-                } else if (event === 'SIGNED_IN' && session) {
-                    setUser(session.user);
-                    loadProfileFromSupabase();
-                }
-                setLoading(false);
-            }
-        );
-
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, []);
-
-    const getCurrentUser = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-        setLoading(false);
-    };
+        if (user && !loading) {
+            loadProfileFromSupabase();
+        }
+    }, [user, userInfo, loading]);
 
     // 프로필 로딩 완료 후 상태 업데이트
     const loadProfileFromSupabase = async () => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 setProfileLoaded(true);
                 return;
             }
+            // 이름 초기값 설정
+            if (userInfo?.name) {
+                setName(userInfo.name);
+            } else {
+                // 사용자가 이름을 설정하지 않았으면 이메일 @ 앞부분을 초기값으로
+                setName(formatEmailToUsername(user.email));
+            }
 
-            const { data } = await supabase
-                .from('user_info')
-                .select('name, profimg')
-                .eq('uid', user.id)
-                .single();
-
-            if (data) {
-                if (data.name) setName(data.name);
-                if (data.profimg && data.profimg !== '/JavaNyang/default-avatar.png') {
-                    setImage(getImageUrl(data.profimg));
-                } else {
-                    setImage('/JavaNyang/default-avatar.png');
-                }
+            if (userInfo?.profimg && userInfo.profimg !== '/JavaNyang/default-avatar.png') {
+                setImage(getImageUrl(userInfo.profimg));
             } else {
                 setImage('/JavaNyang/default-avatar.png');
             }
         } catch (error) {
             console.error('프로필 로드 실패:', error);
             // 오류 발생 시에도 기본 이미지 설정
+            setName(formatEmailToUsername(user?.email) || '사용자');
             setImage('/JavaNyang/default-avatar.png');
         } finally {
             setProfileLoaded(true);
