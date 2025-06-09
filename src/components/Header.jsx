@@ -110,7 +110,10 @@ export default function Header() {
       // console.log("email : ", auth.userInfo?.email);
       // console.log("role : ", auth.userInfo?.role);
       // console.log("user : ", auth.user.id);
-      let proimgPath = bucketPath + auth.userInfo?.profimg;
+
+      let proimgPath = auth.userInfo?.profimg.startsWith("http")
+        ? auth.userInfo?.profimg
+        : bucketPath + auth.userInfo?.profimg;
       role.current = auth.userInfo?.role;
       setUser(auth.user);
       setProfImg(proimgPath);
