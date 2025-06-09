@@ -3,21 +3,14 @@ import { getImageUrl } from '../../utils/imageUtils';
 import { useChat } from '../ChatContext';
 
 function Message({ 
-  message,              
-  isMyMessage,          
-  userName,             
-  user,                 
-  getUserProfileImage,   
-  showAvatar = true,    
-  showUsername = true   
+  message, isMyMessage, userName, user,
+  getUserProfileImage, showAvatar = true, showUsername = true   
 }) {
-  const { toggleReaction, setReplyMessage, messages } = useChat();
+  const { toggleReaction, setReplyMessage, messages, formatEmailToUsername } = useChat();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const availableEmojis = ['👍', '👎', '😏', '🥱', '😢', '🤬'];
 
-  // 사용할 이모지 목록
-  const availableEmojis = ['👍', '❤️', '😄', '😮', '😢', '😡'];
-
-  // 시간 포맷팅 (HH:MM)
+  // 시간 포맷팅 (HH:MM) 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
     const koreaTime = new Date(date.getTime() + (9 * 60 * 60 * 1000));
@@ -26,17 +19,6 @@ function Message({
       minute: '2-digit',
       hour12: false
     });
-  };
-
-  // 이메일에서 @ 앞부분만 추출하는 함수
-  const formatUserName = (name) => {
-    if (!name) return '사용자';
-    
-    if (name.includes('@')) {
-      return name.split('@')[0];
-    }
-    
-    return name;
   };
 
   // 프로필 이미지 가져오기
@@ -51,6 +33,28 @@ function Message({
   // 답장할 원본 메시지 찾기
   const findOriginalMessage = (replyToId) => {
     return messages.find(msg => msg.cid === replyToId);
+  };
+
+  // 원본 메시지 위치 최상단으로
+  const scrollToMessage = (messageId) => {
+    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (messageElement) {
+      messageElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start'
+      });
+      
+      messageElement.classList.add('message-highlight');
+      
+      setTimeout(() => {
+        messageElement.classList.remove('message-highlight');
+      }, 1200);
+    }
+  };
+
+  const handleEmojiClick = (emoji) => {
+    toggleReaction(message.cid, emoji);
+    setShowEmojiPicker(false);
   };
 
   // 답장된 메시지 표시 컴포넌트
@@ -71,10 +75,14 @@ function Message({
     }
     
     return (
-      <div className="reply-to-message">
+      <div 
+        className="reply-to-message clickable" 
+        onClick={() => scrollToMessage(originalMessage.cid)}
+        title="원본 메시지로 이동"
+      >
         <div className="reply-indicator"></div>
         <div className="reply-content">
-          <span className="reply-user">{formatUserName(originalMessage.user_name)}</span>
+          <span className="reply-user">{formatEmailToUsername(originalMessage.user_name)}</span>
           <span className="reply-text">
             {originalMessage.message.length > 50 
               ? originalMessage.message.substring(0, 50) + '...' 
@@ -83,11 +91,6 @@ function Message({
         </div>
       </div>
     );
-  };
-
-  const handleEmojiClick = (emoji) => {
-    toggleReaction(message.cid, emoji);
-    setShowEmojiPicker(false);
   };
 
   // 반응 표시 컴포넌트
@@ -101,7 +104,7 @@ function Message({
           
           const count = reactionList.length;
           const userReacted = reactionList.some(reaction => reaction.userId === user?.id);
-          const reactorNames = reactionList.map(r => formatUserName(r.userName)).join(', ');
+          const reactorNames = reactionList.map(r => formatEmailToUsername(r.userName)).join(', ');
           
           return (
             <button
@@ -136,17 +139,19 @@ function Message({
       </div>
     );
   };
-
   const profileImage = getProfileImage(message);
 
   return (
-    <div className={`message-bubble ${isMyMessage ? 'my-message' : 'other-message'}`}>
+    <div 
+      className={`message-bubble ${isMyMessage ? 'my-message' : 'other-message'}`}
+      data-message-id={message.cid}
+    >
       {/* 프로필 이미지 (상대방일 때만, 연속 메시지가 아닐 때만) */}
       {!isMyMessage && (
         <div className="message-avatar" style={{ visibility: showAvatar ? 'visible' : 'hidden' }}>
           <img
             src={profileImage}
-            alt={`${formatUserName(message.user_name)} 프로필`}
+            alt={`${formatEmailToUsername(message.user_name)} 프로필`}
             className="avatar-image"
             onError={(e) => { e.target.src = getImageUrl(null); }}
           />
@@ -157,7 +162,7 @@ function Message({
         {/* 사용자 이름 (상대방이고, 연속 메시지가 아닐 때만) */}
         {!isMyMessage && showUsername && (
           <div className="message-username">
-            {formatUserName(message.user_name)}
+            {formatEmailToUsername(message.user_name)}
           </div>
         )}
 
@@ -179,14 +184,14 @@ function Message({
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               title="반응 추가"
             >
-              😊
+              👍
             </button>
             <button 
               className="reply-button"
               onClick={() => setReplyMessage(message)}
               title="답장"
             >
-              ↩️
+              ↩️ 
             </button>
             <EmojiPicker />
           </div>

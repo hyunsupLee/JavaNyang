@@ -1,22 +1,23 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { useChat } from '../ChatContext';
 import '../Chat.css';
 
 function MessageForm({ onSendMessage }) {
-  const { replyingTo, cancelReply } = useChat();
+  const { replyingTo, cancelReply, formatEmailToUsername } = useChat();
   const [messageInput, setMessageInput] = useState('');
   const [sending, setSending] = useState(false);
   const textareaRef = useRef(null);
 
-  // 이메일에서 @ 앞부분만 추출하는 함수
-  const formatUserName = (name) => {
-    if (!name) return '사용자';
-    if (name.includes('@')) {
-      return name.split('@')[0];
+  // 답장할 때 자동
+  useEffect(() => {
+    if (replyingTo && textareaRef.current) {
+      // 약간의 딜레이 후 포커스 (답장 미리보기가 렌더링된 후)
+      setTimeout(() => {
+        textareaRef.current.focus();
+      }, 100);
     }
-    return name;
-  };
+  }, [replyingTo]); 
 
   // 메시지 전송
   const handleSendMessage = async (e) => {
@@ -51,7 +52,7 @@ function MessageForm({ onSendMessage }) {
     return (
       <div className="reply-preview">
         <div className="reply-preview-content">
-          <span className="reply-preview-label">↩️ {formatUserName(replyingTo.user_name)}님에게 답장</span>
+          <span className="reply-preview-label">↩️ {formatEmailToUsername(replyingTo.user_name)}님에게 답장</span>
           <p className="reply-preview-text">
             {replyingTo.message.length > 100 
               ? replyingTo.message.substring(0, 100) + '...' 
@@ -81,7 +82,7 @@ function MessageForm({ onSendMessage }) {
           className="form-control message-textarea"
           placeholder={
             replyingTo 
-              ? `${formatUserName(replyingTo.user_name)}님에게 답장... (Shift+Enter로 줄바꿈)`
+              ? `${formatEmailToUsername(replyingTo.user_name)}님에게 답장... (Shift+Enter로 줄바꿈)`
               : "메시지를 입력하세요... (Shift+Enter로 줄바꿈)"
           }
           value={messageInput}

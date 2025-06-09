@@ -54,6 +54,10 @@ function MyPage() {
   // AuthContext에서 사용자 정보 가져오기
   const { user, session, loading: authLoading } = useAuth();
 
+  useEffect(() => {
+    document.title = '자바냥 | 마이페이지';
+  }, []);
+
   const [name, setName] = useState('');
   const [image, setImage] = useState('/JavaNyang/default-avatar.png');
   const [userInfo, setUserInfo] = useState({
@@ -471,10 +475,10 @@ function MyPage() {
       1: '쉬움', 2: '중간', 3: '어려움', 4: '매우 어려움'
     };
 
-    // 최근 3개 활동만 (날짜순 정렬)
+    // 최근 4개 활동만(업적하고 길이 맞추려고 1개 더 보이게 함) (날짜순 정렬)
     const recentData = detailedData
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 3);
+      .slice(0, 4);
 
     return recentData.map((item, index) => ({
       id: index + 1,
@@ -793,7 +797,9 @@ function MyPage() {
               <p>최근 학습 활동이 없습니다.</p>
             )}
           </div>
-          <button className='view-more-btn'>모든 활동 보기</button>
+          <button className='view-more-btn' onClick={() => navigate('/myPage/learningHistory')}>
+            모든 활동 보기
+          </button>
         </div>
 
         {/* 최근 획득 업적 */}

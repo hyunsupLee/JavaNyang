@@ -1,0 +1,348 @@
+@charset "UTF-8";
+
+main#learning-history {
+    max-width: 1320px;
+    padding: 0 20px;
+    margin: 60px auto;
+}
+
+main#learning-history a {
+    text-decoration: none;
+}
+
+main#learning-history .back-btn {
+    display: flex;
+    color: #999;
+}
+
+main#learning-history .back-btn span {
+    color: inherit;
+    padding-right: 4px;
+}
+
+main#learning-history h2 {
+    font-size: 26px;
+    font-weight: bold;
+    text-align: center;
+}
+
+main#learning-history h2>span {
+    color: #9663E8;
+}
+
+/* 필터 버튼 영역 */
+.filter-btn-area {
+    text-align: center;
+    margin-bottom: 20px;
+    
+}
+
+.filter-section {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    min-width: 60px;
+}
+
+.filter-group select {
+    padding: 6px 12px;
+    border: 1px solid #9663E8;
+    /* background-color: #E0D0F8; */
+    /* color: #9663E8; */
+    border-radius: 16px;
+    font-size: 14px;
+    background-color: white;
+    min-width: 120px;
+}
+
+.filter-group select:focus {
+    outline: none;
+    color: #666;
+}
+
+.reset-btn {
+    padding: 6px 16px;
+    background-color: #E0D0F8;
+    color: #666;
+    border-radius: 16px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.reset-btn:hover {
+    background-color: #9663E8;
+    color: #fff;
+}
+
+/* 활동 목록 영역 */
+.activity-area {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.activity-area .activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #999;
+    /* border: 1px solid #9663E8;
+    border-radius: 10px; */
+    position: relative;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+.activity-area .activity-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(150, 99, 232, 0.15);
+}
+
+.activity-main {
+    display: flex;
+    gap: 15px;
+    flex: 1;
+}
+
+.activity-area .status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 7px;
+}
+
+.activity-area .status-indicator.correct {
+    background-color: #10b981;
+}
+
+.activity-area .status-indicator.wrong {
+    background-color: #ef4444;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-area .activity-question {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+    line-height: 1.4;
+}
+
+.activity-area .activity-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+    color: #666;
+    flex-wrap: wrap;
+}
+
+.activity-area .activity-category,
+.activity-area .activity-difficulty,
+.activity-area .activity-reward {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.activity-area .activity-reward {
+    color: #9663E8;
+}
+
+.activity-date-time {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+    color: #999;
+    font-size: 12px;
+}
+
+.activity-date {
+    font-weight: 500;
+    color: #666;
+}
+
+.activity-time {
+    color: #999;
+}
+
+/* 활동이 없을 때 */
+.no-activities {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.no-activities p {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+}
+
+.no-activities button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color: #9663E8;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.no-activities button:hover {
+    background-color: #7c3aed;
+}
+
+/* 페이지네이션 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 30px 0;
+}
+
+.page-btn {
+    padding: 8px 12px;
+    border: 1px solid #9663E8;
+    background-color: white;
+    color: #9663E8;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    min-width: 40px;
+}
+
+.page-btn:hover:not(:disabled) {
+    background-color: #9663E8;
+    color: white;
+}
+
+.page-btn:disabled {
+    background-color: #f8f9fa;
+    color: #ccc;
+    border-color: #eee;
+    cursor: not-allowed;
+}
+
+.page-btn.active {
+    background-color: #9663E8;
+    color: white;
+    border-color: #9663E8;
+}
+
+/* 로딩 및 에러 상태 */
+.loading-container,
+#learning-history .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.loading-container p,
+.error-container p {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 20px 0;
+}
+
+.error-container button {
+    padding: 12px 24px;
+    background-color: #9663E8;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.error-container button:hover {
+    background-color: #7c3aed;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    main#learning-history {
+        padding: 0 15px;
+        margin: 40px auto;
+    }
+
+    main#learning-history h2 {
+        font-size: 22px;
+    }
+
+    .filter-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        width: 100%;
+    }
+
+    .filter-group select {
+        min-width: auto;
+        width: 200px;
+    }
+
+    .activity-area .activity-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .activity-main {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .activity-date-time {
+        align-items: flex-start;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .activity-area .activity-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pagination {
+        gap: 4px;
+        padding: 20px 0;
+    }
+
+    .page-btn {
+        padding: 6px 8px;
+        font-size: 12px;
+        min-width: 32px;
+    }
+}

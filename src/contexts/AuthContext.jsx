@@ -4,6 +4,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 const AuthContext = createContext();
 
+// 이메일에서 @ 앞부분만 추출
+const formatEmailToUsername = (email) => {
+  if (!email) return '사용자';
+  return email.includes('@') ? email.split('@')[0] : email;
+};
+
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
@@ -74,7 +80,12 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [navigate, location]);
 
-  const value = { session, user, userInfo, loading }; // userInfo 포함
+  // displayName 계산 로직 추가
+  const displayName = userInfo?.name || formatEmailToUsername(user?.email) || '사용자';
+
+  const value = { session, user, userInfo, loading,
+    displayName, formatEmailToUsername
+   }; // userInfo 포함
   return (
     <AuthContext.Provider value={value}>
       {!loading && children}
