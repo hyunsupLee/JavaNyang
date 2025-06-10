@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <footer
       className="bg-dark text-light py-5 border-top"
-      style={{ height: "100px", minHeight: "300px" }}
+      style={{ height: "100px", minHeight: "300px", marginTop: "100px" }}
     >
       <Container>
         <Row>
