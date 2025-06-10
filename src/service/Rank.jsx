@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Container,
   Row,
@@ -23,6 +23,13 @@ export default function Rank() {
   const [lowerRankers, setLowerRankers] = useState([]);
   const [rankType, setRankType] = useState("daily");
 
+  const convertProfimgPath = useCallback((profPath) => {
+    let convertPath = profPath.startsWith("http")
+      ? profPath
+      : bucketPath + profPath;
+    return convertPath;
+  }, []);
+
   useEffect(() => {
     async function fetchRanking() {
       setLoading(true);
@@ -33,7 +40,7 @@ export default function Rank() {
 
         const data = await response.json();
         const top3Rander = data.top.slice(0, 3).map((item) => {
-          item.profimg = bucketPath + item.profimg;
+          item.profimg = convertProfimgPath(item.profimg);
           return item;
         });
 
@@ -45,7 +52,13 @@ export default function Rank() {
         }
 
         setTopRankers(top3Rander);
-        setLowerRankers(data.top.slice(3));
+
+        const lowerRander = data.top.slice(3).map((item) => {
+          item.profimg = convertProfimgPath(item.profimg);
+          return item;
+        });
+
+        setLowerRankers(lowerRander);
       } catch (error) {
         console.error("랭킹 데이터를 가져오는 중 오류 발생:", error);
       }
@@ -119,7 +132,9 @@ export default function Rank() {
                 <p className="text-muted">{topRankers[1].email}</p>
                 <div
                   className="rank-bar bar-2"
-                  style={{ height: `${topRankers[1].score * scoreH}px` }}
+                  style={{
+                    height: `${topRankers[1].score * scoreH.current}px`,
+                  }}
                 >
                   {topRankers[1].score}
                 </div>
@@ -139,7 +154,9 @@ export default function Rank() {
                 <p className="text-muted">{topRankers[0].email}</p>
                 <div
                   className="rank-bar bar-1"
-                  style={{ height: `${topRankers[0].score * scoreH}px` }}
+                  style={{
+                    height: `${topRankers[0].score * scoreH.current}px`,
+                  }}
                 >
                   {topRankers[0].score}
                 </div>
@@ -157,7 +174,9 @@ export default function Rank() {
                 <p className="text-muted">{topRankers[2].email}</p>
                 <div
                   className="rank-bar bar-3"
-                  style={{ height: `${topRankers[2].score * scoreH}px` }}
+                  style={{
+                    height: `${topRankers[2].score * scoreH.current}px`,
+                  }}
                 >
                   {topRankers[2].score}
                 </div>
