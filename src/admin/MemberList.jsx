@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Search, Person, ChevronUp, ChevronDown } from "react-bootstrap-icons";
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/SupabaseClient';
@@ -235,6 +235,7 @@ const MemberList = () => {
     );
   };
 
+  // 페이지네이션 관련 계산
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentUsers = filteredUsers.slice(
@@ -242,8 +243,87 @@ const MemberList = () => {
     startIndex + itemsPerPage
   );
 
-  
-    if (loading) return <LoadingSpinner/>;
+  // 페이지네이션 핸들러들
+  const handlePageChange = useCallback((page) => {
+    setCurrentPage(page);
+  }, []);
+
+  const handlePrevPage = useCallback(() => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  }, []);
+
+  const handleNextPage = useCallback(() => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  }, [totalPages]);
+
+  // 고급 페이지네이션 컴포넌트 (QuizManage 스타일)
+  const Pagination = () => {
+    if (totalPages <= 1) return null;
+
+    const getPageNumbers = () => {
+      const delta = 2;
+      const range = [];
+      const rangeWithDots = [];
+
+      for (let i = Math.max(2, currentPage - delta);
+        i <= Math.min(totalPages - 1, currentPage + delta);
+        i++) {
+        range.push(i);
+      }
+
+      if (currentPage - delta > 2) {
+        rangeWithDots.push(1, '...');
+      } else {
+        rangeWithDots.push(1);
+      }
+
+      rangeWithDots.push(...range);
+
+      if (currentPage + delta < totalPages - 1) {
+        rangeWithDots.push('...', totalPages);
+      } else {
+        rangeWithDots.push(totalPages);
+      }
+
+      return rangeWithDots;
+    };
+
+    return (
+      <div className="pagination">
+        <button
+          className="pagination-btn"
+          onClick={handlePrevPage}
+          disabled={currentPage === 1}
+        >
+          <span className="material-symbols-rounded">chevron_left</span>
+        </button>
+
+        {getPageNumbers().map((page, index) => (
+          page === '...' ? (
+            <span key={`dots-${index}`} className="pagination-dots">...</span>
+          ) : (
+            <button
+              key={page}
+              className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+              onClick={() => handlePageChange(page)}
+            >
+              {page}
+            </button>
+          )
+        ))}
+
+        <button
+          className="pagination-btn"
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+        >
+          <span className="material-symbols-rounded">chevron_right</span>
+        </button>
+      </div>
+    );
+  };
+
+  if (loading) return <LoadingSpinner/>;
 
   return (
     <div className="member-list-container">
@@ -362,19 +442,8 @@ const MemberList = () => {
           </table>
         </div>
 
-        <div className="pagination">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`pagination-btn ${
-                page === currentPage ? "active" : ""
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-        </div>
+        {/* 고급 페이지네이션 */}
+        <Pagination />
       </div>
     </div>
   );
