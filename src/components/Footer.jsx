@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <footer
       className="bg-dark text-light py-5 border-top"
-      style={{ height: "100px", minHeight: "300px", marginTop: "100px" }}
+      style={{ minHeight: "300px", marginTop: "100px" }}
     >
       <Container>
         <Row>
@@ -26,7 +26,7 @@ export default function Footer() {
             <ul className="list-unstyled">
               <li>
                 <Link
-                  to="/quiz"
+                  to="/quizlist"
                   style={{ color: "white", textDecoration: "none" }}
                 >
                   퀴즈

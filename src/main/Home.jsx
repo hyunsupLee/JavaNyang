@@ -83,7 +83,9 @@ export default function Home() {
         {attended ? "오늘 출석 완료" : "출석하기"}
       </button> */}
 
-      <h4 className="fw-bold mt-5">자바냥 에서는</h4>
+      <h4 className="fw-bold" style={{ marginTop: "100px" }}>
+        자바냥 에서는
+      </h4>
       <h2 className="fw-bold display-5 mb-3">5분마다 인생이 바뀐다</h2>
       <h4 className="typewriter mb-3">{displayedText}</h4>
 
@@ -91,12 +93,13 @@ export default function Home() {
         <div className="slider-track">
           <img src={quizslide} alt="퀴즈 슬라이드 1" className="slide-img" />
           <img src={quizslide} alt="퀴즈 슬라이드 2" className="slide-img" />
+          <img src={quizslide} alt="퀴즈 슬라이드 3" className="slide-img" />
         </div>
       </div>
 
-      <Link to="/quizlist" style={{ paddingBottom: "150px" }}>
+      <Link to="/quizlist">
         <Button
-          className="btn-purple px-4 py-2 mt-4 mb-5"
+          className="btn-purple px-4 py-2 mt-4"
           size="lg"
           style={{
             backgroundColor: "#9663E8",

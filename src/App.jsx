@@ -25,7 +25,7 @@ import Join from "./member/Join";
 import MyEdit from "./member/MyEdit";
 import MyPage from "./member/MyPage";
 import Achievement from "./member/Achievement";
-import LearningHistory from './member/LearningHistory';
+import LearningHistory from "./member/LearningHistory";
 
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -55,6 +55,7 @@ function App() {
             <Route path="/quiz/:qid" element={<Quiz />} />
             <Route path="/quizlist/:categoryPath" element={<QuizList />} />
             <Route path="/quizlist" element={<QuizList />} />
+            <Route path="/myquizlist" element={<QuizList />} />
 
             <Route path="/rank" element={<Rank />} />
             <Route path="/realtimequiz" element={<RealTimeQuiz />} />
@@ -70,7 +71,10 @@ function App() {
             <Route path="/myEdit" element={<MyEdit />} />
             <Route path="/myPage" element={<MyPage />} />
             <Route path="/myPage/achievement" element={<Achievement />} />
-            <Route path="/myPage/learningHistory" element={<LearningHistory />} />
+            <Route
+              path="/myPage/learningHistory"
+              element={<LearningHistory />}
+            />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
