@@ -11,6 +11,7 @@ import {
 
 import "./Rank.css";
 import profimg from "../assets/default-avatar.png";
+import { Link } from "react-router-dom";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const bucketPath = `${supabaseUrl}/storage/v1/object/public/profile-image/`;
@@ -113,6 +114,39 @@ export default function Rank() {
         </div>
       ) : (
         <>
+          {/* ranking data 없음 */}
+          {topRankers.length === 0 && (
+            <div
+              className="center"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <h4 className="mt-3">랭킹등록 대기중</h4>
+              <h3>
+                지금 도전해서{" "}
+                <span style={{ fontSize: "40px", color: "#9663E8" }}>1등</span>
+                을 차지해 보세요!
+              </h3>
+              <img src={profimg} width="400px" />
+              <Link to="/quizlist">
+                <Button
+                  className="btn-purple px-4 py-2 mt-5"
+                  size="lg"
+                  style={{
+                    backgroundColor: "#9663E8",
+                    borderColor: "#9663E8",
+                    width: "415px",
+                  }}
+                >
+                  모든 Java 퀴즈 풀러가기
+                </Button>
+              </Link>
+            </div>
+          )}
+
           {topRankers.length > 0 && (
             <div className="celebration-box mb-5">
               🎉 <b>{topRankers[0].name} 님</b>이{" "}

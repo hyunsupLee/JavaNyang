@@ -1,21 +1,17 @@
 import { useEffect, useState, useRef } from "react";
-import { Container, Nav, Navbar, Image } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   PersonFill,
   BoxArrowRight,
   People,
-  GearWide,
+  ListUl,
+  XCircleFill,
 } from "react-bootstrap-icons";
 import logo from "../assets/logo_black.svg";
-
 import "./Header.css";
 import { useAuth } from "../contexts/AuthContext";
-
 import { supabase } from "../config/SupabaseClient";
 
-//const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-//const bucketPath = `${supabaseUrl}/storage/v1/object/public/profile-image/`;
 const bucketPath = import.meta.env.VITE_SUPABASE_STORAGE_URL;
 
 export default function Header() {
@@ -23,68 +19,54 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
   const [profimg, setProfImg] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 780);
 
   const location = useLocation();
   const navigate = useNavigate();
   const role = useRef(0);
+  const auth = useAuth();
 
-  // use Context session 관리로 인한 주석 처리
-  // // 사용자 이름 가져오기
-  // const loadUserName = async (userId) => {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from("user_info")
-  //       .select("name,email,profimg,role")
-  //       .eq("uid", userId)
-  //       .single();
+  useEffect(() => {
+    const handleResize = () => {
+      //console.log("handleResize.......");
+      if (window.innerWidth > 850 && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+      setIsMobile(window.innerWidth <= 850);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [window.innerWidth]);
 
-  //     //console.log(data?.name, data?.email, data?.profimg, data?.role);
-  //     if (error) {
-  //       console.error("사용자 정보 로드 실패:", error);
-  //       return;
-  //     }
+  useEffect(() => {
+    if (auth.session) {
+      let proimgPath = auth.userInfo?.profimg.startsWith("http")
+        ? auth.userInfo?.profimg
+        : bucketPath + auth.userInfo?.profimg;
+      role.current = auth.userInfo?.role;
+      setUser(auth.user);
+      setProfImg(proimgPath);
+      setUsername(
+        auth.userInfo?.name || auth.userInfo?.email?.split("@")[0] || "사용자"
+      );
+    } else {
+      role.current = 0;
+      setUser(null);
+      setProfImg("");
+      setUsername("");
+    }
 
-  //     let proimgPath = bucketPath + data.profimg;
-  //     role.current = data?.role;
-  //     setProfImg(proimgPath);
-  //     setUsername(data?.name || user?.email?.split("@")[0] || "사용자");
-  //   } catch (error) {
-  //     console.error("사용자 이름 로드 중 오류:", error);
-  //   }
-  // };
+    if (location.pathname.startsWith("/quiz")) {
+      setShowQuizSubMenu(true);
+    } else {
+      setShowQuizSubMenu(false);
+    }
+    return () => {
+      setShowQuizSubMenu(false);
+    };
+  }, [location.pathname, auth]);
 
-  // useEffect(() => {
-  //   // 초기 사용자 정보 가져오기
-  //   const getInitialUser = async () => {
-  //     const {
-  //       data: { user },
-  //     } = await supabase.auth.getUser();
-  //     if (user) {
-  //       setUser(user);
-  //       loadUserName(user.id);
-  //     }
-  //   };
-
-  //   getInitialUser();
-
-  //   // 실시간 인증 상태 변경 감지
-  //   const {
-  //     data: { subscription },
-  //   } = supabase.auth.onAuthStateChange((event, session) => {
-  //     if (session) {
-  //       setUser(session.user);
-  //       loadUserName(session.user.id);
-  //     } else {
-  //       role.current = 0;
-  //       setUser(null);
-  //       setUsername("");
-  //     }
-  //   });
-
-  //   return () => subscription.unsubscribe();
-  // }, []);
-
-  // 로그아웃 처리
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -98,212 +80,206 @@ export default function Header() {
     }
   };
 
-  //console.log("Header 렌더링");
-  const auth = useAuth();
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
-  // 경로 변경에 따른 서브메뉴 표시/숨김
-  useEffect(() => {
-    if (auth.session) {
-      // console.log("token : ", auth.session?.access_token);
-      // console.log("profimg : ", auth.userInfo?.profimg);
-      // console.log("name : ", auth.userInfo?.name);
-      // console.log("email : ", auth.userInfo?.email);
-      // console.log("role : ", auth.userInfo?.role);
-      // console.log("user : ", auth.user.id);
+  const menuItems = [
+    { label: "퀴즈", path: "/quizlist" },
+    { label: "나만의퀴즈", path: "/myquizlist" },
+    { label: "랭킹", path: "/rank" },
+    { label: "실시간 채팅", path: "/chat" },
+  ];
 
-      let proimgPath = auth.userInfo?.profimg.startsWith("http")
-        ? auth.userInfo?.profimg
-        : bucketPath + auth.userInfo?.profimg;
-      role.current = auth.userInfo?.role;
-      setUser(auth.user);
-      setProfImg(proimgPath);
-      setUsername(
-        auth.userInfo?.name || auth.userInfo?.email?.split("@")[0] || "사용자"
-      );
-    } else {
-      //console.log("auth is null");
-      role.current = 0;
-      setUser(null);
-      setProfImg("");
-      setUsername("");
-    }
+  const adminItems = [
+    { label: "회원관리", path: "/adminMembers" },
+    { label: "퀴즈관리", path: "/adminQuizs" },
+  ];
 
-    // console.log("location.pathname : ", location.pathname);
-    if (location.pathname.startsWith("/quiz")) {
-      setShowQuizSubMenu(true);
-    } else {
-      setShowQuizSubMenu(false);
-    }
-    return () => {
-      setShowQuizSubMenu(false);
-    };
-  }, [location.pathname, auth]);
+  const quizSubItems = [
+    { label: "변수·상수", path: "/quizlist/const" },
+    { label: "연산자", path: "/quizlist/operator" },
+    { label: "배열", path: "/quizlist/array" },
+    { label: "function", path: "/quizlist/function" },
+    { label: "제어문", path: "/quizlist/control" },
+    { label: "클래스", path: "/quizlist/class" },
+    { label: "상속·추상화", path: "/quizlist/extends" },
+    { label: "제네릭·람다식", path: "/quizlist/generic" },
+  ];
 
   return (
     <>
-      {/* 상단 네비게이션 바 C0A1F1 */}
-      <Navbar
-        className={`${
-          user && role.current > 1 ? "header-bg-admin" : "bg-light"
+      <div
+        className={`header ${
+          user && role.current > 1 ? "header-bg-admin" : ""
         }`}
-        data-bs-theme="light"
-        expand="lg"
       >
-        <Container>
-          <Navbar.Brand as={Link} to="/" className="me-5">
-            <img src={logo} width={80} alt="logo" />
-          </Navbar.Brand>
+        <div className="header-box">
+          <Link to="/" className="header-logo">
+            <img src={logo} alt="logo" />
+          </Link>
 
-          {role.current > 1}
-          <Nav className="me-auto">
-            <Nav.Link
-              as={Link}
-              to="/quizlist"
-              className={`me-4 topmenu-item ${
-                location.pathname.startsWith("/quiz") ? "active" : ""
-              }`}
-            >
-              퀴즈
-            </Nav.Link>
-            <Nav.Link
-              as={Link}
-              to="/rank"
-              className={`me-4 topmenu-item ${
-                location.pathname.startsWith("/rank") ? "active" : ""
-              }`}
-            >
-              랭킹
-            </Nav.Link>
-            <Nav.Link
-              as={Link}
-              to="/chat"
-              className={`me-4 topmenu-item ${
-                location.pathname.startsWith("/chat") ? "active" : ""
-              }`}
-            >
-              실시간 채팅
-            </Nav.Link>
-
-            {role.current > 1 && (
-              <>
-                <Nav.Link
-                  as={Link}
-                  to="/adminMembers"
-                  className={`me-4 topmenu-item ${
-                    location.pathname.startsWith("/adminMembers")
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  회원관리
-                </Nav.Link>
-                <Nav.Link
-                  as={Link}
-                  to="/adminQuizs"
-                  className={`topmenu-item ${
-                    location.pathname.startsWith("/adminQuizs") ? "active" : ""
-                  }`}
-                >
-                  퀴즈관리
-                </Nav.Link>
-              </>
-            )}
-          </Nav>
-          <Nav>
-            {user ? (
-              <>
-                {profimg ? (
-                  <Image
-                    src={profimg}
-                    roundedCircle
-                    className="header-avatar mt-1"
-                  />
-                ) : null}
-
-                <Nav.Link
-                  as={Link}
-                  to="/myPage"
-                  className="d-flex align-items-center"
-                >
-                  {username}님
-                </Nav.Link>
-                <Nav.Link
-                  as={Link}
-                  to="/myEdit"
-                  className="d-flex align-items-center"
-                >
-                  <GearWide size={18} className="me-2" />
-                  프로필 수정
-                </Nav.Link>
-                <Nav.Link
-                  onClick={handleLogout}
-                  className="d-flex align-items-center"
-                >
-                  <div
-                    style={{
-                      border: "1px solid #8f8f8f",
-                      padding: "3px 10px",
-                      borderRadius: "5px",
-                    }}
+          {isMobile ? (
+            <div className="hamburger" onClick={toggleMenu}>
+              <ListUl size={30} />
+            </div>
+          ) : (
+            <>
+              <nav className="header-nav">
+                {menuItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`header-menu-item ${
+                      location.pathname.startsWith(item.path) ? "active" : ""
+                    }`}
                   >
-                    <BoxArrowRight size={20} className="me-2" />
-                    logout
-                  </div>
-                </Nav.Link>
-              </>
-            ) : (
-              <>
-                <Nav.Link
-                  as={Link}
-                  to="/login"
-                  className="d-flex align-items-center"
-                >
-                  <PersonFill size={20} className="me-2" />
-                  login
-                </Nav.Link>
-                <Nav.Link
-                  as={Link}
-                  to="/join"
-                  className="d-flex align-items-center"
-                >
-                  <People size={20} className="me-2" />
-                  Join
-                </Nav.Link>
-              </>
-            )}
-          </Nav>
-        </Container>
-      </Navbar>
+                    {item.label}
+                  </Link>
+                ))}
+                {role.current > 1 &&
+                  adminItems.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`header-menu-item ${
+                        location.pathname.startsWith(item.path) ? "active" : ""
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+              </nav>
+              <div className="header-space"></div>
+              <div className="user_nav_box">
+                {profimg && (
+                  <img src={profimg} alt="profile" className="top-avatar" />
+                )}
+                {user ? (
+                  <>
+                    <Link
+                      to="/myPage"
+                      onClick={toggleMenu}
+                      className="header_text_link"
+                    >
+                      {username}님
+                    </Link>
+                    <button onClick={handleLogout} className="modal-logout">
+                      <BoxArrowRight size={20} className="me-2" /> logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      onClick={toggleMenu}
+                      className="header_text_link"
+                    >
+                      <PersonFill size={20} /> login
+                    </Link>
+                    <Link
+                      to="/join"
+                      onClick={toggleMenu}
+                      className="header_text_link"
+                    >
+                      <People size={20} /> join
+                    </Link>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
-      {/* 퀴즈 서브 메뉴 */}
+      {isMobile && isMenuOpen && (
+        <div className="modal-backdrop" onClick={toggleMenu}>
+          <div
+            className="modal-content slide-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-profile">
+              {profimg && (
+                <img src={profimg} alt="profile" className="modal-avatar" />
+              )}
+              {user ? (
+                <>
+                  <Link
+                    to="/myPage"
+                    onClick={toggleMenu}
+                    className="header_text_link"
+                  >
+                    {username}님
+                  </Link>
+                  <button onClick={handleLogout} className="modal-logout">
+                    <BoxArrowRight size={20} className="me-2" /> logout
+                  </button>
+                </>
+              ) : (
+                <div
+                  style={{ display: "flex", gap: "20px", alignItems: "center" }}
+                >
+                  <Link
+                    to="/login"
+                    onClick={toggleMenu}
+                    className="header_text_link"
+                  >
+                    <PersonFill size={20} /> login
+                  </Link>
+                  <Link
+                    to="/join"
+                    onClick={toggleMenu}
+                    className="header_text_link"
+                  >
+                    <People size={20} /> join
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <hr className="modal-divider" />
+
+            <nav className="modal-nav">
+              {menuItems.map((item) => (
+                <Link key={item.path} to={item.path} onClick={toggleMenu}>
+                  {item.label}
+                </Link>
+              ))}
+
+              {role.current > 1 &&
+                adminItems.map((item) => (
+                  <Link key={item.path} to={item.path} onClick={toggleMenu}>
+                    {item.label}
+                  </Link>
+                ))}
+            </nav>
+            <div style={{ color: "white", width: "100%", textAlign: "center" }}>
+              <XCircleFill
+                size={30}
+                onClick={toggleMenu}
+                style={{ cursor: "pointer" }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {showQuizSubMenu && (
-        <div className="header-quiz-submenu-wrapper">
-          <Container>
-            <Nav className="justify-content-center gap-4">
-              {[
-                { label: "변수·상수", path: "/quizlist/const" },
-                { label: "연산자", path: "/quizlist/operator" },
-                { label: "배열", path: "/quizlist/array" },
-                { label: "function", path: "/quizlist/function" },
-                { label: "제어문", path: "/quizlist/control" },
-                { label: "클래스", path: "/quizlist/class" },
-                { label: "상속·추상화", path: "/quizlist/extends" },
-                { label: "제네릭·람다식", path: "/quizlist/generic" },
-              ].map((item) => (
-                <Nav.Link
-                  as={Link}
-                  to={item.path}
+        <>
+          <div className="header-quiz-submenu-wrapper">
+            <nav>
+              {quizSubItems.map((item) => (
+                <Link
                   key={item.path}
-                  className={`text-black quiz-submenu-item ${
+                  to={item.path}
+                  className={`quiz-submenu-item ${
                     location.pathname.startsWith(item.path) ? "active" : ""
                   }`}
                 >
                   {item.label}
-                </Nav.Link>
+                </Link>
               ))}
-            </Nav>
-          </Container>
-        </div>
+            </nav>
+          </div>
+        </>
       )}
     </>
   );
