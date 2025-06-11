@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../config/SupabaseClient";
-import "./QuizList.css";
+import "./MyQuizList.css";
 
 const categoryMap = {
   const: { id: 1, name: "상수" },
@@ -51,15 +51,15 @@ export default function QuizList() {
       }
 
       const { data, error } = await supabase
-        .from("score_board")
-        .select("qid")
+        .from("user_score_board")
+        .select("user_qid")
         .eq("uid", user.id);
 
       if (error) {
-        console.error("score_board 조회 에러:", error.message);
+        console.error("user_score_board 조회 에러:", error.message);
         setSolvedQuizIds([]);
       } else {
-        setSolvedQuizIds(data.map((item) => item.qid));
+        setSolvedQuizIds(data.map((item) => item.user_qid));
       }
     }
     fetchSolvedQuizIds();
@@ -72,12 +72,18 @@ export default function QuizList() {
       setError(null);
       setCurrentPage(1);
 
-      // quiz_list 기본 데이터 쿼리
-      let quizQuery = supabase.from("quiz_list").select("*");
+      let quizQuery = supabase.from("user_quiz_list").select(`
+    *,
+    user_info (
+      name
+    )
+  `);
+
       if (categoryId !== null) {
         quizQuery = quizQuery.eq("category", categoryId);
       }
-      quizQuery = quizQuery.order("qid", { ascending: true });
+
+      quizQuery = quizQuery.order("user_qid", { ascending: true });
 
       const { data: quizData, error: quizError } = await quizQuery;
 
@@ -94,43 +100,46 @@ export default function QuizList() {
         return;
       }
 
+      setQuizzes(quizData);
+      setLoading(false);
+
       // score_board에서 퀴즈별 제출, 맞힌 사람 수 집계
       // qid별로 제출 수, 맞힌 수 계산 (correct=true인 수)
       let scoreQuery = supabase
-        .from("score_board")
-        .select("qid, correct", { count: "exact" });
+        .from("user_score_board")
+        .select("user_qid, correct", { count: "exact" });
 
       if (categoryId !== null) {
         // 카테고리 필터가 있으면, 해당 퀴즈 qid 목록에 한정
         // 퀴즈 ID 배열 뽑기
-        const quizIds = quizData.map((quiz) => quiz.qid);
-        scoreQuery = scoreQuery.in("qid", quizIds);
+        const quizIds = quizData.map((quiz) => quiz.user_qid);
+        scoreQuery = scoreQuery.in("user_qid", quizIds);
       }
 
       const { data: scoreData, error: scoreError } = await scoreQuery;
 
       if (scoreError) {
-        console.error("score_board 집계 오류:", scoreError.message);
+        console.error("user_score_board 집계 오류:", scoreError.message);
       }
 
       const submitCountMap = {}; // qid -> 제출횟수
       const correctCountMap = {}; // qid -> 맞힌 사람 수
 
       if (scoreData) {
-        scoreData.forEach(({ qid, correct }) => {
-          if (!submitCountMap[qid]) submitCountMap[qid] = 0;
-          if (!correctCountMap[qid]) correctCountMap[qid] = 0;
+        scoreData.forEach(({ user_qid, correct }) => {
+          if (!submitCountMap[user_qid]) submitCountMap[user_qid] = 0;
+          if (!correctCountMap[user_qid]) correctCountMap[user_qid] = 0;
 
-          submitCountMap[qid]++;
-          if (correct === true) correctCountMap[qid]++;
+          submitCountMap[user_qid]++;
+          if (correct === true) correctCountMap[user_qid]++;
         });
       }
 
       // 3) quizData에 맞힌 사람, 제출 칸 데이터 합치기
       const quizzesWithStats = quizData.map((quiz) => ({
         ...quiz,
-        submit_count: submitCountMap[quiz.qid] || 0,
-        correct_count: correctCountMap[quiz.qid] || 0,
+        submit_count: submitCountMap[quiz.user_qid] || 0,
+        correct_count: correctCountMap[quiz.user_qid] || 0,
       }));
 
       setQuizzes(quizzesWithStats);
@@ -154,7 +163,7 @@ export default function QuizList() {
 
     switch (sortBy) {
       case "번호순":
-        return sorted.sort((a, b) => a.qid - b.qid);
+        return sorted.sort((a, b) => a.user_qid - b.user_qid);
       case "제출순":
         return sorted.sort((a, b) => b.submit_count - a.submit_count);
       case "정답률순":
@@ -250,6 +259,11 @@ export default function QuizList() {
         </div>
 
         <div className="qsearch-box">
+          <div className="qsearch-create-button">
+            <button onClick={() => navigate("/user_create_quiz")}>
+              퀴즈 등록
+            </button>
+          </div>
           <div className="sort-dropdown-container">
             <button
               className="sort-dropdown-button"
@@ -335,6 +349,7 @@ export default function QuizList() {
           <thead>
             <tr>
               <th style={{ width: "62px" }}>문제</th>
+              <th style={{ width: "100px" }}>출제자</th>
               <th style={{ width: "174px" }}>제목</th>
               <th style={{ width: "750px" }}>설명</th>
               <th style={{ width: "108px" }}>맞힌 사람</th>
@@ -345,12 +360,19 @@ export default function QuizList() {
           <tbody>
             {paginatedQuizzes.map((quiz, index) => (
               <tr
-                key={quiz.qid}
-                onClick={() => navigate(`/quiz/${quiz.qid}`)}
-                className={solvedQuizIds.includes(quiz.qid) ? "solved" : ""}
+                key={quiz.user_qid}
+                onClick={() => navigate(`/quiz/${quiz.user_qid}`)}
+                className={
+                  solvedQuizIds.includes(quiz.user_qid) ? "solved" : ""
+                }
                 style={{ cursor: "pointer" }}
               >
                 <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                <td>
+                  {quiz.user_info?.name
+                    ? `${quiz.user_info.name} 님`
+                    : "알수없음"}
+                </td>
                 <td>{quiz.quiz_title}</td>
                 <td>
                   <div className="quiz-text">{quiz.quiz_text}</div>

@@ -1,0 +1,321 @@
+/* === Quiz List Page CSS (Responsive) === */
+
+.quiz-list-container {
+  width: 100%;
+  max-width: 1320px;
+  min-height: 1000px;
+  padding: 0 20px;
+  margin: 80px auto 150px;
+  text-align: center;
+}
+
+.quiz-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0px 60px;
+  table-layout: fixed;
+}
+
+.quiz-table th {
+  color: #666;
+  padding: 12px 8px;
+  background-color: #e0e0e0;
+  font-size: 16px;
+}
+
+.quiz-table td {
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #999;
+  padding: 14px 8px;
+  font-size: 15px;
+  word-break: break-word;
+}
+
+.quiz-table tr:hover {
+  background-color: #f2f2f2;
+  cursor: pointer;
+}
+
+/* 푼 문제 표시 */
+tr.solved {
+  background-color: #eee;
+  color: #666;
+}
+
+tr.solved:hover {
+  background-color: #ccc;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 100px;
+  margin-bottom: -40px;
+  flex-wrap: wrap;
+}
+
+.pagination button,
+.pagination .ellipsis {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eee;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: "Noto Sans KR";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.pagination .active {
+  background: #9663e8;
+}
+
+.pagination .active .btn-num {
+  color: white;
+  font-weight: bold;
+}
+
+.pagination .ellipsis {
+  cursor: default;
+  color: #999;
+}
+
+.btn-num {
+  color: #666;
+}
+
+/* 레벨 필터 */
+.level-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  gap: 12px;
+}
+
+.level-buttons button {
+  padding: 6px 16px;
+  background-color: #fff;
+  border: 1px solid #9663e8;
+  color: #9663e8;
+  cursor: pointer;
+  border-radius: 50px;
+  font-size: 14px;
+}
+
+.level-buttons button.active {
+  background-color: #9663e8;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* 검색 영역 */
+.qsearch-box {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 60px;
+}
+.qsearch-create-button {
+  margin-right: auto;
+  width: 120px;
+  height: 37px;
+  border-radius: 10px;
+  background-color: #9663e8;
+
+  color: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qsearch-create-button:hover {
+  background-color: #cdbee6;
+}
+
+.qsearch-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+  padding: 12px;
+}
+
+.qsearch-input {
+  width: 200px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+}
+
+.qsearch-input-wrapper svg {
+  margin-right: 8px;
+  transform: translateY(2px);
+  flex-shrink: 0;
+}
+
+.qsearch-input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* 정렬 드롭다운 */
+.sort-dropdown-container {
+  position: relative;
+  width: 120px;
+}
+
+.sort-dropdown-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 14px;
+  color: #495057;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.sort-dropdown-button:hover {
+  background: #e9ecef;
+}
+
+.sort-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.sort-dropdown-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #495057;
+  transition: background-color 0.2s ease;
+  text-align: center;
+}
+
+.sort-dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-dropdown-item.active {
+  background: #9663e8;
+  color: white;
+}
+
+/* 퀴즈 텍스트 줄임 표시 */
+.quiz-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-height: 3em;
+  line-height: 1.5em;
+}
+
+/* 헤더 강조 색 */
+h5 {
+  color: #9663e8 !important;
+}
+
+h2 {
+  font-weight: bold !important;
+}
+
+/* ===== 반응형 ===== */
+@media screen and (max-width: 1024px) {
+  .quiz-list-container {
+    padding: 0 16px;
+  }
+
+  .qsearch-box {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .qsearch-input {
+    width: 160px;
+  }
+
+  .quiz-table th,
+  .quiz-table td {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .quiz-table {
+    font-size: 13px;
+  }
+
+  .quiz-table th,
+  .quiz-table td {
+    padding: 10px 6px;
+  }
+
+  .sort-dropdown-container {
+    width: 100%;
+  }
+
+  .qsearch-box {
+    align-items: stretch;
+  }
+
+  .level-buttons button {
+    font-size: 13px;
+    padding: 4px 12px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .quiz-list-container {
+    margin: 40px auto 80px;
+  }
+
+  .quiz-table th,
+  .quiz-table td {
+    font-size: 12px;
+  }
+
+  .qsearch-input {
+    width: 100%;
+  }
+
+  .qsearch-input-wrapper {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .pagination button {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .level-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+}

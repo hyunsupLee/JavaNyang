@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../config/SupabaseClient";
-import "./Quiz.css";
+import "./MyQuiz.css";
 
 const categoryNameMap = {
   const: "상수",
@@ -217,7 +217,7 @@ function AlertModal({ message, onClose }) {
 }
 
 export default function QuizPage() {
-  const { qid } = useParams();
+  const { user_qid } = useParams();
   const navigate = useNavigate();
 
   const [quiz, setQuiz] = useState(null);
@@ -253,22 +253,22 @@ export default function QuizPage() {
 
   useEffect(() => {
     async function fetchQuiz() {
-      if (!qid) {
+      if (!user_qid) {
         setQuiz(null);
         return;
       }
 
-      const numericQid = Number(qid);
+      const numericQid = Number(user_qid);
       if (isNaN(numericQid)) {
-        console.error("유효하지 않은 qid:", qid);
+        console.error("유효하지 않은 qid:", user_qid);
         setQuiz(null);
         return;
       }
 
       const { data, error } = await supabase
-        .from("quiz_list")
+        .from("user_quiz_list")
         .select("*")
-        .eq("qid", numericQid)
+        .eq("user_qid", numericQid)
         .single();
 
       if (error) {
@@ -281,11 +281,11 @@ export default function QuizPage() {
       setTimeLeft(data.timer || 30);
 
       const { data: filteredData, error: filteredError } = await supabase
-        .from("quiz_list")
+        .from("user_quiz_list")
         .select("*")
         .eq("level", data.level)
         .eq("category", data.category)
-        .order("qid", { ascending: true });
+        .order("user_qid", { ascending: true });
 
       if (filteredError) {
         console.error(
@@ -299,15 +299,15 @@ export default function QuizPage() {
     }
 
     fetchQuiz();
-  }, [qid]);
+  }, [user_qid]);
 
   useEffect(() => {
     if (!uid) return;
 
     async function fetchSolvedQids() {
       const { data, error } = await supabase
-        .from("score_board")
-        .select("qid")
+        .from("user_score_board")
+        .select("user_qid")
         .eq("uid", uid);
 
       if (error) {
@@ -316,11 +316,11 @@ export default function QuizPage() {
         return;
       }
 
-      setSolvedQids(data.map((item) => item.qid));
+      setSolvedQids(data.map((item) => item.user_qid));
     }
 
     fetchSolvedQids();
-  }, [uid, qid]);
+  }, [uid, user_qid]);
 
   useEffect(() => {
     if (isSubmitted || timeLeft <= 0) return;
@@ -343,7 +343,7 @@ export default function QuizPage() {
     setSelectedOption(null);
     setIsSubmitted(false);
     setIsCorrect(null);
-  }, [qid]);
+  }, [user_qid]);
 
   const handleSubmit = async () => {
     if (!quiz) return;
@@ -365,7 +365,7 @@ export default function QuizPage() {
     }
 
     const payload = {
-      qid: Number(quiz.qid),
+      user_qid: Number(quiz.user_qid),
       uid: uid,
       correct: correctAnswer,
     };
@@ -375,9 +375,9 @@ export default function QuizPage() {
     try {
       // 중복 제출 방지 확인
       const { data: existing, error: existError } = await supabase
-        .from("score_board")
+        .from("user_score_board")
         .select("sid")
-        .eq("qid", payload.qid)
+        .eq("user_qid", payload.user_qid)
         .eq("uid", payload.uid)
         .limit(1)
         .maybeSingle();
@@ -389,7 +389,7 @@ export default function QuizPage() {
 
       // 결과 저장
       const { data, error: insertError } = await supabase
-        .from("score_board")
+        .from("user_score_board")
         .insert([payload]);
 
       if (insertError) {
@@ -407,16 +407,16 @@ export default function QuizPage() {
   const handleNextQuiz = () => {
     if (!quiz || sameLevelCategoryQuizzes.length === 0) return;
 
-    const currentQid = Number(quiz.qid);
+    const currentQid = Number(quiz.user_qid);
 
     // 아직 풀지 않은 퀴즈들 필터링
     const unsolvedQuizzes = sameLevelCategoryQuizzes
-      .filter((q) => !solvedQids.includes(Number(q.qid)))
-      .map((q) => Number(q.qid))
+      .filter((q) => !solvedQids.includes(Number(q.user_qid)))
+      .map((q) => Number(q.user_qid))
       .sort((a, b) => a - b);
 
     // 다음 문제 찾기
-    const nextQid = unsolvedQuizzes.find((qid) => qid > currentQid);
+    const nextQid = unsolvedQuizzes.find((user_qid) => user_qid > currentQid);
     if (nextQid !== undefined) {
       navigate(`/quiz/${nextQid}`);
       return;
@@ -425,7 +425,7 @@ export default function QuizPage() {
     // 이전 문제 찾기
     const prevQid = [...unsolvedQuizzes]
       .reverse()
-      .find((qid) => qid < currentQid);
+      .find((user_qid) => user_qid < currentQid);
     if (prevQid !== undefined) {
       navigate(`/quiz/${prevQid}`);
       return;

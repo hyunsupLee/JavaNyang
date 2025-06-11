@@ -1,0 +1,343 @@
+/* 중앙 정렬 컨테이너 */
+.container {
+  max-width: 1000px;
+}
+
+/* 헤더 */
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  color: #4b5563; /* gray-600 */
+  font-size: 14px;
+}
+
+.back-button {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+
+/* 메인 타이틀 */
+.main-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827; /* gray-900 */
+  margin-bottom: 32px;
+}
+
+/* 각 입력폼 그룹 */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* 한 줄 단위 */
+.form-row {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 라벨 스타일 */
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151; /* gray-700 */
+  margin-bottom: 8px;
+}
+
+/* 드롭다운 전체 래퍼 */
+.dropdowns {
+  display: flex;
+  gap: 12px;
+}
+
+/* 드롭다운 래퍼 */
+.dropdown-wrapper {
+  position: relative;
+}
+
+/* 드롭다운 버튼 */
+.dropdown-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  border-radius: 9999px;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-button.category {
+  background-color: #ede9fe; /* purple-100 */
+  color: #7c3aed; /* purple-700 */
+}
+
+.dropdown-button.level {
+  background-color: #ede9fe; /* purple-100 */
+  color: #7c3aed; /* purple-700 */
+}
+
+.dropdown-button:hover {
+  background-color: #ddd6fe; /* purple-200 */
+}
+
+/* 드롭다운 메뉴 */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  width: 160px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb; /* gray-200 */
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.dropdown-menu.level-menu {
+  width: 112px;
+}
+
+/* 드롭다운 아이템 버튼 */
+.dropdown-item {
+  width: 100%;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #111827; /* gray-900 */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.dropdown-item:hover {
+  background-color: #f9fafb; /* gray-50 */
+}
+
+/* 텍스트 입력 */
+.input-text {
+  width: 100%;
+  font-size: 16px;
+  /*border: 1px solid #d1d5db; gray-300 */
+  border: none;
+  border-radius: 12px;
+  outline: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  color: #111827;
+  padding-left: 5px;
+}
+.inputTitle {
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 12px;
+  padding: 12px;
+}
+
+/* 텍스트 영역 */
+.input-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 12px;
+  outline: none;
+  resize: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  color: #111827;
+}
+
+.input-textarea:focus {
+  border-color: #7c3aed; /* purple-700 */
+  box-shadow: 0 0 0 3px #ede9fe; /* purple-100 */
+}
+
+/* 옵션 리스트 */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 옵션 아이템 */
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+/* 라디오 버튼 */
+.radio-input {
+  width: 16px;
+  height: 16px;
+  accent-color: #7c3aed; /* purple-700 */
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* 옵션 텍스트 입력 */
+.qoption-text {
+  flex-grow: 1;
+}
+
+/* select (타이머) */
+.select-timer {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db; /* gray-300 */
+  outline: none;
+  appearance: none;
+  background-color: white;
+  color: #111827;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  background-image: url("data:image/svg+xml,%3csvg fill='none' stroke='%237c3aed' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px 16px;
+}
+
+.select-timer:focus {
+  border-color: lch(79.19% 20.98 305.27); /* purple-700 */
+  box-shadow: 0 0 0 3px #ede9fe; /* purple-100 */
+}
+
+/* 등록 버튼 영역 */
+.submit-row {
+  padding-top: 30px;
+}
+
+/* 등록 버튼 */
+.submit-button {
+  background-color: #9663e8; /* purple-600 */
+  color: white;
+  padding: 16px;
+
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: none;
+  margin-left: auto;
+  width: 120px;
+  height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-button:hover {
+  background-color: #cdbee6; /* purple-700 */
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.select-btn {
+  padding: 8px 16px;
+  background: #eee;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.select-btn:hover {
+  background: #cdbee6;
+}
+
+.select-btn.selected {
+  background: #9663e8;
+  color: white;
+  border-color: #9663e8;
+}
+/* 알림 모달 스타일 */
+.alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.alert-box {
+  background: white;
+  padding: 60px 50px 30px 50px;
+  border-radius: 12px;
+  box-shadow: 0px 12px 20px 0px rgba(95, 85, 113, 0.3);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+}
+
+.alert-icon {
+  width: 64px;
+  height: 64px;
+  background: #e8d5ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 3px solid white;
+}
+
+.alert-icon svg {
+  width: 32px;
+  height: 29px;
+}
+
+.alert-message {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 30px;
+  line-height: 1.4;
+}
+
+.alert-button {
+  padding: 8px 28px;
+  background-color: #9663e8;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  min-width: 80px;
+}
+
+.alert-button:hover {
+  background-color: #8451d1;
+}
+
+.alert-button:active {
+  background-color: #7340ba;
+}
