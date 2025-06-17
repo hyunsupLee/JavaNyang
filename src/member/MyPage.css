@@ -116,6 +116,7 @@
 }
 
 /* 버튼들 */
+#mypage-container .my-quiz-btn,
 #mypage-container .profile-edit-btn {
   padding: 10px 18px;
   border: 1px solid #999;
@@ -126,7 +127,14 @@
   background-color: white;
   cursor: pointer;
 }
-
+#mypage-container .my-quiz-btn {
+  position: absolute;
+  top: -4px;
+  right: 0;
+  padding: 6px 10px;
+  font-weight: normal;
+}
+#mypage-container .my-quiz-btn:hover,
 #mypage-container .profile-edit-btn:hover {
   background-color: #f8f9fa;
   border-color: #8b5cf6;
@@ -151,6 +159,7 @@
   font-weight: 600;
   color: #333;
   margin-bottom: 60px;
+  position: relative;
 }
 
 /* 카테고리 리스트 */
