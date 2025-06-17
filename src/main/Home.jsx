@@ -20,7 +20,7 @@ export default function Home() {
     const attcheck = async () => {
       if (auth.session && !attended) {
         let isAttend = await hasAttendedToday();
-        console.log("오늘 출석여부 : ", isAttend);
+        //console.log("오늘 출석여부 : ", isAttend);
         setAttended(isAttend);
         if (!isAttend) attendClick();
       }
@@ -30,7 +30,7 @@ export default function Home() {
 
   const attendClick = async () => {
     if (attended) return;
-    console.log("attendClick..", attended);
+    //console.log("attendClick..", attended);
     await attendToday();
     setAttended(true);
   };
