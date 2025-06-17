@@ -83,7 +83,7 @@ export default function QuizList() {
         quizQuery = quizQuery.eq("category", categoryId);
       }
 
-      quizQuery = quizQuery.order("user_qid", { ascending: true });
+      quizQuery = quizQuery.order("user_qid", { ascending: false });
 
       const { data: quizData, error: quizError } = await quizQuery;
 
@@ -163,7 +163,7 @@ export default function QuizList() {
 
     switch (sortBy) {
       case "번호순":
-        return sorted.sort((a, b) => a.user_qid - b.user_qid);
+        return sorted.sort((a, b) => b.user_qid - a.user_qid);
       case "제출순":
         return sorted.sort((a, b) => b.submit_count - a.submit_count);
       case "정답률순":
@@ -227,7 +227,11 @@ export default function QuizList() {
   return (
     <div className="layout-frame">
       <div className="quiz-list-container">
-        <h5>퀴즈</h5>
+        <h5 className="qqh5">배운 걸 문제로!</h5>
+        <h5 className="qh5">
+          {" "}
+          나만의 퀴즈를 만들어 친구들에게 도전장을 던져보세요!!
+        </h5>
         <h2>{categoryId ? `${categoryKorName} 퀴즈` : "전체 퀴즈 리스트"}</h2>
         <br />
 
@@ -361,7 +365,7 @@ export default function QuizList() {
             {paginatedQuizzes.map((quiz, index) => (
               <tr
                 key={quiz.user_qid}
-                onClick={() => navigate(`/quiz/${quiz.user_qid}`)}
+                onClick={() => navigate(`/myquiz/${quiz.user_qid}`)}
                 className={
                   solvedQuizIds.includes(quiz.user_qid) ? "solved" : ""
                 }

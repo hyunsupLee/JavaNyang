@@ -12,6 +12,7 @@ import Quiz from "./service/Quiz";
 import QuizList from "./service/QuizList";
 import Rank from "./service/Rank";
 import Chat from "./chat/Chat";
+import MyQuiz from "./service/MyQuiz";
 import MyQuizList from "./service/MyQuizList";
 import User_Create_Quiz from "./service/User_Create_Quiz";
 
@@ -57,8 +58,12 @@ function App() {
             <Route path="/quiz/:qid" element={<Quiz />} />
             <Route path="/quizlist/:categoryPath" element={<QuizList />} />
             <Route path="/quizlist" element={<QuizList />} />
-            <Route path="/myquizlist" element={<MyQuizList />} />
+
             <Route path="/user_create_quiz" element={<User_Create_Quiz />} />
+
+            <Route path="/myquiz/:user_qid" element={<MyQuiz />} />
+            <Route path="/myquizlist/:categoryPath" element={<MyQuizList />} />
+            <Route path="/myquizlist" element={<MyQuizList />} />
 
             <Route path="/rank" element={<Rank />} />
             <Route path="/realtimequiz" element={<RealTimeQuiz />} />

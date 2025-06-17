@@ -37,9 +37,9 @@ function HeaderBar({ timeLeft, maxTime, category }) {
   const handleBack = () => {
     const categoryPath = categoryMapReverse[category];
     if (categoryPath) {
-      navigate(`/quizlist/${categoryPath}`);
+      navigate(`/myquizlist/${categoryPath}`);
     } else {
-      navigate(`/quizlist`);
+      navigate(`/myquizlist`);
     }
   };
 
@@ -418,7 +418,7 @@ export default function QuizPage() {
     // 다음 문제 찾기
     const nextQid = unsolvedQuizzes.find((user_qid) => user_qid > currentQid);
     if (nextQid !== undefined) {
-      navigate(`/quiz/${nextQid}`);
+      navigate(`/myquiz/${nextQid}`);
       return;
     }
 
@@ -427,7 +427,7 @@ export default function QuizPage() {
       .reverse()
       .find((user_qid) => user_qid < currentQid);
     if (prevQid !== undefined) {
-      navigate(`/quiz/${prevQid}`);
+      navigate(`/myquiz/${prevQid}`);
       return;
     }
 

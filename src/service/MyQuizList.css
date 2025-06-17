@@ -236,8 +236,14 @@ tr.solved:hover {
 }
 
 /* 헤더 강조 색 */
-h5 {
+.qqh5 {
   color: #9663e8 !important;
+  font-size: 18px;
+}
+.qh5 {
+  color: #9663e8 !important;
+  margin-bottom: 15px;
+  font-size: 18px;
 }
 
 h2 {

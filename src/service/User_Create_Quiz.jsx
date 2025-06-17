@@ -1,11 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../config/SupabaseClient";
 import "./User_Create_Quiz.css";
 
+function AlertModal({ message, onClose }) {
+  // ESC 키로 닫기
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [onClose]);
+
+  // 오버레이 클릭으로 닫기
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="alert-overlay" onClick={handleOverlayClick}>
+      <div className="alert-box">
+        <div className="alert-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="29"
+            viewBox="0 0 32 29"
+            fill="none"
+          >
+            <path
+              d="M11.5648 22.6704L28.5549 0.775056C28.9558 0.258352 29.4236 0 29.9582 0C30.4928 0 30.9605 0.258352 31.3615 0.775056C31.7624 1.29176 31.9629 1.90578 31.9629 2.6171C31.9629 3.32843 31.7624 3.94159 31.3615 4.45657L12.9681 28.2249C12.5672 28.7416 12.0994 29 11.5648 29C11.0302 29 10.5624 28.7416 10.1615 28.2249L1.54118 17.1158C1.14023 16.5991 0.947778 15.986 0.963816 15.2763C0.979854 14.5667 1.18901 13.9527 1.59129 13.4343C1.99358 12.9159 2.47003 12.6575 3.02066 12.6592C3.5713 12.661 4.04708 12.9193 4.44803 13.4343L11.5648 22.6704Z"
+              fill="#C0A1F1"
+            />
+          </svg>
+        </div>
+        <p className="alert-message">{message}</p>
+        <button className="alert-button" onClick={onClose}>
+          확인
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const User_Create_Quiz = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [navigateAfterAlert, setNavigateAfterAlert] = useState(false);
 
   const showCustomAlert = (message) => {
     setAlertMessage(message);
@@ -53,7 +100,14 @@ const User_Create_Quiz = () => {
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
+  const handleAlertClose = () => {
+    setShowAlert(false);
+    if (navigateAfterAlert) {
+      navigate(
+        `/myquizlist?category=${formData.category}&level=${formData.level}`
+      );
+    }
+  };
   const handleSubmit = async () => {
     setLoading(true);
 
@@ -118,8 +172,8 @@ const User_Create_Quiz = () => {
       console.error("퀴즈 등록 실패:", error.message);
       showCustomAlert("퀴즈 등록에 실패했습니다. 콘솔을 확인하세요.");
     } else {
+      setNavigateAfterAlert(true);
       showCustomAlert("퀴즈가 등록되었습니다!");
-      navigate(`/myquizlist?category=${category}&level=${level}`);
     }
   };
 
@@ -258,35 +312,8 @@ const User_Create_Quiz = () => {
         </div>
       </div>
 
-      {/* ✅ alert 박스 추가 */}
       {showAlert && (
-        <div className="alert-overlay">
-          <div className="alert-box">
-            <div className="alert-icon">
-              {/* 예시 아이콘 (⚠️ SVG나 이미지로 교체 가능) */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01M5.07 19h13.86c1.1 0 2.07-.9 2.07-2V7c0-1.1-.97-2-2.07-2H5.07C3.97 5 3 5.9 3 7v10c0 1.1.97 2 2.07 2z"
-                />
-              </svg>
-            </div>
-            <p className="alert-message">{alertMessage}</p>
-            <button
-              className="alert-button"
-              onClick={() => setShowAlert(false)}
-            >
-              확인
-            </button>
-          </div>
-        </div>
+        <AlertModal message={alertMessage} onClose={handleAlertClose} />
       )}
     </div>
   );

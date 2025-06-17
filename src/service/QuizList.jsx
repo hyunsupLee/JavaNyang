@@ -77,7 +77,7 @@ export default function QuizList() {
       if (categoryId !== null) {
         quizQuery = quizQuery.eq("category", categoryId);
       }
-      quizQuery = quizQuery.order("qid", { ascending: true });
+      quizQuery = quizQuery.order("qid", { ascending: false });
 
       const { data: quizData, error: quizError } = await quizQuery;
 
@@ -154,7 +154,7 @@ export default function QuizList() {
 
     switch (sortBy) {
       case "번호순":
-        return sorted.sort((a, b) => a.qid - b.qid);
+        return sorted.sort((a, b) => b.user_qid - a.user_qid);
       case "제출순":
         return sorted.sort((a, b) => b.submit_count - a.submit_count);
       case "정답률순":
