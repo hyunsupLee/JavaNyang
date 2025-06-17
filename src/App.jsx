@@ -1,4 +1,3 @@
-// import "./App.css";
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -29,6 +28,7 @@ import MyEdit from "./member/MyEdit";
 import MyPage from "./member/MyPage";
 import Achievement from "./member/Achievement";
 import LearningHistory from "./member/LearningHistory";
+import MyQuizList from "./member/MyQuizList";
 
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -50,8 +50,6 @@ function App() {
     <div>
       <AuthProvider>
         <ChatProvider>
-          {" "}
-          {/* 추가! */}
           <Header />
           <Routes>
             <Route path="/" element={<Home />} />
@@ -83,15 +81,17 @@ function App() {
               path="/myPage/learningHistory"
               element={<LearningHistory />}
             />
+            <Route path="/myPage/quizList" element={<MyQuizList />} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
           {/* 조건부로 푸터 렌더링 */}
           {!shouldHideFooter && <Footer />}
-        </ChatProvider>{" "}
-        {/* 추가! */}
+          
+          {/* FloatingChatButton을 AuthProvider와 ChatProvider 안으로 이동 */}
+          <FloatingChatButton />
+        </ChatProvider>
       </AuthProvider>
-      <FloatingChatButton />
     </div>
   );
 }

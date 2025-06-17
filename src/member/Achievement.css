@@ -99,3 +99,20 @@ main#achievement h2>span {
 .achieve-area .achievement-item:not(.achieved) .achievement-content {
     opacity: 0.5;
 }
+
+@media screen and (max-width:1000px) {
+    .achieve-area .achievement-item {
+        width: calc(33.3% - 14px);
+    }
+}
+@media screen and (max-width:840px) {
+    .achieve-area .achievement-item {
+        width: calc(50% - 10px);
+    }
+}
+
+@media screen and (max-width:600px) {
+    .achieve-area .achievement-item {
+        width: 100%;
+    }
+}

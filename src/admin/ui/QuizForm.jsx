@@ -30,10 +30,9 @@ function QuizForm({ formData, onChange, onSubmit, isSubmitting, submitMessage, i
 
             <select name='level' value={formData.level} onChange={onChange} required>
               <option value='' disabled hidden>난이도 선택</option>
-              <option value='1'>Lv.1</option>
-              <option value='2'>Lv.2</option>
-              <option value='3'>Lv.3</option>
-              <option value='4'>Lv.4</option>
+              <option value='1'>초급</option>
+              <option value='2'>중급</option>
+              <option value='3'>고급</option>
             </select>
           </fieldset>
         </div>
