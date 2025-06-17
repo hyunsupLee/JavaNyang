@@ -27,6 +27,8 @@ export default function Header() {
   const role = useRef(0);
   const auth = useAuth();
 
+  const [quizSubItems, setQuizSubItems] = useState([]);
+
   useEffect(() => {
     const handleResize = () => {
       //console.log("handleResize.......");
@@ -38,34 +40,6 @@ export default function Header() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [window.innerWidth]);
-
-  useEffect(() => {
-    if (auth.session) {
-      let proimgPath = auth.userInfo?.profimg.startsWith("http")
-        ? auth.userInfo?.profimg
-        : bucketPath + auth.userInfo?.profimg;
-      role.current = auth.userInfo?.role;
-      setUser(auth.user);
-      setProfImg(proimgPath);
-      setUsername(
-        auth.userInfo?.name || auth.userInfo?.email?.split("@")[0] || "사용자"
-      );
-    } else {
-      role.current = 0;
-      setUser(null);
-      setProfImg("");
-      setUsername("");
-    }
-
-    if (location.pathname.startsWith("/quiz")) {
-      setShowQuizSubMenu(true);
-    } else {
-      setShowQuizSubMenu(false);
-    }
-    return () => {
-      setShowQuizSubMenu(false);
-    };
-  }, [location.pathname, auth]);
 
   const handleLogout = async () => {
     try {
@@ -94,7 +68,7 @@ export default function Header() {
     { label: "퀴즈관리", path: "/adminQuizs" },
   ];
 
-  const quizSubItems = [
+  const quizdefaultSubItems = [
     { label: "변수·상수", path: "/quizlist/const" },
     { label: "연산자", path: "/quizlist/operator" },
     { label: "배열", path: "/quizlist/array" },
@@ -104,6 +78,52 @@ export default function Header() {
     { label: "상속·추상화", path: "/quizlist/extends" },
     { label: "제네릭·람다식", path: "/quizlist/generic" },
   ];
+
+  const quizmySubItems = [
+    { label: "변수·상수", path: "/myquizlist/const" },
+    { label: "연산자", path: "/myquizlist/operator" },
+    { label: "배열", path: "/myquizlist/array" },
+    { label: "function", path: "/myquizlist/function" },
+    { label: "제어문", path: "/myquizlist/control" },
+    { label: "클래스", path: "/myquizlist/class" },
+    { label: "상속·추상화", path: "/myquizlist/extends" },
+    { label: "제네릭·람다식", path: "/myquizlist/generic" },
+  ];
+
+  useEffect(() => {
+    if (auth.session) {
+      let proimgPath = auth.userInfo?.profimg.startsWith("http")
+        ? auth.userInfo?.profimg
+        : bucketPath + auth.userInfo?.profimg;
+      role.current = auth.userInfo?.role;
+      setUser(auth.user);
+      setProfImg(proimgPath);
+      setUsername(
+        auth.userInfo?.name || auth.userInfo?.email?.split("@")[0] || "사용자"
+      );
+    } else {
+      role.current = 0;
+      setUser(null);
+      setProfImg("");
+      setUsername("");
+    }
+
+    if (location.pathname.startsWith("/quiz")) {
+      setQuizSubItems([...quizdefaultSubItems]);
+      setShowQuizSubMenu(true);
+    } else if (location.pathname.startsWith("/myquiz")) {
+      setQuizSubItems([...quizmySubItems]);
+      setShowQuizSubMenu(true);
+    } else {
+      setShowQuizSubMenu(false);
+      setQuizSubItems([]);
+    }
+
+    return () => {
+      setShowQuizSubMenu(false);
+      setQuizSubItems([]);
+    };
+  }, [location.pathname, auth]);
 
   return (
     <>
@@ -262,7 +282,7 @@ export default function Header() {
         </div>
       )}
 
-      {showQuizSubMenu && (
+      {showQuizSubMenu && quizSubItems.length > 0 && (
         <>
           <div className="header-quiz-submenu-wrapper">
             <nav>
