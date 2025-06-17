@@ -103,7 +103,7 @@ function MyPage() {
     // 오늘부터 연속 일수 계산
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     let streak = 0;
     let currentDate = new Date(today);
 
@@ -111,7 +111,7 @@ function MyPage() {
     for (let i = 0; i < dates.length; i++) {
       const studyDate = new Date(dates[i]);
       studyDate.setHours(0, 0, 0, 0);
-      
+
       if (studyDate.getTime() === currentDate.getTime()) {
         streak++;
         currentDate.setDate(currentDate.getDate() - 1);
@@ -162,10 +162,10 @@ function MyPage() {
       for (const achievement of allAchievements) {
         if (!existingIds.includes(achievement.id)) {
           const checkFunction = checkAchievementConditions[achievement.type];
-          
+
           if (checkFunction && checkFunction(stats, achievement.condition_value)) {
             console.log(`새로운 업적 달성: ${achievement.title}`);
-            
+
             // 새로운 업적 달성
             const { error: insertError } = await supabase
               .from('user_achievements')
@@ -223,7 +223,7 @@ function MyPage() {
       const achievementsWithDetails = recentAchievementsData?.map(item => {
         const achievement = item.achievements;
         if (!achievement) return null;
-        
+
         return {
           id: achievement.id,
           title: achievement.title,
@@ -549,7 +549,7 @@ function MyPage() {
 
       // 8. 업적 확인 및 로드 (수정된 부분)
       const streakDays = calculateStreakDays(userStats.detailedData);
-      
+
       const statsForAchievements = {
         ...userStats,
         level: levelInfo.currentLevel,
@@ -558,7 +558,7 @@ function MyPage() {
         categoryStats: categoryData,
         detailedData: userStats.detailedData
       };
-      
+
       console.log('업적 확인용 통계:', statsForAchievements);
       const achievementsData = await checkAndSaveAchievements(statsForAchievements);
       setRecentAchievements(achievementsData);
@@ -777,7 +777,10 @@ function MyPage() {
       <div className='activity-section'>
         {/* 최근 학습 활동 */}
         <div className='activity-card'>
-          <p className='card-title'>최근 학습 활동</p>
+          <p className='card-title'>
+            최근 학습 활동
+            <button className='my-quiz-btn' onClick={() => navigate('/myPage/quizList')}>내가 만든 퀴즈 →</button>
+          </p>
           <div className='activity-list'>
             {recentActivities.length > 0 ? (
               recentActivities.map((activity) => (
