@@ -1,4 +1,3 @@
-// import "./App.css";
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -47,8 +46,6 @@ function App() {
     <div>
       <AuthProvider>
         <ChatProvider>
-          {" "}
-          {/* 추가! */}
           <Header />
           <Routes>
             <Route path="/" element={<Home />} />
@@ -80,10 +77,11 @@ function App() {
           </Routes>
           {/* 조건부로 푸터 렌더링 */}
           {!shouldHideFooter && <Footer />}
-        </ChatProvider>{" "}
-        {/* 추가! */}
+          
+          {/* FloatingChatButton을 AuthProvider와 ChatProvider 안으로 이동 */}
+          <FloatingChatButton />
+        </ChatProvider>
       </AuthProvider>
-      <FloatingChatButton />
     </div>
   );
 }
