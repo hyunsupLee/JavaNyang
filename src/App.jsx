@@ -16,6 +16,8 @@ import MyQuizList from "./service/MyQuizList";
 import User_Create_Quiz from "./service/User_Create_Quiz";
 
 import RealTimeQuiz from "./realtime/RealTimeQuiz";
+import RoomList from "./battle/RoomList";
+import BattleRoom from "./battle/BattleRoom";
 
 import MemberList from "./admin/MemberList";
 import QuizManage from "./admin/QuizManage";
@@ -42,7 +44,7 @@ function App() {
   const location = useLocation();
 
   // 푸터를 숨길 페이지들
-  const hideFooterPages = ["/join", "/login", "/myEdit", "/chat"];
+  const hideFooterPages = ["/join", "/login", "/myEdit", "/chat", "/battleRoom"];
   const shouldHideFooter = hideFooterPages.includes(location.pathname);
 
   return (
@@ -64,6 +66,8 @@ function App() {
 
             <Route path="/rank" element={<Rank />} />
             <Route path="/realtimequiz" element={<RealTimeQuiz />} />
+            <Route path="/roomList" element={<RoomList />} />
+            <Route path="/battle/room/:roomId" element={<BattleRoom />} />
             <Route path="/chat" element={<Chat />} />
 
             <Route path="/adminMembers" element={<MemberList />} />
