@@ -61,6 +61,7 @@ export default function Header() {
     { label: "나만의퀴즈", path: "/myquizlist" },
     { label: "랭킹", path: "/rank" },
     { label: "실시간 채팅", path: "/chat" },
+    { label: "실시간 대전", path: "/roomList" },
   ];
 
   const adminItems = [

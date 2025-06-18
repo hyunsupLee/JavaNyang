@@ -14,10 +14,10 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
-    "@supabase/supabase-js": "^2.49.10",
+    "@supabase/supabase-js": "^2.50.0",
     "@types/redux-persist": "^4.0.0",
-    "axios": "^1.9.0",
-    "bootstrap": "^5.3.6",
+    "axios": "^1.10.0",
+    "bootstrap": "^5.3.7",
     "bootstrap-icons": "^1.13.1",
     "gh-pages": "^6.3.0",
     "react": "^19.1.0",
