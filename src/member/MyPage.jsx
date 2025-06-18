@@ -779,7 +779,7 @@ function MyPage() {
         <div className='activity-card'>
           <p className='card-title'>
             최근 학습 활동
-            <button className='my-quiz-btn' onClick={() => navigate('/myPage/quizList')}>내가 만든 퀴즈 →</button>
+            <button className='my-quiz-btn' onClick={() => navigate('/myPage/createdquiz')}>내가 만든 퀴즈 →</button>
           </p>
           <div className='activity-list'>
             {recentActivities.length > 0 ? (

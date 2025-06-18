@@ -54,6 +54,7 @@ main#admin .modal-overlay {
   background: rgba(0, 0, 0, 0.2);
   width: 100%;
   height: 100%;
+  z-index: -1;
 }
 
 main#admin .modal-container {
@@ -150,7 +151,7 @@ main#admin .quiz-toolbar-fixed {
   background-color: #9663e8;
   border-color: transparent;
   color: #fff;
-  margin: 0 5vw 10px 0;
+  margin: 0 8vw 10px 0;
   position: absolute;
   right: 0;
   bottom: 100%;
@@ -172,7 +173,7 @@ main#admin .quiz-toolbar-fixed {
 .quiz-toolbar-fixed .checked-toolbar {
   width: 100vw;
   background: #ff4848;
-  padding: 10px 5vw;
+  padding: 10px 8vw;
 }
 
 /* === 공통 검색 영역 스타일 === */

@@ -30,6 +30,7 @@ import MyEdit from "./member/MyEdit";
 import MyPage from "./member/MyPage";
 import Achievement from "./member/Achievement";
 import LearningHistory from "./member/LearningHistory";
+import CreatedQuizList from "./member/CreatedQuizList";
 
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -84,6 +85,7 @@ function App() {
               path="/myPage/learningHistory"
               element={<LearningHistory />}
             />
+            <Route path="/myPage/createdquiz" element={<CreatedQuizList />} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
