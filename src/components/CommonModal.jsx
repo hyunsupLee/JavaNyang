@@ -73,12 +73,9 @@ const CommonModal = ({
             </>:
               <button className="modal-btn modal-confirm-btn" onClick={onConfirm}>{preset.confirmText}</button>
           }
-        
-          {/* <button className="modal-btn modal-cancel-btn" onClick={onCancel}>취소</button> */}
-          {/* <button className="modal-btn modal-confirm-btn" onClick={onConfirm}>{preset.confirmText}</button> */}
         </div>
       </div>
-      <div className="modal-overlay" onClick={onCancel}></div>
+      <div className="modal-overlay" onClick={onCancel} style={{zIndex:'-1'}}></div>
     </div>
   );
 };
