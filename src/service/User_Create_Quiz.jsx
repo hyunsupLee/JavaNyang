@@ -236,7 +236,7 @@ const User_Create_Quiz = () => {
             >
               <option value={30}>30초</option>
               <option value={60}>60초</option>
-              <option value={90}>90초</option>
+              <option value={120}>120초</option>
             </select>
           </div>
 

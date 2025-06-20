@@ -325,3 +325,51 @@ h2 {
     align-items: center;
   }
 }
+.no-quiz-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.no-quiz-content {
+  text-align: center;
+}
+
+.no-quiz-image {
+  width: 240px;
+  height: auto;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.no-quiz-message {
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  color: #666;
+}
+
+.no-quiz-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #9663e8;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+  font-size: large;
+  font-weight: bolder;
+  width: 415px;
+  margin-top: 25px;
+}
+
+.no-quiz-button:hover {
+  background-color: #cdbee6;
+}
+
+.gosunContainer {
+  box-sizing: border-box;
+  text-align: center;
+}

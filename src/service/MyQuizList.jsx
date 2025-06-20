@@ -220,9 +220,42 @@ export default function QuizList() {
   // 에러 발생 시
   if (error) return <div className="layout-frame">에러 발생: {error}</div>;
 
-  // 퀴즈가 없을 때
   if (quizzes.length === 0)
-    return <div className="layout-frame">퀴즈가 없습니다.</div>;
+    return (
+      <div className="layout-frame no-quiz-wrapper">
+        <div className="gosunContainer">
+          <img
+            src="../public/img_loginCat.png"
+            alt="퀴즈 없음"
+            style={{
+              maxWidth: "300px",
+              width: "100%",
+              height: "auto",
+              opacity: 0.9,
+              marginTop: "120px",
+              marginBottom: "20px",
+            }}
+          />
+          <p
+            style={{
+              fontSize: "20px",
+              color: "#555",
+              marginTop: "10px",
+              marginBottom: "5px",
+              fontWeight: "bolder",
+            }}
+          >
+            아직 등록된 퀴즈가 없습니다!
+          </p>
+          <button
+            className="no-quiz-button"
+            onClick={() => navigate("/user_create_quiz")}
+          >
+            퀴즈 등록하러 가기
+          </button>
+        </div>
+      </div>
+    );
 
   return (
     <div className="layout-frame">
@@ -352,13 +385,13 @@ export default function QuizList() {
         <table className="quiz-table">
           <thead>
             <tr>
-              <th style={{ width: "62px" }}>문제</th>
-              <th style={{ width: "100px" }}>출제자</th>
-              <th style={{ width: "174px" }}>제목</th>
-              <th style={{ width: "750px" }}>설명</th>
-              <th style={{ width: "108px" }}>맞힌 사람</th>
-              <th style={{ width: "62px" }}>제출</th>
-              <th style={{ width: "66px" }}>정답률</th>
+              <th style={{ width: "60px", textAlign: "center" }}>문제</th>
+              <th style={{ width: "100px", textAlign: "center" }}>출제자</th>
+              <th style={{ width: "110px", textAlign: "center" }}>제목</th>
+              <th style={{ width: "600px", textAlign: "center" }}>설명</th>
+              <th style={{ width: "100px", textAlign: "center" }}>맞힌 사람</th>
+              <th style={{ width: "70px", textAlign: "center" }}>제출</th>
+              <th style={{ width: "80px", textAlign: "center" }}>정답률</th>
             </tr>
           </thead>
           <tbody>
