@@ -59,7 +59,7 @@ function HeaderBar({ timeLeft, maxTime, category }) {
               style={{ width: `${(timeLeft / maxTime) * 100}%` }}
             ></div>
           </div>
-          <span className="timer">
+          <span className="qtimer">
             타이머{" "}
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +101,7 @@ function DifficultyBadge({ level }) {
 
 function QuestionSection({ title, question }) {
   return (
-    <div className="question-section">
+    <div className="qquestion-section">
       <h2 className="question-title">{title}</h2>
       <p className="question-text">{question}</p>
     </div>
@@ -170,7 +170,14 @@ function OptionList({
     </div>
   );
 }
-function AlertModal({ message, onClose }) {
+
+function AlertModal({
+  message,
+  onClose,
+  showNextButton = false,
+  onNext,
+  nextButtonText = "다음 단계로",
+}) {
   // ESC 키로 닫기
   useEffect(() => {
     const handleEscape = (e) => {
@@ -208,9 +215,19 @@ function AlertModal({ message, onClose }) {
           </svg>
         </div>
         <p className="alert-message">{message}</p>
-        <button className="alert-button" onClick={onClose}>
-          확인
-        </button>
+        <div
+          className="alert-button-group"
+          style={{ display: "flex", gap: "10px", justifyContent: "center" }}
+        >
+          <button className="alert-button" onClick={onClose}>
+            퀴즈 목록으로 가기
+          </button>
+          {showNextButton && (
+            <button className="alert-button" onClick={onNext}>
+              {nextButtonText}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -231,13 +248,38 @@ export default function QuizPage() {
 
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [showNextButton, setShowNextButton] = useState(false);
+  const [nextButtonText, setNextButtonText] = useState("");
+  const [nextButtonAction, setNextButtonAction] = useState(null);
 
-  const showCustomAlert = (message) => {
+  const showCustomAlert = (
+    message,
+    hasNextButton = false,
+    buttonText = "다음 단계로",
+    buttonAction = null
+  ) => {
     setAlertMessage(message);
+    setShowNextButton(hasNextButton);
+    setNextButtonText(buttonText);
+    setNextButtonAction(buttonAction ? () => buttonAction : null);
     setShowAlert(true);
   };
 
   const closeAlert = () => {
+    setShowAlert(false);
+    // 퀴즈 목록으로 이동
+    const categoryPath = categoryMapReverse[quiz?.category];
+    if (categoryPath) {
+      navigate(`/quizlist/${categoryPath}`);
+    } else {
+      navigate(`/quizlist`);
+    }
+  };
+
+  const handleNextLevel = () => {
+    if (nextButtonAction) {
+      nextButtonAction();
+    }
     setShowAlert(false);
   };
 
@@ -404,6 +446,36 @@ export default function QuizPage() {
     }
   };
 
+  // 다음 난이도의 첫 번째 문제로 이동하는 함수
+  const moveToNextLevel = async (nextLevel) => {
+    if (!quiz) return;
+
+    try {
+      // 같은 카테고리의 다음 난이도 문제 중 첫 번째 문제 찾기
+      const { data: nextLevelQuizzes, error } = await supabase
+        .from("quiz_list")
+        .select("qid")
+        .eq("category", quiz.category)
+        .eq("level", nextLevel)
+        .order("qid", { ascending: true })
+        .limit(1);
+
+      if (error) {
+        console.error("다음 난이도 문제 찾기 실패:", error);
+        return;
+      }
+
+      if (nextLevelQuizzes && nextLevelQuizzes.length > 0) {
+        navigate(`/quiz/${nextLevelQuizzes[0].qid}`);
+      } else {
+        const categoryPath = categoryMapReverse[quiz.category];
+        navigate(`/quizlist/${categoryPath}`);
+      }
+    } catch (err) {
+      console.error("다음 난이도 이동 중 오류:", err);
+    }
+  };
+
   const handleNextQuiz = () => {
     if (!quiz || sameLevelCategoryQuizzes.length === 0) return;
 
@@ -432,11 +504,32 @@ export default function QuizPage() {
     }
 
     // 여기는 마지막 문제를 푼 경우만 실행됨
-    const categoryPath = categoryMapReverse[quiz.category]; // 예: "operator"
-    const categoryName = categoryNameMap[categoryPath] || "해당 카테고리"; // 예: "연산자"
-    const levelName = levelMap[quiz.level] || "해당 난이도"; // 예: "중급"
+    const categoryPath = categoryMapReverse[quiz.category];
+    const categoryName = categoryNameMap[categoryPath] || "해당 카테고리";
+    const levelName = levelMap[quiz.level] || "해당 난이도";
+    const currentLevel = quiz.level;
 
-    showCustomAlert(`${categoryName}의 ${levelName} 단계를 모두 푸셨습니다!`);
+    // 난이도별 다음 단계 버튼 설정
+    if (currentLevel === 1) {
+      // 초급 완료 - 중급으로 이동
+      showCustomAlert(
+        `${categoryName}의 ${levelName} 단계를 모두 푸셨습니다!`,
+        true,
+        "중급 문제 가기",
+        () => moveToNextLevel(2)
+      );
+    } else if (currentLevel === 2) {
+      // 중급 완료 - 고급으로 이동
+      showCustomAlert(
+        `${categoryName}의 ${levelName} 단계를 모두 푸셨습니다!`,
+        true,
+        "고급 문제 가기",
+        () => moveToNextLevel(3)
+      );
+    } else {
+      // 고급 완료 - 다음 단계 버튼 없음
+      showCustomAlert(`${categoryName}의 ${levelName} 단계를 모두 푸셨습니다!`);
+    }
   };
 
   if (!quiz)
@@ -482,7 +575,15 @@ export default function QuizPage() {
           disabled={selectedOption === null}
         />
       )}
-      {showAlert && <AlertModal message={alertMessage} onClose={closeAlert} />}
+      {showAlert && (
+        <AlertModal
+          message={alertMessage}
+          onClose={closeAlert}
+          showNextButton={showNextButton}
+          onNext={handleNextLevel}
+          nextButtonText={nextButtonText}
+        />
+      )}
 
       {isSubmitted && (
         <>

@@ -213,7 +213,41 @@ export default function QuizList() {
 
   // 퀴즈가 없을 때
   if (quizzes.length === 0)
-    return <div className="layout-frame">퀴즈가 없습니다.</div>;
+    return (
+      <div className="layout-frame no-quiz-wrapper">
+        <div className="gosunContainer">
+          <img
+            src="../public/img_loginCat.png"
+            alt="퀴즈 없음"
+            style={{
+              maxWidth: "300px",
+              width: "100%",
+              height: "auto",
+              opacity: 0.9,
+              marginTop: "120px",
+              marginBottom: "20px",
+            }}
+          />
+          <p
+            style={{
+              fontSize: "20px",
+              color: "#555",
+              marginTop: "10px",
+              marginBottom: "5px",
+              fontWeight: "bolder",
+            }}
+          >
+            아직 등록된 퀴즈가 없습니다!
+          </p>
+          <button
+            className="no-quiz-button"
+            onClick={() => navigate("/user_create_quiz")}
+          >
+            퀴즈 등록하러 가기
+          </button>
+        </div>
+      </div>
+    );
 
   return (
     <div className="layout-frame">
