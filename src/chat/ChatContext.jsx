@@ -14,19 +14,18 @@ const ChatProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [replyingTo, setReplyingTo] = useState(null);
-  const [hasUnreadMessages, setHasUnreadMessages] = useState(false); // 🆕 읽지 않은 메시지 알림
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false); // 읽지 않은 메시지 알림
   
   // Ref
   const myChannelRef = useRef(null);
   const scrollRef = useRef();
-  // 👇 사용자명 - AuthContext의 displayName 사용
   const userName = displayName;
 
 
   // 사용자 관련
   // const userName = userInfo?.name || formatEmailToUsername(user?.email) || '사용자';
 
-  // 🆕 강제로 맨 아래로 스크롤 + 알림 제거
+  // 강제로 맨 아래로 스크롤 + 알림 제거
   const forceScrollToBottom = () => {
   if (scrollRef.current) {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -34,12 +33,12 @@ const ChatProvider = ({ children }) => {
     setShouldAutoScroll(true); // 다시 자동 스크롤 모드로
   }
 };
-  // 1. 스크롤 관련 함수들 추가 (forceScrollToBottom 함수 근처에)
+  // 스크롤 관련 함수들 추가
 const isScrolledToBottom = () => {
   if (!scrollRef.current) return true;
   
   const element = scrollRef.current;
-  const threshold = 100; // 100px로 여유값 증가
+  const threshold = 100;
   
   const isAtBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - threshold;
   
@@ -48,15 +47,10 @@ const isScrolledToBottom = () => {
 
 const handleScroll = () => {
   const atBottom = isScrolledToBottom();
-  
   if (atBottom) {
     setHasUnreadMessages(false);
   }
 };
-
-
-
-
 
   // 사용자 정보 조회 및 캐시
   const getUserInfo = async (uid) => {
@@ -184,7 +178,7 @@ const handleScroll = () => {
     }
   };
   
-  // 🆕 새 메시지 수신 처리 (초기 로드 후에만 알림)
+  // 새 메시지 수신 처리 (초기 로드 후에만 알림)
 const handleNewMessage = async (payload) => {
   if (payload.new.uid && !userInfoCache[payload.new.uid]) {
     await getUserInfo(payload.new.uid);
@@ -192,7 +186,7 @@ const handleNewMessage = async (payload) => {
   
   const isMyMessage = payload.new.uid === user?.id;
   
-  // 🆕 메시지 추가 **전**에 스크롤 위치 미리 체크
+  // 메시지 추가 전에 스크롤 위치 미리 체크
   const wasAtBottom = isScrolledToBottom();
   
   // 메시지 추가

@@ -40,7 +40,7 @@ function MessageList({
       korea1.getDate() === korea2.getDate();
   };
 
-  // 연속 메시지인지 확인하는 함수 (카카오톡 스타일)
+  // 연속 메시지인지 확인하는 함수
   const isConsecutiveMessage = (currentMsg, prevMsg) => {
     if (!prevMsg) return false;
     

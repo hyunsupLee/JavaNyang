@@ -98,12 +98,12 @@ const RoomList = () => {
   // ===== 실시간 이벤트 처리 =====
   const handleRoomChange = (payload) => {
     console.log('방 변경 감지:', payload);
-    loadRooms(); // 간단하게 전체 리로드
+    loadRooms();
   };
 
   const handleParticipantChange = (payload) => {
     console.log('참가자 변경 감지:', payload);
-    loadRooms(); // 간단하게 전체 리로드
+    loadRooms();
   };
 
   // ===== 방 만들기 =====
@@ -118,7 +118,7 @@ const RoomList = () => {
     try {
       setCreating(true);
 
-      // 1. 방 생성
+      // 방 생성
       const { data: newRoom, error: roomError } = await supabase
         .from('battle_rooms')
         .insert([{
@@ -136,7 +136,7 @@ const RoomList = () => {
         return;
       }
 
-      // 2. 방장을 참가자로 추가
+      // 방장을 참가자로 추가
       const { error: participantError } = await supabase
         .from('room_participants')
         .insert([{
@@ -144,17 +144,16 @@ const RoomList = () => {
           uid: user.id,
           user_name: displayName,
           role: 'host',
-          is_ready: true, // 🔥 방장만 자동 준비 완료
+          is_ready: true, // 방장만 자동 준비 완료
           score: 0,
           is_online: true
         }]);
 
       if (participantError) {
         console.error('참가자 추가 오류:', participantError);
-        // 방 생성은 성공했으므로 그대로 진행
       }
 
-      // 3. 생성된 방으로 이동
+      // 생성된 방으로 이동
       navigate(`/battle/room/${newRoom.room_id}`);
 
     } catch (error) {
@@ -197,7 +196,7 @@ const RoomList = () => {
           uid: user.id,
           user_name: displayName,
           role: 'player',
-          is_ready: false, // 🔥 명확히 false로 설정
+          is_ready: false, // 명확히 false로 설정
           score: 0,
           is_online: true
         }]);

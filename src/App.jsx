@@ -15,7 +15,6 @@ import MyQuiz from "./service/MyQuiz";
 import MyQuizList from "./service/MyQuizList";
 import User_Create_Quiz from "./service/User_Create_Quiz";
 
-import RealTimeQuiz from "./realtime/RealTimeQuiz";
 import RoomList from "./battle/RoomList";
 import BattleRoom from "./battle/BattleRoom";
 
@@ -66,7 +65,6 @@ function App() {
             <Route path="/myquizlist" element={<MyQuizList />} />
 
             <Route path="/rank" element={<Rank />} />
-            <Route path="/realtimequiz" element={<RealTimeQuiz />} />
             <Route path="/roomList" element={<RoomList />} />
             <Route path="/battle/room/:roomId" element={<BattleRoom />} />
             <Route path="/chat" element={<Chat />} />

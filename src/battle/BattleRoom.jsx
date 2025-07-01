@@ -108,7 +108,7 @@ const BattleRoom = () => {
     }
   }, [isHost, currentRound, totalRounds, roomId, calculateFinalScores]);
 
-  // 타이머 - ref를 사용한 안전한 방식
+  // 타이머 (ref 사용)
   useEffect(() => {
     if (gameStatus !== 'playing' || !isTimerRunning) {
       if (timerRef.current) {
@@ -117,7 +117,7 @@ const BattleRoom = () => {
       }
       return;
     }
-    
+
     // 기존 타이머가 있으면 정리
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -203,7 +203,7 @@ const BattleRoom = () => {
         // 참가자 목록 로드
         await loadParticipants();
 
-        // 게임 중이면 문제·답안 로드
+        // 게임 중이면 문제,답안 로드
         if (roomData.status === 'playing') {
           if (roomData.current_question_id) {
             await loadCurrentQuestion(roomData.current_question_id);
@@ -249,7 +249,7 @@ const BattleRoom = () => {
     }
   }, [room?.current_question_id]);
 
-  // 자동 다음 라운드: 모두 답 제출 시
+  // 모두 답 제출 시 자동 다음 라운드
   useEffect(() => {
     if (gameStatus === 'playing' && isHost && allPlayersAnswered && participants.length === 2) {
       const timeout = setTimeout(() => {
@@ -334,14 +334,12 @@ const BattleRoom = () => {
   // 실시간 구독
   const subscribeRealtime = () => {
     if (channelRef.current) supabase.removeChannel(channelRef.current);
-
     const channel = supabase.channel(`room-${roomId}`)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'battle_rooms' },
         payload => {
           const updated = payload.new;
           if (updated.room_id !== Number(roomId)) return;
-
           setRoom(prevRoom => {
             // 게임 시작 시 모든 유저에게 타이머 시작
             if (prevRoom?.status !== 'playing' && updated.status === 'playing') {
@@ -349,7 +347,6 @@ const BattleRoom = () => {
                 startTimer(30);
               }, 100);
             }
-
             // 라운드 변경 시 모든 유저에게 타이머 재시작
             if (prevRoom?.current_round !== updated.current_round && updated.status === 'playing') {
               if (updated.current_question_id) {
@@ -361,10 +358,8 @@ const BattleRoom = () => {
                 startTimer(30);
               }, 200);
             }
-
             return updated;
           });
-
           // result 상태 처리
           if (updated.status === 'result') {
             setIsTimerRunning(false);
@@ -698,29 +693,6 @@ const BattleRoom = () => {
                 <span className="score">{r.score}점</span>
               </div>
             ))}
-          </div>
-          
-          <div className="game-end-actions">
-            <button
-              className="exit-game-btn"
-              onClick={() => navigate('/roomList')}
-            >
-              방 목록으로 나가기
-            </button>
-
-            {isHost && (
-              <button
-                className="close-room-btn"
-                onClick={async () => {
-                  await supabase
-                    .from('battle_rooms')
-                    .update({ status: 'finished' })
-                    .eq('room_id', roomId);
-                }}
-              >
-                방 완전히 닫기
-              </button>
-            )}
           </div>
         </div>
       )}

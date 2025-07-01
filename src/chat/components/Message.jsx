@@ -196,7 +196,7 @@ function Message({
             <EmojiPicker />
           </div>
           
-          {/* 시간은 메시지 옆에 표시 (카카오톡 스타일) */}
+          {/* 시간은 메시지 옆에 표시 */}
           <div className="message-time">
             {formatTime(message.created_at)}
           </div>
