@@ -64,7 +64,7 @@ function Chat() {
         <MessageForm onSendMessage={sendMessage} />
       </Container>
 
-      {/* 🆕 새 메시지 알림 버튼 - Container 밖으로 이동 */}
+      {/* 새 메시지 알림 버튼 (Container 밖으로 이동) */}
       {hasUnreadMessages && (
         <div className="new-message-notification">
           <button

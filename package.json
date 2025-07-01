@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
-    "@supabase/supabase-js": "^2.50.0",
+    "@supabase/supabase-js": "^2.50.2",
     "@types/redux-persist": "^4.0.0",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",

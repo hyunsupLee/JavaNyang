@@ -321,24 +321,6 @@
 }
 
 /* ===== 투표 단계 ===== */
-.voting-room {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.game-results {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.game-results h2 {
-  font-size: 32px;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 24px;
-}
 
 .final-scores {
   display: flex;
@@ -379,72 +361,6 @@
 .result-item .score {
   font-size: 20px;
   font-weight: 700;
-}
-
-.rematch-voting h3 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #333;
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.vote-status {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
-  max-width: 300px;
-  margin: 0 auto 24px;
-}
-
-.vote-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.vote-buttons {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-.vote-yes {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 16px 32px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.vote-yes:hover {
-  background: #218838;
-  transform: translateY(-2px);
-}
-
-.vote-no {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 16px 32px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.vote-no:hover {
-  background: #c82333;
-  transform: translateY(-2px);
 }
 
 /* ===== 공통 상태 ===== */
@@ -499,10 +415,6 @@
     max-width: 100%;
   }
 
-  .vote-buttons {
-    flex-direction: column;
-  }
-
   .game-controls {
     flex-direction: column;
   }
@@ -510,8 +422,7 @@
 
 @media (max-width: 480px) {
   .waiting-room,
-  .game-room,
-  .voting-room {
+  .game-room {
     padding: 20px;
   }
 
