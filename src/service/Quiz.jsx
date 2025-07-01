@@ -365,13 +365,13 @@ export default function QuizPage() {
   }, [uid, qid]);
 
   useEffect(() => {
-    if (isSubmitted || timeLeft <= 0) return;
+    if (isSubmitted) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleSubmit();
+          handleSubmit(true);
           return 0;
         }
         return prev - 1;
@@ -387,12 +387,14 @@ export default function QuizPage() {
     setIsCorrect(null);
   }, [qid]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (isTimeOver = false) => {
     if (!quiz) return;
 
-    if (selectedOption === null) {
-      showCustomAlert("옵션을 선택해주세요.");
-      return;
+    let answerIndex = selectedOption;
+
+    if (isTimeOver && selectedOption === null) {
+      // 타임오버 + 미선택 시 -1로 처리해 오답 처리
+      answerIndex = -1;
     }
 
     setIsSubmitted(true);

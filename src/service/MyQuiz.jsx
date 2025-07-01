@@ -219,7 +219,7 @@ function AlertModal({
           style={{ display: "flex", gap: "10px", justifyContent: "center" }}
         >
           <button className="alert-button" onClick={onClose}>
-            퀴즈 목록으로 가기
+            확인
           </button>
           {showNextButton && (
             <button className="alert-button" onClick={onNext}>
@@ -266,13 +266,6 @@ export default function QuizPage() {
 
   const closeAlert = () => {
     setShowAlert(false);
-    // 퀴즈 목록으로 이동
-    const categoryPath = categoryMapReverse[quiz?.category];
-    if (categoryPath) {
-      navigate(`/myquizlist/${categoryPath}`);
-    } else {
-      navigate(`/myquizlist`);
-    }
   };
 
   const handleNextLevel = () => {
@@ -364,13 +357,13 @@ export default function QuizPage() {
   }, [uid, user_qid]);
 
   useEffect(() => {
-    if (isSubmitted || timeLeft <= 0) return;
+    if (isSubmitted) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleSubmit();
+          handleSubmit(true);
           return 0;
         }
         return prev - 1;
@@ -386,12 +379,14 @@ export default function QuizPage() {
     setIsCorrect(null);
   }, [user_qid]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (isTimeOver = false) => {
     if (!quiz) return;
 
-    if (selectedOption === null) {
-      showCustomAlert("옵션을 선택해주세요.");
-      return;
+    let answerIndex = selectedOption;
+
+    if (isTimeOver && selectedOption === null) {
+      // 타임오버 + 미선택 시 -1로 처리해 오답 처리
+      answerIndex = -1;
     }
 
     setIsSubmitted(true);
