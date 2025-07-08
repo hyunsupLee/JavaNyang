@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../config/SupabaseClient";
 import "./MyQuizList.css";
+import profimg from "../assets/default-avatar.png";
 
 const categoryMap = {
   const: { id: 1, name: "상수" },
@@ -225,7 +226,9 @@ export default function QuizList() {
       <div className="layout-frame no-quiz-wrapper">
         <div className="gosunContainer">
           <img
-            src="../public/img_loginCat.png"
+            img
+            src={profimg}
+            width="400px"
             alt="퀴즈 없음"
             style={{
               maxWidth: "300px",
